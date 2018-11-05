@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 	"os"
+
+	"github.com/jigurd/VirtualTabletop/tabletop"
 )
 
 func main() {
@@ -11,7 +13,7 @@ func main() {
 		port = "8080" // 8080 is used as the default port
 	}
 
-	http.HandleFunc("/", HandleRoot) // return 404
+	http.HandleFunc("/", tabletop.HandleRoot) // return 404
 
 	http.ListenAndServe(":"+port, nil)
 }

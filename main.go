@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"os"
 
-	"VirtualTabletop/web"
+	"github.com/jigurd/VirtualTabletop/web"
 
 	"github.com/gorilla/mux"
 )

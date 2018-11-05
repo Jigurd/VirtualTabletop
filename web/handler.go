@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/jigurd/VirtualTabletop/tabletop"
@@ -9,13 +10,31 @@ import (
 
 // HandleRoot responds with 404
 func HandleRoot(w http.ResponseWriter, r *http.Request) {
-	http.NotFound(w, r) // Respond with 404	"encoding/json"
+	tpl, err := template.ParseFiles("index.html")
+	if err != nil {
+		fmt.Println("Error parsing index.html")
+	}
+
+	err = tpl.Execute(w, nil)
+	if err != nil {
+		fmt.Println("Error executing")
+	}
 }
 
 /*
 HandlerRegister handle registering a new user
 */
 func HandlerRegister(w http.ResponseWriter, r *http.Request) {
+	tpl, err := template.ParseFiles("register.html")
+	if err != nil {
+		fmt.Println("Error parsing register.html")
+	}
+
+	err = tpl.Execute(w, nil)
+	if err != nil {
+		fmt.Println("Error executing")
+	}
+
 	r.ParseForm()
 
 	newUser := tabletop.User{
@@ -32,7 +51,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if newUser.Password != r.FormValue("pwdconfirm") {
+	if newUser.Password != r.FormValue("confirm") {
 		fmt.Fprintln(w, "Passwords arent the same lol")
 		return
 	}

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/mux"
 	"github.com/jigurd/VirtualTabletop/tabletop"
 )
 
@@ -13,7 +14,9 @@ func main() {
 		port = "8080" // 8080 is used as the default port
 	}
 
-	http.HandleFunc("/", tabletop.HandleRoot) // return 404
+	r := mux.NewRouter()
+	r.HandleFunc("/", tabletop.HandleRoot)
+	http.Handle("/", r) // return 404
 
 	http.ListenAndServe(":"+port, nil)
 }

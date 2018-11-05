@@ -4,8 +4,9 @@ import (
 	"net/http"
 	"os"
 
+	"VirtualTabletop/web"
+
 	"github.com/gorilla/mux"
-	"github.com/jigurd/VirtualTabletop/tabletop"
 )
 
 func main() {
@@ -15,8 +16,8 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", tabletop.HandleRoot)
-	http.Handle("/", r) // return 404
+	r.HandleFunc("/", web.HandleRoot)
+	http.Handle("/", r)
 
 	http.ListenAndServe(":"+port, nil)
 }

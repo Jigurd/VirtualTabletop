@@ -1,4 +1,4 @@
-package tabletop
+package web
 
 import (
 	"net/http"

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
@@ -99,4 +100,20 @@ func (db *UsersDB) Exists(u User) bool {
 	}
 
 	return false
+}
+
+/*
+Get returns a user with the given name and a user
+*/
+func (db *UsersDB) Get(uName string) (User, error) {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	user := User{}
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"username": uName}).One(&user)
+
+	return user, err
 }

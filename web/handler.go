@@ -102,6 +102,21 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Error executing")
 		}
 
+		r.ParseForm()
+
+		uName := r.FormValue("username")
+		pwd := r.FormValue("password")
+
+		user, err := tabletop.UserDB.Get(uName)
+		if err != nil {
+			fmt.Fprintf(w, "Couldn't log in: %s", err.Error())
+			return
+		}
+
+		if pwd != user.Password {
+			fmt.Fprintf(w, "Incorrect password. You used: %s, should be: %s", pwd, user.Password)
+		}
+
 	default: // hacky shitty solution for when it comes here the first time xd
 		tpl, err := template.ParseFiles("login.html")
 		if err != nil {

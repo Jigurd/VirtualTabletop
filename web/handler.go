@@ -113,7 +113,9 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if pwd != user.Password {
+		if pwd == user.Password {
+			fmt.Fprintf(w, "Welcome back, %s", user.Username)
+		} else {
 			fmt.Fprintf(w, "Incorrect password. You used: %s, should be: %s", pwd, user.Password)
 		}
 

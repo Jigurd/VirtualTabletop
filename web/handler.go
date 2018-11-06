@@ -166,5 +166,6 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Error executing profile.html")
 		}
 
+		// Get user and shit from cookies I guess
 	}
 }

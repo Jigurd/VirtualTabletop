@@ -42,10 +42,21 @@
         <!-- loginn Form-->
 
         <div class="loginn">   
+        <h1>Log in</h1>
         <form action="/login" method="post">
-            Username:<input type="text" name="username"> <br/> 
-            Password:<input type="password" name="password"> <br/>
-            <input type="submit" value="Login">
+            <ul>
+                    <li>
+                        <span class="glyphicon glyphicon-user"></span>
+                        <input type="text" name="username" size="20" maxlength="20" placeholder="Username" />
+                    </li>
+                    <li>
+                        <span class="glyphicon glyphicon-lock"></span>
+                        <input type="password" name="password" size="20" maxlength="20" placeholder="Password" />
+                    </li>
+                    <li>
+                        <button type="submit"  class="btn btn-success">Log in</button>
+                    </li>
+                </ul>
         </form>
         </div>
      

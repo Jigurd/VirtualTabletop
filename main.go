@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
-	"github.com/jigurd/VirtualTabletop/web"
 	"net/http"
 	"os"
+
+	"github.com/gorilla/mux"
+	"github.com/jigurd/VirtualTabletop/web"
 )
 
 func main() {
@@ -18,6 +19,7 @@ func main() {
 	r.HandleFunc("/register", web.HandlerRegister)
 	r.HandleFunc("/", web.HandleRoot)
 	http.Handle("/", r)
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	http.ListenAndServe(":"+port, nil)
 }

@@ -1,12 +1,10 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
+	"github.com/jigurd/VirtualTabletop/web"
 	"net/http"
 	"os"
-
-	"github.com/jigurd/VirtualTabletop/web"
-
-	"github.com/gorilla/mux"
 )
 
 func main() {

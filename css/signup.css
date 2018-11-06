@@ -1,0 +1,31 @@
+
+.register
+{
+        margin-left: 100px;   
+        margin-right: 100px;
+        margin-top: 100px;
+}
+
+
+
+
+
+#topmessage{
+    padding-left: 10px;
+    font-size: 12px;
+}
+
+
+li { 
+     padding: 5px;
+    list-style-type: none;
+ }
+
+
+
+btn btn-success { 
+    width: 150px;
+    margin-left: 50px; 
+}
+
+

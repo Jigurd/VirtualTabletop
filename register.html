@@ -1,16 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
+        <meta charset="UTF-8" >
         <title>Virtual Tabletop</title>
+
+        <!--Link to css reset. -->
+        <link rel="stylesheet" rel="text/css" href="cssre/reset.css">   
+        
+        <!--Getting bootstrap CDN  -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        
+        <!-- Link to stylesheet -->
+        <link rel="stylesheet" rel="text/css" href="css/stylesheet.css">
+        
+        <!-- Link to stylesheet -->
+        <link rel="stylesheet" rel="text/css" href="css/signup.css">     
+        
     </head>
     <body>
-        <!-- loginn Form-->
-        <form action="/register" method="post">
-            Username:<input type="text" name="username"> <br/>
-            Email:<input type="text" name="email"> <br/>
-            Password:<input type="password" name="password"> <br/>
-            Confrim Password:<input type="password" name="confirm"> <br/>
-            <input type="submit" value="Login">
-        </form>
+
+        <header>
+            <div class="logo">
+                <span>Virtual</span>
+                <span>TableTop</span>
+            </div>
+
+            <nav class="menu">   
+                <a href="#" class="current">Home</a>
+                <a href="#">Forum</a>
+                <a href="/login.html">log in</a>
+                <a href="/register.html">Register</a>
+                <a href="#"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
+            </nav>    
+
+        </header>
+    
+        <!-- Register Form-->
+        <div class="register">   
+                <h1>Register new user</h1>
+                <div class="form">
+                      <form action="/register" method="post">
+                           <ul>
+                                <li>
+                                    <span class="glyphicon glyphicon-user"></span>
+                                    <input type="text" name="username" size="20" maxlength="20" placeholder="user name" />
+                               </li>
+                               
+                                <li>
+                                    <span class="glyphicon glyphicon-envelope"></span>
+                                    <input type="text" name="email" size="20" maxlength="20" placeholder="email" /> 
+                               </li>
+                               <li>
+                                    <span class="glyphicon glyphicon-lock"></span>
+                                    <input type="password" name="password" size="20" maxlength="20" placeholder="password" />
+                               </li>
+                               <li>
+    
+                                    <span class="glyphicon glyphicon-lock"></span>
+                                    <input type="password" name="confirm" size="20" maxlength="20" placeholder="Renter password" />
+                               </li>
+                               <li>
+    
+                                       <button type="submit"  class="btn btn-success">Register</button>
+                                </li>
+                            </ul>
+                      </form>  
+                </div>     
+                </div>
+            
+            
+
+
+
+
+
+
+
+
     </body>
 </html>

@@ -1,6 +1,7 @@
 package web
 
 import (
+	"crypto/md5"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -19,6 +20,11 @@ func removeEmpty(arr []string) []string {
 		}
 	}
 	return newArr
+}
+
+func md5Hash(val string) string {
+	hashed := md5.Sum([]byte(val))
+	return fmt.Sprintf("%x", hashed)
 }
 
 // HandleRoot responds with 404
@@ -65,7 +71,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 
 		newUser := tabletop.User{
 			Username: r.FormValue("username"),
-			Password: r.FormValue("password"),
+			Password: md5Hash(r.FormValue("password")),
 			Email:    r.FormValue("email"),
 		}
 
@@ -77,12 +83,16 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if newUser.Password != r.FormValue("confirm") {
+		if newUser.Password != md5Hash(r.FormValue("confirm")) {
 			fmt.Fprintln(w, "Passwords don't match.")
 			return
 		}
 
-		tabletop.UserDB.Add(newUser)
+		if tabletop.UserDB.Add(newUser) {
+			fmt.Fprintln(w, "User created!")
+		} else {
+			fmt.Fprintln(w, "Unknonwn error in creating the user.")
+		}
 
 	default:
 		statusCode := http.StatusNotImplemented
@@ -120,7 +130,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 
 		uName := r.FormValue("username")
-		pwd := r.FormValue("password")
+		password := md5Hash(r.FormValue("password"))
 
 		user, err := tabletop.UserDB.Get(uName)
 		if err != nil {
@@ -128,10 +138,10 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if pwd == user.Password {
+		if password == user.Password {
 			fmt.Fprintf(w, "Welcome back, %s", user.Username)
 		} else {
-			fmt.Fprintf(w, "Incorrect password. You used: %s, should be: %s", pwd, user.Password)
+			fmt.Fprintf(w, "Incorrect password")
 		}
 
 	default:

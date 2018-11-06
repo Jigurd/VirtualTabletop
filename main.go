@@ -14,6 +14,8 @@ func main() {
 	}
 
 	r := mux.NewRouter()
+	r.HandleFunc("/login", web.HandlerLogin)
+	r.HandleFunc("/register", web.HandlerRegister)
 	r.HandleFunc("/", web.HandleRoot)
 	http.Handle("/", r)
 

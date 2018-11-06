@@ -30,7 +30,7 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 
 	err = tpl.Execute(w, nil)
 	if err != nil {
-		fmt.Println("Error executing")
+		fmt.Println("Error executing index.html")
 	}
 }
 
@@ -39,6 +39,17 @@ HandlerRegister handle registering a new user
 */
 func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
+	case http.MethodGet: // Shitty solution for when we're redirected from index.html
+		tpl, err := template.ParseFiles("register.html")
+		if err != nil {
+			fmt.Println("Error parsing register.html")
+		}
+
+		err = tpl.Execute(w, nil)
+		if err != nil {
+			fmt.Println("Error executing register.html")
+		}
+
 	case http.MethodPost:
 		tpl, err := template.ParseFiles("register.html")
 		if err != nil {
@@ -47,7 +58,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 
 		err = tpl.Execute(w, nil)
 		if err != nil {
-			fmt.Println("Error executing")
+			fmt.Println("Error executing register.html")
 		}
 
 		r.ParseForm()
@@ -62,27 +73,20 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintln(w, "That username/email is taken.")
 			return
 		} else if newUser.Username == "" {
-			fmt.Fprintln(w, "Please enter a username u dumb bitch")
+			fmt.Fprintln(w, "Please enter a username.")
 			return
 		}
 
 		if newUser.Password != r.FormValue("confirm") {
-			fmt.Fprintln(w, "Passwords arent the same lol")
+			fmt.Fprintln(w, "Passwords don't match.")
 			return
 		}
 
 		tabletop.UserDB.Add(newUser)
 
-	default: // hacky shitty solution for when it comes here the first time xd
-		tpl, err := template.ParseFiles("register.html")
-		if err != nil {
-			fmt.Println("Error parsing register.html")
-		}
-
-		err = tpl.Execute(w, nil)
-		if err != nil {
-			fmt.Println("Error executing")
-		}
+	default:
+		statusCode := http.StatusNotImplemented
+		http.Error(w, http.StatusText(statusCode), statusCode)
 	}
 }
 
@@ -91,6 +95,17 @@ HandlerLogin handles users logging in
 */
 func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
+	case http.MethodGet:
+		tpl, err := template.ParseFiles("login.html")
+		if err != nil {
+			fmt.Println("Error parsing login.html")
+		}
+
+		err = tpl.Execute(w, nil)
+		if err != nil {
+			fmt.Println("Error executing login.html")
+		}
+
 	case http.MethodPost:
 		tpl, err := template.ParseFiles("login.html")
 		if err != nil {
@@ -99,7 +114,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 
 		err = tpl.Execute(w, nil)
 		if err != nil {
-			fmt.Println("Error executing")
+			fmt.Println("Error executing login.html")
 		}
 
 		r.ParseForm()
@@ -119,15 +134,8 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Incorrect password. You used: %s, should be: %s", pwd, user.Password)
 		}
 
-	default: // hacky shitty solution for when it comes here the first time xd
-		tpl, err := template.ParseFiles("login.html")
-		if err != nil {
-			fmt.Println("Error parsing login.html")
-		}
-
-		err = tpl.Execute(w, nil)
-		if err != nil {
-			fmt.Println("Error executing")
-		}
+	default:
+		statusCode := http.StatusNotImplemented
+		http.Error(w, http.StatusText(statusCode), statusCode)
 	}
 }

@@ -29,7 +29,7 @@ func md5Hash(val string) string {
 
 // HandleRoot responds with 404
 func HandleRoot(w http.ResponseWriter, r *http.Request) {
-	tpl, err := template.ParseFiles("index.html")
+	tpl, err := template.ParseFiles("html/index.html")
 	if err != nil {
 		fmt.Println("Error parsing index.html")
 	}
@@ -46,7 +46,7 @@ HandlerRegister handle registering a new user
 func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet: // Shitty solution for when we're redirected from index.html
-		tpl, err := template.ParseFiles("register.html")
+		tpl, err := template.ParseFiles("html/register.html")
 		if err != nil {
 			fmt.Println("Error parsing register.html")
 		}
@@ -57,7 +57,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case http.MethodPost:
-		tpl, err := template.ParseFiles("register.html")
+		tpl, err := template.ParseFiles("html/register.html")
 		if err != nil {
 			fmt.Println("Error parsing register.html")
 		}
@@ -106,7 +106,7 @@ HandlerLogin handles users logging in
 func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		tpl, err := template.ParseFiles("login.html")
+		tpl, err := template.ParseFiles("html/login.html")
 		if err != nil {
 			fmt.Println("Error parsing login.html")
 		}
@@ -117,7 +117,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case http.MethodPost:
-		tpl, err := template.ParseFiles("login.html")
+		tpl, err := template.ParseFiles("html/login.html")
 		if err != nil {
 			fmt.Println("Error parsing login.html")
 		}
@@ -147,5 +147,24 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	default:
 		statusCode := http.StatusNotImplemented
 		http.Error(w, http.StatusText(statusCode), statusCode)
+	}
+}
+
+/*
+HandlerProfile handles "My Profile"
+*/
+func HandlerProfile(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		tpl, err := template.ParseFiles("html/profile.html")
+		if err != nil {
+			fmt.Println("Error parsing profile.html")
+		}
+
+		err = tpl.Execute(w, nil)
+		if err != nil {
+			fmt.Println("Error executing profile.html")
+		}
+
 	}
 }

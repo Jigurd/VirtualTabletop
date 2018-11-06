@@ -15,6 +15,7 @@ func main() {
 	}
 
 	r := mux.NewRouter()
+	r.HandleFunc("/profile", web.HandlerProfile)
 	r.HandleFunc("/login", web.HandlerLogin)
 	r.HandleFunc("/register", web.HandlerRegister)
 	r.HandleFunc("/", web.HandleRoot)

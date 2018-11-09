@@ -1,10 +1,36 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Virtual Tabletop</title>
+        <meta charset="UTF-8">
+        <title>Virtual Tabletop</title>       
+        
+        <!--Link to css reset. -->
+        <link rel="stylesheet" rel="text/css" href="static/cssre/reset.css">
+       
+        <!--Getting bootstrap CDN  -->
+       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+       
+       <!-- Link to stylesheet -->
+       <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
     </head>
     <body>
-        <a href="/register">Register new user</a> <br/>
-        <a href="/login">Log in</a> <br/>
+        <header>
+                <div class="logo"><a href="index.php">
+                  <span>Virtual</span>
+                  <span>Tabletop</span> 
+                    </a>
+                </div> 
+                <nav class="menu">   
+                  <a href="/" class="current">Home</a>
+                  <a href="/login">Log in</a>
+                  <a href="/register">Register</a>
+                  <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
+                </nav>       
+        </header>
+
+
+         <!-- Div Clear -->
+         <div class="clear"></div>
+        
     </body>
 </html>

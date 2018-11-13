@@ -127,13 +127,12 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 HandlerLogin handles users logging in
 */
 func HandlerLogin(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("user")
+	/*cookie, err := r.Cookie("user")
 	if err == http.ErrNoCookie { // If no cookie was found we create a new one
 		cookie = &http.Cookie{
 			Name: "user",
 		}
-		http.SetCookie(w, cookie)
-	}
+	}*/
 
 	htmlByte, err := ioutil.ReadFile("html/login.html") // The html file is read as a []byte "string"
 	if err != nil {
@@ -157,8 +156,11 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if password == user.Password {
-			cookie.Value = user.Username                      // Update the cookie value
-			cookie.Expires = time.Now().Add(15 * time.Minute) // The cookie is alive for 15 minutes
+			cookie := &http.Cookie{
+				Name:    "user",
+				Value:   user.Username,
+				Expires: time.Now().Add(15 * time.Minute),
+			}
 			http.SetCookie(w, cookie)
 
 			http.Redirect(w, r, "/", http.StatusMovedPermanently) // I guess this code?

@@ -140,6 +140,8 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 
 		if password == user.Password {
 			fmt.Fprintf(w, "Welcome back, %s", user.Username)
+			// Create a token
+			CreateToken(uName)
 		} else {
 			fmt.Fprintf(w, "Incorrect password")
 		}

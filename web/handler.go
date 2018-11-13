@@ -44,6 +44,11 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 HandlerRegister handle registering a new user
 */
 func HandlerRegister(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Printf("Error parsing form: %s\n", err.Error())
+	}
+
 	switch r.Method {
 	case http.MethodGet: // Shitty solution for when we're redirected from index.html
 		tpl, err := template.ParseFiles("html/register.html")
@@ -66,8 +71,6 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("Error executing register.html")
 		}
-
-		r.ParseForm()
 
 		newUser := tabletop.User{
 			Username: r.FormValue("username"),

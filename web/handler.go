@@ -4,10 +4,18 @@ import (
 	"crypto/md5"
 	"fmt"
 	"html/template"
+	"io"
+	"io/ioutil"
 	"net/http"
+	"os"
+	"strings"
+	"time"
 
+	"github.com/gorilla/sessions"
 	"github.com/jigurd/VirtualTabletop/tabletop"
 )
+
+var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
 /*
 Removes empty strings from an array
@@ -27,17 +35,29 @@ func md5Hash(val string) string {
 	return fmt.Sprintf("%x", hashed)
 }
 
+func setCookie(w http.ResponseWriter, cookie http.Cookie) {
+	http.SetCookie(w, &cookie)
+}
+
 // HandleRoot responds with 404
 func HandleRoot(w http.ResponseWriter, r *http.Request) {
-	tpl, err := template.ParseFiles("html/index.html")
-	if err != nil {
-		fmt.Println("Error parsing index.html")
+	message := ""
+
+	cookie, err := r.Cookie("user")
+	if err != http.ErrNoCookie { // If a cookie was found
+		message = "<h1>Hello, " + cookie.Value + "</h1>"
 	}
 
-	err = tpl.Execute(w, nil)
+	htmlStr, err := ioutil.ReadFile("html/index.html")
 	if err != nil {
-		fmt.Println("Error executing index.html")
+		fmt.Println("Error reading html file:", err.Error())
 	}
+
+	html := string(htmlStr)
+	bodyEnd := strings.Index(html, "</body>")
+	html = html[:bodyEnd] + message + html[bodyEnd:] // Inset the message at the end of the body
+
+	io.WriteString(w, html)
 }
 
 /*
@@ -107,29 +127,25 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 HandlerLogin handles users logging in
 */
 func HandlerLogin(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		tpl, err := template.ParseFiles("html/login.html")
-		if err != nil {
-			fmt.Println("Error parsing login.html")
+	cookie, err := r.Cookie("user")
+	if err == http.ErrNoCookie { // If no cookie was found we create a new one
+		cookie = &http.Cookie{
+			Name: "user",
 		}
+		http.SetCookie(w, cookie)
+	}
 
-		err = tpl.Execute(w, nil)
-		if err != nil {
-			fmt.Println("Error executing login.html")
-		}
+	htmlByte, err := ioutil.ReadFile("html/login.html") // The html file is read as a []byte "string"
+	if err != nil {
+		fmt.Println("Error reading html file")
+		return
+	}
 
-	case http.MethodPost:
-		tpl, err := template.ParseFiles("html/login.html")
-		if err != nil {
-			fmt.Println("Error parsing login.html")
-		}
+	html := string(htmlByte) // Conversion from []byte to string
 
-		err = tpl.Execute(w, nil)
-		if err != nil {
-			fmt.Println("Error executing login.html")
-		}
+	var message string // The message to be output to the user
 
+	if r.Method == "POST" {
 		r.ParseForm()
 
 		uName := r.FormValue("username")
@@ -137,22 +153,26 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 
 		user, err := tabletop.UserDB.Get(uName)
 		if err != nil {
-			fmt.Fprintf(w, "Couldn't log in: %s", err.Error())
-			return
+			message = fmt.Sprintf("Couldn't log in: %s", err.Error())
 		}
 
 		if password == user.Password {
-			fmt.Fprintf(w, "Welcome back, %s", user.Username)
-			// Create a token
-			CreateToken(uName)
-		} else {
-			fmt.Fprintf(w, "Incorrect password")
-		}
+			cookie.Value = user.Username                      // Update the cookie value
+			cookie.Expires = time.Now().Add(15 * time.Minute) // The cookie is alive for 15 minutes
+			http.SetCookie(w, cookie)
 
-	default:
-		statusCode := http.StatusNotImplemented
-		http.Error(w, http.StatusText(statusCode), statusCode)
+			http.Redirect(w, r, "/", http.StatusMovedPermanently) // I guess this code?
+		} else {
+			message = fmt.Sprintf("Couldn't log in")
+		}
+	} else if r.Method != "GET" { // In Postman it will write this first and then the html, but who cares
+		http.Error(w, "Not implemented", http.StatusNotImplemented)
 	}
+
+	bodyEnd := strings.Index(html, "</body>")                           // Find the position of the closing body tag
+	html = html[:bodyEnd] + "<h3>" + message + "</h3>" + html[bodyEnd:] // Inserts the message to the html at the end of the body
+
+	io.WriteString(w, html)
 }
 
 /*
@@ -173,4 +193,13 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 
 		// Get user and shit from cookies I guess
 	}
+}
+
+func addCookie(w http.ResponseWriter, name, cookieName string) {
+	cookie := http.Cookie{
+		Name:  cookieName,
+		Value: name,
+	}
+	http.SetCookie(w, &cookie)
+	fmt.Println("Cookie:", cookie)
 }

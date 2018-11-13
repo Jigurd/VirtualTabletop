@@ -4,10 +4,22 @@ import (
 	"crypto/md5"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 
+	"github.com/gorilla/websocket"
 	"github.com/jigurd/VirtualTabletop/tabletop"
 )
+
+type Message struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Message  string `json:"message"`
+}
+
+var Clients map[*websocket.Conn]bool
+var Broadcast chan Message
+var Upgrader websocket.Upgrader
 
 /*
 Removes empty strings from an array
@@ -167,5 +179,45 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Get user and shit from cookies I guess
+	}
+}
+
+/*
+HandlerConnections handles chat connections
+*/
+func HandleChatConnections(w http.ResponseWriter, r *http.Request) {
+	ws, err := Upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ws.Close()
+	Clients[ws] = true
+
+	for {
+		var msg Message
+		err := ws.ReadJSON(&msg)
+		if err != nil {
+			log.Printf("error: %v", err)
+			delete(Clients, ws)
+			break
+		}
+		Broadcast <- msg
+	}
+}
+
+/*
+HandleChatMessages handles chat messages
+*/
+func HandleChatMessages() {
+	for {
+		msg := <-Broadcast
+		for client := range Clients {
+			err := client.WriteJSON(msg)
+			if err != nil {
+				log.Printf("error: %v", err)
+				client.Close()
+				delete(Clients, client)
+			}
+		}
 	}
 }

@@ -1,3 +1,9 @@
+function getCookie(name) {
+    function escape(s) { return s.replace(/([.*+?\^${}()|\[\]\/\\])/g, '\\$1'); };
+    var match = document.cookie.match(RegExp('(?:^|;\\s*)' + escape(name) + '=([^;]*)'));
+    return match ? match[1] : null;
+}
+
 new Vue({
     el: '#app',
     
@@ -5,14 +11,13 @@ new Vue({
         ws: null,
         newMsg: '',
         chatContent: '',
-        email: null,
         username: null,
         joined: false
     },
 
     created: function() {
         var self = this;
-        this.ws = new WebSocket('ws://' + window.location.host + '/chat/ws');
+        this.ws = new WebSocket('ws://' + window.location.host + '/ws');
         this.ws.addEventListener('message', function(e) {
             var msg = JSON.parse(e.data);
             self.chatContent += '<div class="chip">'
@@ -24,6 +29,7 @@ new Vue({
             var element = document.getElementById('chat-messages');
             element.scrollTop = element.scrollHeight;
         });
+        this.join();
     },
 
     methods: {
@@ -31,7 +37,6 @@ new Vue({
             if (this.newMsg != '') {
                 this.ws.send(
                     JSON.stringify({
-                        email: this.email,
                         username: this.username,
                         message: $('<p>').html(this.newMsg).text()
                     }
@@ -41,17 +46,13 @@ new Vue({
 
         join: function () {
             console.log("joining");
-            if (!this.email) {
-                Materialize.toast('pls enter email', 2000);
-                return
+
+            this.username = getCookie("user");
+            console.log(this.username);
+            //this.username = $('<p>').html(this.username).text();
+            if (this.username != "") {
+                this.joined = true;
             }
-            if (!this.username) {
-                Materialize.toast('yuo must have usernam', 2000);
-                return
-            }
-            this.email = $('<p>').html(this.email).text();
-            this.username = $('<p>').html(this.username).text();
-            this.joined = true;
         },
 
         gravatarURL: function(email) {

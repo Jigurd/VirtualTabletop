@@ -1,6 +1,7 @@
 module github.com/jigurd/VirtualTabletop
 
 require (
+	github.com/Knetic/govaluate v3.0.0+incompatible // indirect
 	github.com/adam-hanna/jwt-auth v1.1.0
 	github.com/adam-hanna/randomstrings v0.0.0-20160715001758-88fd7c52a2c7 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

@@ -1,5 +1,11 @@
 # VirtualTabletop
 **Project description**:
+
+This project uses:
+1. Heroku
+2. OpenStack
+3. Databases
+
 Crate a better Roll20.
 
 Users can register accounts and login.
@@ -26,19 +32,23 @@ Users can chat with eachother.
 
 # Usage
 ```/```
+
 This is the index page, which doesn't hold much useful information. If logged in, it displays a welcome message.
 
 ```/register```
+
 **GET**: Not much interesting. The page loads as one would expect.
 
 **POST**: With the form values "username", "email", "password" and "confirm" a user can be registered to the database.
 
 ```/login```
+
 **GET**: Not much interesitng. The page loads as one would expect.
 
 **POST**: With the form values "username" and "password" you can log in. Redirects to "/" on successfull login.
 
 ```/chat```
+
 Allows users to chat together.
 
 # Heroku

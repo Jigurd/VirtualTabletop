@@ -12,6 +12,25 @@
        
        <!-- Link to stylesheet -->
        <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
+       <link rel="stylesheet" href = "static/css/dropdown.css">
+    <script>
+    function myfunction() {
+             document.getElementById("myDropdown").classList.Toggle("show");
+            }
+    
+    window.onclick = function(event) {
+        if (!event.target.matches('.droptbtn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for(i = 0; i < dropdowns.length;i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    opendDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+    </script>
     </head>
     <body>
         <header>
@@ -26,12 +45,22 @@
                   <a href="/register">Register</a>
                   <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
                   <a href="/chat">LE CHAT</a>
+                  <div id= "myDropdown" class = "dropdown">
+                      <button onclick= myfunction() class = "dropbtn"> Characters
+                        <i class= "fa fa-caret-down"></i>
+                      </button>
+                      <div class = "dropdown-content">
+                      <a href = "/createchar" title ="Make a new Character from Scratch" >Create Character</a>
+                      <a href = "/viewchar" title = "View your existing Characters">View Character</a>
+                    </div>
+                  </div>
                 </nav>       
         </header>
 
 
          <!-- Div Clear -->
          <div class="clear"></div>
-        
+
+         
     </body>
 </html>

@@ -64,7 +64,6 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 	bodyEnd := strings.Index(html, "</body>")
 	html = html[:bodyEnd] + message + html[bodyEnd:] // Inset the message at the end of the body
 
-	fmt.Println(html)
 	io.WriteString(w, html)
 }
 
@@ -150,7 +149,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 			}
 			http.SetCookie(w, cookie)
 
-			http.Redirect(w, r, "/", http.StatusMovedPermanently) // TODO: Redirect to my profile?
+			http.Redirect(w, r, "/profile", http.StatusMovedPermanently) // TODO: Redirect to my profile?
 		} else {
 			message = fmt.Sprintf("Couldn't log in")
 		}
@@ -168,19 +167,29 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 HandlerProfile handles "My Profile"
 */
 func HandlerProfile(w http.ResponseWriter, r *http.Request) {
-	/*
-		html, err := readFile("html/profile.html")
-		if err != nil {
-			fmt.Println("Error reading html file:", err.Error())
-			return
-		}
+	html, err := readFile("html/profile.html")
+	if err != nil {
+		fmt.Println("Error reading html file:", err.Error())
+		return
+	}
 
-		io.WriteString(w, html)
-	*/
+	message := ""
+
+	userCookie, err := r.Cookie("user")
+	if err != http.ErrNoCookie {
+		message = "<h2>" + userCookie.Value + "'s profile.</h2>"
+	} else {
+		message = "<h3>Hmm.. Seems like you are not logged in. Head over to the log in page to change that!</h3>"
+	}
+
+	bodyEnd := strings.Index(html, "</body>")
+	html = html[:bodyEnd] + message + html[bodyEnd:]
+
+	io.WriteString(w, html)
 }
 
 /*
-HandlerConnections handles chat connections
+HandlerChatConnections handles chat connections
 */
 func HandleChatConnections(w http.ResponseWriter, r *http.Request) {
 	ws, err := Upgrader.Upgrade(w, r, nil)

@@ -2,6 +2,7 @@ package web
 
 import (
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -107,6 +108,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	message := ""
+	statusCode := 200
 
 	if r.Method == http.MethodPost {
 		err := r.ParseForm()
@@ -121,29 +123,36 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if newUser.Username == "" {
-			message = fmt.Sprint("Please enter a username.")
+			message = fmt.Sprint("Please enter a username.") // Status code 422: Unprocessable entity means
+			statusCode = http.StatusUnprocessableEntity      // the syntax was understood but the data is bad
 		} else if newUser.Email == "" {
 			message = fmt.Sprint("Please enter an email.")
+			statusCode = http.StatusUnprocessableEntity
 		} else if tabletop.UserDB.Exists(newUser) {
 			message = fmt.Sprint("That username/email is taken.")
+			statusCode = http.StatusUnprocessableEntity
 		} else { // OK username/Email
 			if newUser.Password != md5Hash(r.FormValue("confirm")) {
 				message = fmt.Sprint("Passwords don't match.")
+				statusCode = http.StatusUnprocessableEntity
 			} else { // OK password
 				if tabletop.UserDB.Add(newUser) {
 					message = fmt.Sprint("User created!")
+					w.WriteHeader(http.StatusCreated)
 				} else {
 					message = fmt.Sprint("Unknonwn error in creating the user.")
+					statusCode = http.StatusUnprocessableEntity
 				}
 			}
 		}
 	} else if r.Method != http.MethodGet {
-		http.Error(w, "Method not implemented", http.StatusNotImplemented)
+		statusCode = http.StatusNotImplemented
 	}
 
 	bodyEnd := strings.Index(html, "</body>")
 	html = html[:bodyEnd] + "<h3>" + message + "</h3>" + html[bodyEnd:] // Inset the message at the end of the body
 
+	w.WriteHeader(statusCode)
 	io.WriteString(w, html)
 }
 
@@ -158,6 +167,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	message := ""
+	statusCode := 200
 
 	if r.Method == http.MethodPost {
 		r.ParseForm()
@@ -168,6 +178,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		user, err := tabletop.UserDB.Get(uName)
 		if err != nil {
 			message = fmt.Sprintf("Couldn't log in: %s", err.Error())
+			statusCode = 500 // Not sure if this code makes sense, but not sure what else to give
 		}
 
 		if password == user.Password {
@@ -181,14 +192,16 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/profile", http.StatusMovedPermanently) // TODO: Redirect to my profile?
 		} else {
 			message = fmt.Sprintf("Couldn't log in")
+			statusCode = http.StatusUnprocessableEntity
 		}
 	} else if r.Method != http.MethodGet { // In Postman it will write this first and then the html, but who cares
-		http.Error(w, "Method not implemented", http.StatusNotImplemented)
+		statusCode = http.StatusNotImplemented
 	}
 
 	bodyEnd := strings.Index(html, "</body>")                           // Find the position of the closing body tag
 	html = html[:bodyEnd] + "<h3>" + message + "</h3>" + html[bodyEnd:] // Inserts the message to the html at the end of the body
 
+	w.WriteHeader(statusCode)
 	io.WriteString(w, html)
 }
 
@@ -254,5 +267,20 @@ func HandleChatMessages() {
 				delete(Clients, client)
 			}
 		}
+	}
+}
+
+/*
+HandleAPIUserCount returns the amount of users in the database
+*/
+func HandleAPIUserCount(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		m := make(map[string]int)
+		m["count"] = tabletop.UserDB.Count()
+		json.NewEncoder(w).Encode(m)
+
+	default:
+		w.WriteHeader(http.StatusNotImplemented)
 	}
 }

@@ -70,7 +70,7 @@ Response body:
 }
 ```
 
-**Dice Parser Syntax**
+# Dice Parser Syntax
 
 Our service is meant to facilitate playing tabletop roleplaying games, so emulating dicerolls is crucial. The syntax is quite simple - in the chat, you just put the desired roll in square brackets [] like so:
 

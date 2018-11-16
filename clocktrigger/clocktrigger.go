@@ -21,34 +21,36 @@ func notifyDiscord(count int) {
 	content["content"] = fmt.Sprintf("Amount of users in the database: %d", count)
 	jsonResp, err := json.Marshal(content)
 	if err != nil {
-		fmt.Println("Error marshaling JSON")
+		fmt.Println("Error marshaling JSON:")
 	}
 
 	_, err = http.Post(discordWebhook, "application/json", bytes.NewBuffer(jsonResp))
 	if err != nil {
-		fmt.Println("Error making POST request to discord.")
+		fmt.Println("Error making POST request to discord:", err.Error())
 	}
 }
 
 /*
-Checks every 10 seconds for a change
+Checks every 10 minute for a change
 */
 func clockTrigger() {
-	delay := time.Second * 10
+	delay := time.Minute * 10
+	lastUsersCount := 0
 	for {
 		response := make(map[string]interface{}) // Map of the response from the API
 		resp, err := http.Get("https://glacial-bastion-87425.herokuapp.com/api/usercount")
 		if err != nil {
-			fmt.Println("Error making GET request.")
+			fmt.Println("Error making GET request:", err.Error())
 			return
 		}
 
-		fmt.Println(resp.Body)
 		json.NewDecoder(resp.Body).Decode(&response)
-		fmt.Println(response)
-		//count := response["count"].(int)
 
-		notifyDiscord(1)
+		count := int(response["count"].(float64)) // Converting from interface{} to int is just beautiful
+		if lastUsersCount != count {
+			notifyDiscord(count)
+			lastUsersCount = count
+		}
 		time.Sleep(delay)
 	}
 }

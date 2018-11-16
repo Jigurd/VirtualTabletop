@@ -6,7 +6,7 @@ This project uses:
 2. OpenStack
 3. Databases
 
-Crate a better Roll20.
+Create a better Roll20.
 
 Users can register accounts and login.
 
@@ -29,7 +29,7 @@ Users can chat with eachother.
 
 
 **Total hours**:
-4102
+4102 (sike)
 
 
 # Usage

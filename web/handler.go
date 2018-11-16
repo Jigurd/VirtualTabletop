@@ -314,7 +314,25 @@ func HandleAPIUserCount(w http.ResponseWriter, r *http.Request) {
 HandleNewGame handles the creation of a new game
 */
 func HandleNewGame(w http.ResponseWriter, r *http.Request) {
-	// for now, a "game" is just a name and a system
-	// plus the ability to add players.
+	if r.Method == "GET" {
+		html, err := readFile("html/newgame.html")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		message := ""
+
+		_, err = r.Cookie("user")
+		if err == http.ErrNoCookie {
+			message = "<h3>Hmm.. Seems like you are not logged in. Head over to the log in page to change that!</h3>"
+		}
+
+		bodyEnd := strings.Index(html, "</body>")
+		html = html[:bodyEnd] + message + html[bodyEnd:]
+
+		io.WriteString(w, html)
+	} else if r.Method == "POST" {
+		fmt.Fprintf(w, "this is not implemented, your game has not been added")
+	}
 
 }

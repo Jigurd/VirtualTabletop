@@ -30,6 +30,7 @@ func main() {
 	r.HandleFunc("/", web.HandleRoot)
 	r.HandleFunc("/chat/", web.HandleChat)
 	r.HandleFunc("/ws", web.HandleChatConnections)
+	r.HandleFunc("/newgame", web.HandleNewGame)
 	http.Handle("/", r)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 

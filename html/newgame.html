@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" >
+        <title>Virtual Tabletop</title>
+
+        <!--Link to css reset. -->
+        <link rel="stylesheet" rel="text/css" href="static/cssre/reset.css">   
+        
+        <!--Getting bootstrap CDN  -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        
+        <!-- Link to stylesheet -->
+        <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
+        
+        <!-- Link to stylesheet -->
+        <link rel="stylesheet" rel="text/css" href="static/css/signup.css">     
+        
+    </head>
+    <body>
+
+        <header>
+            <div class="logo"><a href="/">
+                <span>Virtual</span>
+                <span>TableTop</span>
+                </a>
+            </div>
+
+            <nav class="menu">   
+                <a href="/" class="current">Home</a>
+                <a href="/login">Log in</a>
+                <a href="/register">Register</a>
+                <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
+                <a href="/chat">Chat</a>
+            </nav>    
+
+        </header>
+    
+        <!-- Game creation form -->
+        <!-- TODO: if you're like not logged in you shouldn't even be here  :( -->
+        <div class="newgame">   
+            <h1>New game :)</h1>
+                <div class="form">
+                      <form action="/newgame" method="post">
+                           <ul>
+                                <li>
+                                    <span class="glyphicon glyphicon-user"></span>
+                                    <input type="text" name="name" size="20" maxlength="69" placeholder="Name" />
+                               </li>
+                                <li>
+                                    <span class="glyphicon glyphicon-envelope"></span>
+                                    <input type="text" name="system" size="20" maxlength="69" placeholder="System" /> 
+                               </li>
+                               <li>
+                               <li>
+                                    <button type="submit"  class="btn btn-success">Create Game</button>
+                                </li>
+                            </ul>
+                      </form>  
+                </div>     
+        </div>
+    </body>
+</html>

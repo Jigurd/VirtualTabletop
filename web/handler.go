@@ -237,6 +237,25 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
+HandleChat handles "Chat" (/chat)
+*/
+func HandleChat(w http.ResponseWriter, r *http.Request) {
+	html, err := readFile("html/chat.html")
+	if err != nil {
+		fmt.Println("Error reading html file:", err.Error())
+		return
+	}
+	message := ""
+
+	bodyEnd := strings.Index(html, "</body>")
+	html = html[:bodyEnd] + message + html[bodyEnd:]
+
+	io.WriteString(w, html)
+
+	go HandleChatMessages()
+}
+
+/*
 HandlerChatConnections handles chat connections
 */
 func HandleChatConnections(w http.ResponseWriter, r *http.Request) {

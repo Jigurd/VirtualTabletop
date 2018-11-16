@@ -7,10 +7,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const (
-	dbURL = "mongodb://admin:greatadminpassword69@ds151523.mlab.com:51523/virtualtabletop"
-)
-
 var (
 	UserDB UsersDB // UserDB contains the users
 )

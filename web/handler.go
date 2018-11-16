@@ -85,11 +85,17 @@ func HandlerCreate(w http.ResponseWriter,r *http.Request) {
 		//Get values for the character
 		characterName := r.FormValue("charName")
 		system := r.FormValue("system")
-		cookie, err = r.cookie("user")
+		cookie, err := r.Cookie("user")
 		if err != nil {
 			fmt.Printf("Error getting username: %s\n",err.Error())
 		} 
 		userName := cookie.Value
+
+		var newChar tabletop.Character
+		newChar.Username = userName
+		newChar.Charactername = characterName
+		newChar.System = system
+
 		
 
 	}else {

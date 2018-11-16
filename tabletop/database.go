@@ -121,3 +121,21 @@ func (db *UsersDB) Get(uName string) (User, error) {
 
 	return user, err
 }
+
+/*
+Count returns the amount of users in the database
+*/
+func (db *UsersDB) Count() int {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	count, err := session.DB(db.DatabaseName).C(db.CollectionName).Count()
+	if err != nil {
+		fmt.Println("Error getting count.")
+	}
+
+	return count
+}

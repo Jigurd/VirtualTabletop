@@ -2,6 +2,7 @@ package web
 
 import (
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -237,5 +238,20 @@ func HandleChatMessages() {
 				delete(Clients, client)
 			}
 		}
+	}
+}
+
+/*
+HandleAPIUserCount returns the amount of users in the database
+*/
+func HandleAPIUserCount(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		m := make(map[string]int)
+		m["count"] = tabletop.UserDB.Count()
+		json.NewEncoder(w).Encode(m)
+
+	default:
+		w.WriteHeader(http.StatusNotImplemented)
 	}
 }

@@ -88,8 +88,8 @@ func HandlerCreate(w http.ResponseWriter, r *http.Request) {
 		system := r.FormValue("system")
 		cookie, err := r.Cookie("user")
 		if err != nil {
-			fmt.Printf("Error getting username: %s\n",err.Error())
-		} 
+			fmt.Printf("Error getting username: %s\n", err.Error())
+		}
 		userName := cookie.Value
 
 		var newChar tabletop.Character
@@ -237,6 +237,25 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
+HandleChat handles "Chat" (/chat)
+*/
+func HandleChat(w http.ResponseWriter, r *http.Request) {
+	html, err := readFile("html/chat.html")
+	if err != nil {
+		fmt.Println("Error reading html file:", err.Error())
+		return
+	}
+	message := ""
+
+	bodyEnd := strings.Index(html, "</body>")
+	html = html[:bodyEnd] + message + html[bodyEnd:]
+
+	io.WriteString(w, html)
+
+	go HandleChatMessages()
+}
+
+/*
 HandlerChatConnections handles chat connections
 */
 func HandleChatConnections(w http.ResponseWriter, r *http.Request) {
@@ -289,4 +308,31 @@ func HandleAPIUserCount(w http.ResponseWriter, r *http.Request) {
 	default:
 		w.WriteHeader(http.StatusNotImplemented)
 	}
+}
+
+/*
+HandleNewGame handles the creation of a new game
+*/
+func HandleNewGame(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		html, err := readFile("html/newgame.html")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		message := ""
+
+		_, err = r.Cookie("user")
+		if err == http.ErrNoCookie {
+			message = "<h3>Hmm.. Seems like you are not logged in. Head over to the log in page to change that!</h3>"
+		}
+
+		bodyEnd := strings.Index(html, "</body>")
+		html = html[:bodyEnd] + message + html[bodyEnd:]
+
+		io.WriteString(w, html)
+	} else if r.Method == "POST" {
+		fmt.Fprintf(w, "this is not implemented, your game has not been added")
+	}
+
 }

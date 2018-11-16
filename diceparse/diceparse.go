@@ -3,7 +3,8 @@ package diceparse
 import (
     "errors"
     "fmt"
-    "github.com/Knetic/govaluate" //
+    "github.com/Knetic/govaluate"
+    "github.com/golang-collections/collections/stack"
     "math/rand"
     "regexp"
     "strconv"
@@ -11,44 +12,106 @@ import (
     "time"
 )
 
-//Parse parses a string and rolls dice. S'about it. It only supports one "d" per roll at the moment.
-func Parse(input string)(result int, err error){
+//Parse searches a string for dicerolls and resolves them. It's very loosely based on ideas from parse trees.
+func Parse (input *string) error{
+    //go through string character by character, push to stack. If you find "]", pop and append to sting until you find  "[", then resolve diceroll
+    strStack := stack.New()
+
+    //check for mismatched brackets
+    if strings.Count(*input, "[") != strings.Count(*input, "]"){
+        return errors.New("Error: Mismatched brackets")
+    }
+
+    //loop until either the string is empty or we've removed all brackets through matching
+    for *input != "" {
+        if (*input)[:1] != "]" { //if the next character of the string is not a closing bracket
+            strStack.Push(TrimChar(input)) //push it to the stack
+
+        } else { //when you find a ]
+            TrimChar(input) //get rid of the ]
+            var expr string
+            for strStack.Len() > 0 && strStack.Peek() != "["{ //go back through the stack until you find a [
+                expr = strStack.Pop().(string) + expr //add all characters you find to a new string, in the correct order
+            }
+            strStack.Pop() // get rid of the [
+
+            roll, err := ParseRoll(expr) //roll the dice specified in the expression
+            if err != nil {
+                return err
+            }
+
+            rollString := strconv.Itoa(roll) //convert that int to a string
+
+            //fmt.Println(rollString) DEBUG
+
+            for len(rollString) > 0 { //push the result back to the stack. This enables nested queries
+                strStack.Push(TrimChar(&rollString))
+                //fmt.Println(rollString, " ", strStack.Peek()) DEBUG
+            }
+            //fmt.Println(*input) DEBUG
+            if !strings.Contains(*input, "[") && !strings.Contains(*input, "]"){
+                break
+            }
+        }
+    }
+    result :=""
+    for strStack.Len() > 0{ //while stack is not empty
+        result= strStack.Pop().(string) + result //add characters to new string in correct order
+    }
+    fmt.Println(result) //print said string
+
+    return nil
+}
+
+//parseRoll parses a string and rolls dice. S'about it. It only supports one "d" per roll at the moment.
+func ParseRoll(input string)(result int, err error){
     var left, right interface{}
     var err1, err2 error
 
-    stringIsValid, _ := regexp.MatchString(`([0-9]+[/+/-/*//])?[0-9]+d[0-9]+([/+/-/*//][0-9]+)?`, input)
+    stringIsValid, _ := regexp.MatchString(`([1-9]+[0-9]?[/+/-/*//])?([1-9]+[0-9]?)?d[0-9]+([/+/-/*//][0-9]+)?`, input)
     if !stringIsValid{
-        return result, errors.New("Fatal error: Invalid expression.")
+        return result, errors.New("Fatal error - Invalid expression: " +input)
     }
 
     //Locate dice in string, find the type of dice being rolled
     sidesStr := regexp.MustCompile("d[0-9]+").FindString(strings.ToLower(input))
-    sidesStr = strings.TrimPrefix(sidesStr, "d")                              //strip d as it is uncessary
-     if !isNumeric(sidesStr){                                                  //double-check that remaindes is numeric
+    sidesStr = strings.TrimPrefix(sidesStr, "d")                              //strip d as it is unnecessary
+     if !isNumeric(sidesStr){                                                  //double-check that remainder is numeric
          fmt.Println("Error: Problem parsing diceroll")
     }
-    sides, _ := strconv.Atoi(sidesStr)                                         //make it an int so it can be parsed
+    sides, _ := strconv.Atoi(sidesStr)                                         //make sides an int so it can be parsed
 
 
     //Split input on the dice, to get left and right expressions
     splitInput := regexp.MustCompile("d[0-9]+").Split(strings.ToLower(input), 2)
 
 
-    //Evaluate expressions to left and right of dice
+
+    // LEFT SIDE
+    //if the left part is empty, set it to the default of 1
+
+    //fmt.Println(splitInput[0])
+
+    if splitInput[0] == ""{
+        splitInput[0]="1"
+    }
+
+
+    // RIGHT SIDE
+    //if the right part is empty, set it to zero to avoid parse errors
+    if splitInput[1] == ""{
+        splitInput[1] = "0"
+    }
+
+    splitInput[1] = "0"+splitInput[1] //add 0 to front of expression, to prevent errors when expression starts with +/-
+
+
+    //Evaluate expressions
     left, err1 = evaluate(splitInput[0])
     if err1 != nil {
         fmt.Println("Error: Problem with left expression!")
         return 0, err1
     }
-
-    //if the right part is empty, set it to zero to avoid part errors
-    fmt.Println(splitInput[1])
-    if splitInput[1] == ""{
-        splitInput[1] = "0"
-    }
-
-    splitInput[1] = "0"+splitInput[1]
-
     right, err2 = evaluate(splitInput[1])
     if err2 != nil {
         fmt.Println("Error: Problem with right expression!")
@@ -56,6 +119,7 @@ func Parse(input string)(result int, err error){
     }
 
 
+    //this generates the actual pseudorandom numbers, it generates (left) random numbers in the range [1,sides]
     diceResults, rollError := RollDice(left, sides)
 
     if rollError != nil{
@@ -64,7 +128,8 @@ func Parse(input string)(result int, err error){
 
     result = sumSlice(diceResults)+int(right.(float64))
 
-    fmt.Printf("%v+%v= ", diceResults, right)
+
+    //fmt.Printf("%v+%v= ", diceResults, right) //DEBUG
 
     return result, nil
 }
@@ -101,18 +166,4 @@ func RollDice (num interface{}, sides int) (result []int, err error){
     }
 
     return diceSlice, nil
-}
-
-
-func isNumeric (number string) (result bool){
-    result, _ = regexp.MatchString("[0-9]+", number)
-    return result
-}
-
-func sumSlice(slice []int)(result int){
-    result = 0
-    for i := 0; i< len(slice);i++{
-        result += slice[i]
-    }
-    return result
 }

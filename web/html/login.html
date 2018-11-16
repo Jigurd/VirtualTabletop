@@ -1,0 +1,67 @@
+
+
+<!DOCTYPE html>
+<html>  
+    <head>
+        <meta charset="UTF-8">
+        <title>Virtual Tabletop</title>
+        
+        <!--Link to css reset. -->
+         <link rel="stylesheet" rel="text/css" href="static/cssre/reset.css">
+        
+         <!--Getting bootstrap CDN  -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        
+        <!-- Link to stylesheet -->
+        <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
+        
+        <!-- Link to loginn stylesheet-->
+        <link rel="stylesheet" rel="text/css" href="static/css/login.css">
+        
+        
+    </head>
+    <body>
+        <header>
+                <div class="logo"><a href="/">
+                  <span>Virtual</span>
+                  <span>Tabletop</span> 
+                    </a>
+                </div> 
+                <nav class="menu">   
+                  <a href="/" class="current">Home</a>
+                  <a href="/login">Log in</a>
+                  <a href="/register">Register</a>
+                  <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
+                  <a href="/chat">LE CHAT</a>
+                </nav>       
+        </header>
+
+         <!-- Div Clear -->
+        <div class="clear"></div>
+        
+            <!-- login Form-->
+            <div class="loginn">   
+                <h1>Log in</h1>
+                <form action="/login" method="post">
+                    <ul>
+                        <li>
+                            <span class="glyphicon glyphicon-user"></span>
+                            <input type="text" name="username" size="20" maxlength="20" placeholder="Username" />
+                        </li>
+                        <li>
+                            <span class="glyphicon glyphicon-lock"></span>
+                            <input type="password" name="password" size="20" maxlength="20" placeholder="Password" />
+                        </li>
+                        <li>
+                            <button type="submit"  class="btn btn-success">Log in</button>
+                        </li>
+                    </ul>
+                </form>
+            </div>
+        
+        <!--try logging the user in-->
+        <div>
+
+        
+    </body>
+</html>

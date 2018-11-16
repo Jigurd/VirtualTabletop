@@ -1,22 +1,22 @@
 package web
 
 import (
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 )
 
 func Test_Register(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(HandlerRegister)) // TODO: So it doesnt add to the actual database
 	defer testServer.Close()
 
-	expected := "User created!"
+	expected := http.StatusCreated
 
 	form := url.Values{}
-	form.Add("username", "teser name")
-	form.Add("email", "emailw@email.com")
+	form.Add("username", time.Now().String()) // To not add a user with the same credentials for each test
+	form.Add("email", time.Now().String())
 	form.Add("password", "Password")
 	form.Add("confirm", "Password")
 
@@ -25,15 +25,43 @@ func Test_Register(t *testing.T) {
 		t.Errorf("Error: %s", err.Error())
 	}
 
-	respB, err := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != expected {
+		t.Errorf("Statuscode expected to be %d, but is %d.", expected, resp.StatusCode)
+	}
+}
+
+func Test_Login(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(HandlerRegister))
+	defer testServer.Close()
+
+	username := time.Now().String()
+
+	form := url.Values{}
+	form.Add("username", username)
+	form.Add("email", time.Now().String())
+	form.Add("password", "Password")
+	form.Add("confirm", "Password")
+
+	resp, err := http.PostForm(testServer.URL, form) // Add a user first
 	if err != nil {
-		t.Errorf("Error reading the body: %s", err.Error())
+		t.Errorf("Error: %s", err.Error())
 	}
 
-	respStr := string(respB)
-	actualResponse := respStr[len(respStr)-14 : len(respStr)-1] // Now this is what I call a shitty way to do it (the response is an entire html document with that at the end)
+	if resp.StatusCode != http.StatusCreated {
+		t.Errorf("Statuscode expected to be %d, but is %d.", http.StatusCreated, resp.StatusCode)
+	}
 
-	if actualResponse != expected {
-		t.Errorf("Expected '%s' differs from actual '%s'.", expected, actualResponse)
+	testServer = httptest.NewServer(http.HandlerFunc(HandlerLogin)) // Create a new server with the correct handler
+	form = url.Values{}
+	form.Add("username", username)
+	form.Add("password", "Password")
+
+	resp, err = http.PostForm(testServer.URL, form) // Try to log in with the newly created user
+	if err != nil {
+		t.Errorf("Error: %s", err.Error())
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Status code expected to be %d, but is %d.", http.StatusOK, resp.StatusCode)
 	}
 }

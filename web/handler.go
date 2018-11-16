@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -43,6 +44,27 @@ func readFile(fileName string) (string, error) {
 	}
 
 	return string(htmlByte), nil
+}
+
+/*
+Checks that an email is valid
+*/
+func validEmail(email string) bool {
+	// This is obviously not a complete validator, but just to have some rules to follow on user creation
+	validator, err := regexp.Compile("^[A-Za-z0-9]{3,}@[a-z]{2,}.[a-z]{2,}$")
+	if err != nil {
+		fmt.Println("Error compiling regex:", err.Error())
+		return false
+	}
+
+	return validator.MatchString(email)
+}
+
+/*
+Checks that a password is valid
+*/
+func validPassword(password string) bool {
+	return len(password) >= 5 // Amazing validator
 }
 
 /*
@@ -124,29 +146,38 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 
 		newUser := tabletop.User{ // Create a user based on the form values
 			Username: r.FormValue("username"),
-			Password: md5Hash(r.FormValue("password")),
+			Password: r.FormValue("password"),
 			Email:    r.FormValue("email"),
 		}
 
+		//		Password: md5Hash(r.FormValue("password")),
+
 		if newUser.Username == "" {
-			message = fmt.Sprint("Please enter a username.") // Status code 422: Unprocessable entity means
-			statusCode = http.StatusUnprocessableEntity      // the syntax was understood but the data is bad
+			message = "Please enter a username."        // Status code 422: Unprocessable entity means
+			statusCode = http.StatusUnprocessableEntity // the syntax was understood but the data is bad
 		} else if newUser.Email == "" {
-			message = fmt.Sprint("Please enter an email.")
+			message = "Please enter an email."
+			statusCode = http.StatusUnprocessableEntity
+		} else if !validEmail(newUser.Email) {
+			message = "Email is invalid."
+			statusCode = http.StatusUnprocessableEntity
+		} else if !validPassword(newUser.Password) {
+			message = "Password is invalid"
 			statusCode = http.StatusUnprocessableEntity
 		} else if tabletop.UserDB.Exists(newUser) {
-			message = fmt.Sprint("That username/email is taken.")
+			message = "That username/email is taken."
 			statusCode = http.StatusUnprocessableEntity
 		} else { // OK username/Email
-			if newUser.Password != md5Hash(r.FormValue("confirm")) {
-				message = fmt.Sprint("Passwords don't match.")
+			if newUser.Password != r.FormValue("confirm") {
+				message = "Passwords don't match."
 				statusCode = http.StatusUnprocessableEntity
-			} else { // OK password
+			} else { // OK password, eveything is OK and the user is added.
+				newUser.Password = md5Hash(newUser.Password) // Hash the password before storing it
 				if tabletop.UserDB.Add(newUser) {
-					message = fmt.Sprint("User created!")
+					message = "User created!"
 					w.WriteHeader(http.StatusCreated)
 				} else {
-					message = fmt.Sprint("Unknonwn error in creating the user.")
+					message = "Unknonwn error in creating the user."
 					statusCode = http.StatusUnprocessableEntity
 				}
 			}

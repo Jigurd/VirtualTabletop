@@ -20,19 +20,19 @@ func main() {
 	web.Upgrader = websocket.Upgrader{}
 
 	r := mux.NewRouter()
-	
-	r.HandleFunc("/createChar",web.HandlerCreate)
+
+	r.HandleFunc("/createChar", web.HandlerCreate)
 	r.HandleFunc("/api/usercount", web.HandleAPIUserCount)
 	r.HandleFunc("/profile", web.HandlerProfile)
 	r.HandleFunc("/login", web.HandlerLogin)
 	r.HandleFunc("/register", web.HandlerRegister)
 	r.HandleFunc("/", web.HandleRoot)
+	r.HandleFunc("/chat/", web.HandleChat)
+	r.HandleFunc("/ws", web.HandleChatConnections)
 	http.Handle("/", r)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	http.Handle("/chat/", http.StripPrefix("/chat/", http.FileServer(http.Dir("chat"))))
-	http.HandleFunc("/ws", web.HandleChatConnections)
-	go web.HandleChatMessages()
+	// http.Handle("/chat/", http.StripPrefix("/chat/", http.FileServer(http.Dir("chat"))))
 
 	http.ListenAndServe(":"+port, nil)
 }

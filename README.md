@@ -77,4 +77,4 @@ This application is deployed on Heroku with the link: https://glacial-bastion-87
 
 # Clock trigger
 
-An independent application sends a GET request every 10 minutes to */api/count* and if the count has changed since it notifies a Discord channel with how many users there are.
+An independent application sends a GET request every 10 minutes to */api/count* and if the count has changed since it notifies a Discord channel with how many users there are. This application is deployed on OpenStack, and in this repo it resides in the folder ```clocktrigger```.

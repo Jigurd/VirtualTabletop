@@ -4,8 +4,6 @@ github.com/adam-hanna/jwt-auth v1.1.0 h1:0SA5LaZnpvq9fKS7RLG6lKVvsS2ilLX2JehrzJi
 github.com/adam-hanna/jwt-auth v1.1.0/go.mod h1:2O04Q7ePemYUdeLa+iVD98Blb0Xl4ixuuYWXuh01Djo=
 github.com/adam-hanna/randomstrings v0.0.0-20160715001758-88fd7c52a2c7 h1:62HlqmZyGNiYN348/+z/q1Z6m/mHvKWlRzHBN6uq1CU=
 github.com/adam-hanna/randomstrings v0.0.0-20160715001758-88fd7c52a2c7/go.mod h1:Sv99nuALJEEt6XHy56tbVlXUJ2GvCgbNo99JuGpWafY=
-github.com/benjabe/paragliding v0.0.0-20181029221339-cd681a3e0236 h1:qBlprhxVOBEq/HLxXIK1y/pGXdd37fg4HxB1pqXeD68=
-github.com/benjabe/paragliding v0.0.0-20181029221339-cd681a3e0236/go.mod h1:Vra8emXxGxwJbCWJoYtyD8obSnSZGYnaLVwQklpEbXA=
 github.com/davecgh/go-spew v0.0.0-20170711183451-adab96458c51/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=

@@ -70,6 +70,29 @@ Response body:
 }
 ```
 
+# Dice Parser Syntax
+
+Our service is meant to facilitate playing tabletop roleplaying games, so emulating dicerolls is crucial. The syntax is quite simple - in the chat, you just put the desired roll in square brackets [] like so:
+
+```
+Billy Barbarian rolls to attack: [d20+9] vs AC, and does [2d6+8] damage.
+```
+
+
+Anything to the left of the "d" will be interpreted as adding to the amount of dice rolled ([3+2d6] rolls 5d6) and anything to the right will be interpreted as a flat modifier ([d4+8] will be somewhere between 9 and 12).
+
+This is very handy for some systems, and means that if you want to roll multiple kinds of dice in one query, you do that like so:
+
+```
+Rick the Rogue rolls for damage: [d8+[2d6]+6]
+```
+
+The parser supports common mathematical operators (+-*/), which is also sometimes useful.
+
+```
+The party defeated the eight goblins, and get [8*75] experience points
+```
+
 
 # Heroku
 This application is deployed on Heroku with the link: https://glacial-bastion-87425.herokuapp.com/

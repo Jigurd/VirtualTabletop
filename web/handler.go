@@ -88,8 +88,8 @@ func HandlerCreate(w http.ResponseWriter, r *http.Request) {
 		system := r.FormValue("system")
 		cookie, err := r.Cookie("user")
 		if err != nil {
-			fmt.Printf("Error getting username: %s\n",err.Error())
-		} 
+			fmt.Printf("Error getting username: %s\n", err.Error())
+		}
 		userName := cookie.Value
 
 		var newChar tabletop.Character
@@ -308,4 +308,12 @@ func HandleAPIUserCount(w http.ResponseWriter, r *http.Request) {
 	default:
 		w.WriteHeader(http.StatusNotImplemented)
 	}
+}
+
+/*
+HandleNewGame handles the creation of a new game
+*/
+func HandleNewGame(w http.ResponseWriter, r *http.Request) {
+	// for now, a "game" is just a name and a system
+	// plus the ability to add players.
 }

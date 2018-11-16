@@ -8,32 +8,32 @@ import (
 
 type Character struct {
 	//Character metadata
-	Username 	  	string 			`json:"username"` //Karl Gustav
-	Charactername 	string 			`json:"charname"` //Grog Kragson
-	System    	  	string 			`json:"system"`	  //DnD 5e
-	CharId			bson.ObjectId	`bson:"_id"`      //Autogeneres under lagring, ingen verdi før det
-	Token 			string			`json:"token"`    //OrcViking.jpg
+	Username      string        `json:"username"` //Karl Gustav
+	Charactername string        `json:"charname"` //Grog Kragson
+	System        string        `json:"system"`   //DnD 5e
+	CharId        bson.ObjectId `bson:"_id"`      //Autogeneres under lagring, ingen verdi før det
+	Token         string        `json:"token"`    //OrcViking.jpg
 
 	//Statline and skills
-	Stats         	[]nameDesc  	`json:"stats"`    //{Dex, 10}, {Str, 15}, etc
-	Skills    	  	[]nameDesc  	`json:"skills"`   //{Acrobatics, 15}, {investigation, 10}, etc
+	Stats  []nameDesc `json:"stats"`  //{Dex, 10}, {Str, 15}, etc
+	Skills []nameDesc `json:"skills"` //{Acrobatics, 15}, {investigation, 10}, etc
 
 	//Items and possessions
-	Inventory 	  	[]string    	`json:"inventory"`//"1 Egg 0.5lbs" , "2 string 0.1lbs", etc
-	Money	  		[]nameDesc  	`json:"money"`	  //{Gold, 15}, {Scheckels, 20}, etc
-	Assets	  		[]nameDesc  	`json:"assets"`	  //{Yacht, "10m long, 3m wide, name: RosenSwinge"}, etc
+	Inventory []string   `json:"inventory"` //"1 Egg 0.5lbs" , "2 string 0.1lbs", etc
+	Money     []nameDesc `json:"money"`     //{Gold, 15}, {Scheckels, 20}, etc
+	Assets    []nameDesc `json:"assets"`    //{Yacht, "10m long, 3m wide, name: RosenSwinge"}, etc
 
 	//Abilities on the field
-	Abilities 		[]nameDesc  	`json:"abilities"`//{Fireball, "8d6 fire dmg, 3rd level Spellslot"},{Lucky, "FUCK"},etc
+	Abilities []nameDesc `json:"abilities"` //{Fireball, "8d6 fire dmg, 3rd level Spellslot"},{Lucky, "FUCK"},etc
 
 	//User made macros & tags
-	Macros	  		[]nameDesc  	`json:"macros"`   //{Attack, "/r 1d20+DEX"}, etc
-	Tags 			[]string		`json:"tags"`		  //Fighter, human, idiot,etc
+	Macros []nameDesc `json:"macros"` //{Attack, "/r 1d20+DEX"}, etc
+	Tags   []string   `json:"tags"`   //Fighter, human, idiot,etc
 }
 
 //nameDesc is a sub document which records data int the form of two strings, a Name and a Description
 type nameDesc struct {
-	Name string `json:"name"`
+	Name        string `json:"name"`
 	Description string `json:"desc"`
 }
 
@@ -53,6 +53,7 @@ type CharsDB struct {
 	DatabaseName   string `json:"databasename"`
 	CollectionName string `json:"collectionmame"`
 }
+
 func init() {
 	CharDB = CharsDB{
 		DatabaseURL:    dbURL,
@@ -64,7 +65,7 @@ func init() {
 }
 
 /*//////////////////////////////////////////////////////////////////////////////////////////////////////
-      			                     	DATABASE FUNCTIONS 
+      			                     	DATABASE FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////*
 
 /*
@@ -93,7 +94,7 @@ func (db *CharsDB) Init() {
 
 //MakeChar functions sends a finished(!) char to the database, creates a unique ID for it and returns this Id as a
 //bson.ObjectId as well as an empty strng on a Success, or an empty string and a errormessage on a failure.
-func (db *CharsDB)MakeChar(char Character) (bson.ObjectId,string){
+func (db *CharsDB) MakeChar(char Character) (bson.ObjectId, string) {
 	session, err := mgo.Dial(db.DatabaseURL)
 	if err != nil {
 		panic(err)
@@ -107,14 +108,14 @@ func (db *CharsDB)MakeChar(char Character) (bson.ObjectId,string){
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Insert(char)
 	if err != nil {
 		errmsg = fmt.Sprintf("There was an error printing character %s to the database.", char.Charactername)
-		return "",errmsg
+		return "", errmsg
 	}
-	return charId,""
+	return charId, ""
 }
 
 //SearchTags function finds ALL characters which have the specified tags, and returns them, as well as an empty string,
 //Alternatively, if there has been an error, it instead returns nil, as well as an error message.
-func (db *CharsDB)SearchTags(tags []bson.M) ([]Character,string) {
+func (db *CharsDB) SearchTags(tags []bson.M) ([]Character, string) {
 	session, err := mgo.Dial(db.DatabaseURL)
 	if err != nil {
 		panic(err)
@@ -127,14 +128,14 @@ func (db *CharsDB)SearchTags(tags []bson.M) ([]Character,string) {
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"$and": tags}).All(&foundChars)
 	if err != nil {
 		errormsg = fmt.Sprintf("There was an error finding a character with tags %v", tags)
-		return nil,errormsg
+		return nil, errormsg
 	}
-	return foundChars,""
-	}
+	return foundChars, ""
+}
 
 //FindChar Function finds a character with and Id equal to charId, Returns a character as well as an empty string
 //on success, or an empty Character as well as an errormessage on a failure.
-func (db *CharsDB)FindChar(charId bson.ObjectId) (Character,string) {
+func (db *CharsDB) FindChar(charId bson.ObjectId) (Character, string) {
 	session, err := mgo.Dial(db.DatabaseURL)
 	if err != nil {
 		panic(err)
@@ -146,7 +147,7 @@ func (db *CharsDB)FindChar(charId bson.ObjectId) (Character,string) {
 
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"_id": charId}).One(&foundChar)
 	if err != nil {
-		errormsg = fmt.Sprintf("There was an error finding the character %s",charId)
+		errormsg = fmt.Sprintf("There was an error finding the character %s", charId)
 		return Character{}, errormsg
 	}
 	return foundChar, ""
@@ -155,48 +156,7 @@ func (db *CharsDB)FindChar(charId bson.ObjectId) (Character,string) {
 //UpdateCharString function finds a character with id equal to charId, finds a field which contains a string[] with name
 //equal to field, and then updates that field with the new values given in values, before updating the database entry.
 //returns an errormessage on a failure, or an empty string on a success
-func (db *CharsDB)UpdateCharString(charId bson.ObjectId,field string, values []string) string {
-	session, err := mgo.Dial(db.DatabaseURL)
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-
-	var errormsg string
-	var char Character
-	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"_id":charId}).One(&char)
-	if err != nil {
-		errormsg = fmt.Sprintf("There was an error finding a character with %s",charId)
-		return errormsg
-	}
-	switch (field) {
-	case"inventory":
-		for _,value := range values {
-			char.Inventory = append(char.Inventory,value)
-		}
-		break
-	case"tags":
-		for _,value := range values {
-			char.Tags = append(char.Tags,value)
-		}
-		break
-
-	default:
-		errormsg = fmt.Sprintf("The field %s does not match any fields in the character sheet",field)
-		return  errormsg
-	}
-
-	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"_id":charId},char)
-	if err != nil {
-	errormsg = fmt.Sprintf("There was a problem updating character %s's field %s with the value %v",charId,field,values)
-	return errormsg
-	}
-	return ""
-}
-
-//UpdateChar_nameDesc function does the same as UpdateCharString, and returns the same errors, but takes fields and values
-//containing nameDesc instead of strings
-func(db *CharsDB)UpdateChar_nameDesc(charId bson.ObjectId,field string, values []nameDesc) string {
+func (db *CharsDB) UpdateCharString(charId bson.ObjectId, field string, values []string) string {
 	session, err := mgo.Dial(db.DatabaseURL)
 	if err != nil {
 		panic(err)
@@ -210,45 +170,86 @@ func(db *CharsDB)UpdateChar_nameDesc(charId bson.ObjectId,field string, values [
 		errormsg = fmt.Sprintf("There was an error finding a character with %s", charId)
 		return errormsg
 	}
-	switch (field) {
+	switch field {
+	case "inventory":
+		for _, value := range values {
+			char.Inventory = append(char.Inventory, value)
+		}
+		break
+	case "tags":
+		for _, value := range values {
+			char.Tags = append(char.Tags, value)
+		}
+		break
+
+	default:
+		errormsg = fmt.Sprintf("The field %s does not match any fields in the character sheet", field)
+		return errormsg
+	}
+
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"_id": charId}, char)
+	if err != nil {
+		errormsg = fmt.Sprintf("There was a problem updating character %s's field %s with the value %v", charId, field, values)
+		return errormsg
+	}
+	return ""
+}
+
+//UpdateChar_nameDesc function does the same as UpdateCharString, and returns the same errors, but takes fields and values
+//containing nameDesc instead of strings
+func (db *CharsDB) UpdateChar_nameDesc(charId bson.ObjectId, field string, values []nameDesc) string {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	var errormsg string
+	var char Character
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"_id": charId}).One(&char)
+	if err != nil {
+		errormsg = fmt.Sprintf("There was an error finding a character with %s", charId)
+		return errormsg
+	}
+	switch field {
 	case "stats":
 		for _, value := range values {
-			char.Stats = append(char.Stats,value)
+			char.Stats = append(char.Stats, value)
 		}
 		break
 	case "skills":
 		for _, value := range values {
-			char.Skills = append(char.Skills,value)
+			char.Skills = append(char.Skills, value)
 		}
 		break
 	case "money":
 		for _, value := range values {
-			char.Money = append(char.Money,value)
+			char.Money = append(char.Money, value)
 		}
 		break
 	case "assets":
 		for _, value := range values {
-			char.Assets = append(char.Assets,value)
+			char.Assets = append(char.Assets, value)
 		}
 		break
 	case "abilities":
 		for _, value := range values {
-			char.Abilities = append(char.Abilities,value)
+			char.Abilities = append(char.Abilities, value)
 		}
 		break
 	case "macros":
 		for _, value := range values {
-		char.Macros = append(char.Macros,value)
-	}
+			char.Macros = append(char.Macros, value)
+		}
 		break
 	default:
 		errormsg = fmt.Sprintf("The field %s does not match any fields in the character sheet", field)
 		return errormsg
 	}
 
-	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"_id":charId},char)
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"_id": charId}, char)
 	if err != nil {
-		errormsg = fmt.Sprintf("There was a problem updating character %s's field %s with the value %v",charId,field,values)
+		errormsg = fmt.Sprintf("There was a problem updating character %s's field %s with the value %v", charId, field, values)
 		return errormsg
 	}
 	return ""
@@ -257,17 +258,17 @@ func(db *CharsDB)UpdateChar_nameDesc(charId bson.ObjectId,field string, values [
 
 //DeleteChar function deletes a character with id charId. On success it returns and empty string on a success or
 //an errormessage on a failure
-func(db *CharsDB)DeleteChar(charId bson.ObjectId) string{
+func (db *CharsDB) DeleteChar(charId bson.ObjectId) string {
 	session, err := mgo.Dial(db.DatabaseURL)
 	if err != nil {
 		panic(err)
 	}
 	defer session.Close()
 
-	err = session.DB(db.DatabaseName).C(db.CollectionName).Remove(bson.M{"_id":charId})
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Remove(bson.M{"_id": charId})
 	if err != nil {
-		errmsg := fmt.Sprintf("There was an error deleting the Character with id %v",charId)
-		return  errmsg
+		errmsg := fmt.Sprintf("There was an error deleting the Character with id %v", charId)
+		return errmsg
 	}
 	return ""
 }
@@ -278,11 +279,11 @@ func(db *CharsDB)DeleteChar(charId bson.ObjectId) string{
 
 //CreateChar Function makes a character using a characterName, a userName and a system. Used for Primary Character creation.
 //Returns the characters new ID as well as an empty string upon success, or an empty string and a errormessage upon failure.
-func CreateChar (charName string,userName string,system string) (bson.ObjectId,string){
-	char := Character{userName, charName,system,"","",nil,nil,nil,nil,nil, nil,nil,nil}
-	charId,err := CharDB.MakeChar(char)
+func CreateChar(charName string, userName string, system string) (bson.ObjectId, string) {
+	char := Character{userName, charName, system, "", "", nil, nil, nil, nil, nil, nil, nil, nil}
+	charId, err := CharDB.MakeChar(char)
 	if err != "" {
-		return "",err
+		return "", err
 	} else {
 		return charId, ""
 	}
@@ -291,24 +292,23 @@ func CreateChar (charName string,userName string,system string) (bson.ObjectId,s
 //TagRequest function takes in an array of tags and sends these to CHarDB.SearchTags. It then returns an array of all
 //Characters that match the request, as well as an empty string. Alternatively it returns an empty character array and an
 //errormessage if the operation did not succeed.
-func TagRequest (tags []string) ([]Character,string) {
+func TagRequest(tags []string) ([]Character, string) {
 	var queries []bson.M
 
-	for _, tag:= range tags {
-		query := bson.M{"tags":tag}
-		queries = append(queries,query)
+	for _, tag := range tags {
+		query := bson.M{"tags": tag}
+		queries = append(queries, query)
 	}
-	chars,err := CharDB.SearchTags(queries)
-	if err != ""{
-		return []Character{},err
+	chars, err := CharDB.SearchTags(queries)
+	if err != "" {
+		return []Character{}, err
 	}
-	return chars,err
+	return chars, err
 }
 
 /*////////////////////////////////////////////////////////////////////////////////////////////////////
 										UNUSED FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////*/
-
 
 /*
 //GetString function which finds a specific STRING-field on the character and returns either an empty string and the fields value if

@@ -316,4 +316,5 @@ HandleNewGame handles the creation of a new game
 func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 	// for now, a "game" is just a name and a system
 	// plus the ability to add players.
+
 }

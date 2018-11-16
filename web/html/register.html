@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" >
+        <title>Virtual Tabletop</title>
+
+        <!--Link to css reset. -->
+        <link rel="stylesheet" rel="text/css" href="static/cssre/reset.css">   
+        
+        <!--Getting bootstrap CDN  -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        
+        <!-- Link to stylesheet -->
+        <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
+        
+        <!-- Link to stylesheet -->
+        <link rel="stylesheet" rel="text/css" href="static/css/signup.css">     
+        
+    </head>
+    <body>
+
+        <header>
+            <div class="logo"><a href="/">
+                <span>Virtual</span>
+                <span>TableTop</span>
+                </a>
+            </div>
+
+            <nav class="menu">   
+                <a href="/" class="current">Home</a>
+                <a href="/login">Log in</a>
+                <a href="/register">Register</a>
+                <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
+                <a href="/chat">LE CHAT</a>
+            </nav>    
+
+        </header>
+    
+        <!-- Register Form-->
+        <div class="register">   
+                <h1>Register new user</h1>
+                <div class="form">
+                      <form action="/register" method="post">
+                           <ul>
+                                <li>
+                                    <span class="glyphicon glyphicon-user"></span>
+                                    <input type="text" name="username" size="20" maxlength="20" placeholder="Username" />
+                               </li>
+                               
+                                <li>
+                                    <span class="glyphicon glyphicon-envelope"></span>
+                                    <input type="text" name="email" size="20" maxlength="20" placeholder="Email" /> 
+                               </li>
+                               <li>
+                                    <span class="glyphicon glyphicon-lock"></span>
+                                    <input type="password" name="password" size="20" maxlength="20" placeholder="Password" />
+                               </li>
+                               <li>
+    
+                                    <span class="glyphicon glyphicon-lock"></span>
+                                    <input type="password" name="confirm" size="20" maxlength="20" placeholder="Confirm password" />
+                               </li>
+                               <li>
+    
+                                       <button type="submit"  class="btn btn-success">Register</button>
+                                </li>
+                            </ul>
+                      </form>  
+                </div>     
+        </div>
+    </body>
+</html>

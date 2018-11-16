@@ -1,5 +1,5 @@
 # VirtualTabletop
-**Project description**:
+## Project description
 
 This project uses:
 1. Heroku
@@ -17,9 +17,11 @@ Users can chat with eachother.
 
 
 **What we learned**:
-1. How to serve HTML from Go. We learned two methods for doing this. As described under the *What was hard* section, we faced some challenges with one method, which lead us to using another method.
+1. How to serve HTML from Go. We learned two methods for doing this. As described in point 1 under *What was hard*, we faced some challenges with one method, which lead us to using another method.
 
 2. How to use cookies with Go.
+
+3. How to use OpenStack and deploy apps there.
 
 
 **What was hard**:
@@ -31,25 +33,48 @@ Users can chat with eachother.
 
 
 # Usage
-```/```
+**/**
 
 This is the index page, which doesn't hold much useful information. If logged in, it displays a welcome message.
 
-```/register```
+**/register**
 
-**GET**: Not much interesting. The page loads as one would expect.
+```POST```: With the form values "username", "email", "password" and "confirm" a user can be registered to the database.
 
-**POST**: With the form values "username", "email", "password" and "confirm" a user can be registered to the database.
+**/login**
 
-```/login```
+```POST```: With the form values "username" and "password" you can log in. Redirects to "/" on successfull login.
 
-**GET**: Not much interesitng. The page loads as one would expect.
 
-**POST**: With the form values "username" and "password" you can log in. Redirects to "/" on successfull login.
+**/profile**
 
-```/chat```
+
+
+**/chat**
 
 Allows users to chat together.
 
+
+**/api/count**
+
+Returns a JSON with how many users are registered in the database.
+
+Response body:
+
+
+```
+{
+
+    "count": <count>
+    
+}
+```
+
+
 # Heroku
 This application is deployed on Heroku with the link: https://glacial-bastion-87425.herokuapp.com/
+
+
+# Clock trigger
+
+An independent application sends a GET request every 10 minutes to */api/count* and if the count has changed since it notifies a Discord channel with how many users there are. This application is deployed on OpenStack, and in this repo it resides in the folder ```clocktrigger```.

@@ -67,17 +67,18 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 
 	io.WriteString(w, html)
 }
+
 //HandlerCreate handle Character creation
-func HandlerCreate(w http.ResponseWriter,r *http.Request) {
-	if r.Method == "GET"{
-		html,err := readFile("html/create.html")
+func HandlerCreate(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		html, err := readFile("html/create.html")
 		if err != nil {
-			fmt.Println("Error reading html file:",err.Error())
+			fmt.Println("Error reading html file:", err.Error())
 			return
 		}
-	
-		io.WriteString(w,html)
-	}else if r.Method == "POST" {
+
+		io.WriteString(w, html)
+	} else if r.Method == "POST" {
 		err := r.ParseForm()
 		if err != nil {
 			fmt.Printf("Error parsing form: %s\n", err.Error())
@@ -96,13 +97,12 @@ func HandlerCreate(w http.ResponseWriter,r *http.Request) {
 		newChar.Charactername = characterName
 		newChar.System = system
 
-		
-
-	}else {
+	} else {
 		w.WriteHeader(501)
 	}
 
 }
+
 /*
 HandlerRegister handle registering a new user
 */

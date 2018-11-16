@@ -148,6 +148,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		user, err := tabletop.UserDB.Get(uName)
 		if err != nil {
 			message = fmt.Sprintf("Couldn't log in: %s", err.Error())
+			statusCode = 500 // Not sure if this code makes sense, but not sure what else to give
 		}
 
 		if password == user.Password {

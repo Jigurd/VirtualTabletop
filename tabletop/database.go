@@ -62,19 +62,23 @@ func (db *UsersDB) Init() {
 Add adds a new user to the database, returns if the adding was successful
 */
 func (db *UsersDB) Add(u User) bool {
-	session, err := mgo.Dial(db.DatabaseURL)
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
+	if !db.Exists(u) { // MongoDB index keys need both to be there, so check if it exists first
+		session, err := mgo.Dial(db.DatabaseURL)
+		if err != nil {
+			panic(err)
+		}
+		defer session.Close()
 
-	err = session.DB(db.DatabaseName).C(db.CollectionName).Insert(u)
-	if err != nil {
-		fmt.Printf("Error inserting user into the DB: %s", err.Error())
-		return false
+		err = session.DB(db.DatabaseName).C(db.CollectionName).Insert(u)
+		if err != nil {
+			fmt.Printf("Error inserting user into the DB: %s", err.Error())
+			return false
+		}
+
+		return true
 	}
 
-	return true
+	return false
 }
 
 /*

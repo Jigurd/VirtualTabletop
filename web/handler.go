@@ -67,7 +67,36 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 
 	io.WriteString(w, html)
 }
+//HandlerCreate handle Character creation
+func HandlerCreate(w http.ResponseWriter,r *http.Request) {
+	if r.Method == "GET"{
+		html,err := readFile("html/create.html")
+		if err != nil {
+			fmt.Println("Error reading html file:",err.Error())
+			return
+		}
+	
+		io.WriteString(w,html)
+	}else if r.Method == "POST" {
+		err := r.ParseForm()
+		if err != nil {
+			fmt.Printf("Error parsing form: %s\n", err.Error())
+		}
+		//Get values for the character
+		characterName := r.FormValue("charName")
+		system := r.FormValue("system")
+		cookie, err = r.cookie("user")
+		if err != nil {
+			fmt.Printf("Error getting username: %s\n",err.Error())
+		} 
+		userName := cookie.Value
+		
 
+	}else {
+		w.WriteHeader(501)
+	}
+
+}
 /*
 HandlerRegister handle registering a new user
 */

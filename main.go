@@ -20,6 +20,8 @@ func main() {
 	web.Upgrader = websocket.Upgrader{}
 
 	r := mux.NewRouter()
+	
+	r.HandleFunc("/createChar",web.HandlerCreate)
 	r.HandleFunc("/api/usercount", web.HandleAPIUserCount)
 	r.HandleFunc("/profile", web.HandlerProfile)
 	r.HandleFunc("/login", web.HandlerLogin)

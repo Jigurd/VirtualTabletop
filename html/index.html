@@ -12,6 +12,25 @@
        
        <!-- Link to stylesheet -->
        <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
+       <link rel="stylesheet" href = "static/css/dropdown.css">
+    <script>
+    function myFunction() {
+             document.getElementById("myDropdown").classList.toggle("show");
+            }
+    /*Does not properly work.
+    window.onclick = function(event) {
+        if (!event.target.matches('.droptbtn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for(i = 0; i < dropdowns.length;i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    opendDropdown.classList.remove('show');
+                }
+            }
+        }
+    }*/
+    </script>
     </head>
     <body>
         <header>
@@ -25,12 +44,20 @@
                   <a href="/login">Log in</a>
                   <a href="/register">Register</a>
                   <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
+                  <div class = "dropdown">
+                    <button onclick= "myFunction()" class = "dropbtn"> Characters </button>
+                    <div id = "myDropdown" class="dropdown-content">
+                      <a href = "/createChar" title ="Make a new Character from Scratch" >Create Character</a>
+                      <a href = "/viewChar" title = "View your existing Characters">View Character</a>
+                    </div>
+                </div>
                   <a href="/chat">Chat</a>
                 </nav>       
         </header>
 
          <!-- Div Clear -->
          <div class="clear"></div>
-        
+
+         
     </body>
 </html>

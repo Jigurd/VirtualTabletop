@@ -68,19 +68,29 @@ func ParseRoll(input string)(result int, err error){
     var left, right interface{}
     var err1, err2 error
 
-    stringIsValid, _ := regexp.MatchString(`([1-9]+[0-9]?[/+/-/*//])?([1-9]+[0-9]?)?d[0-9]+([/+/-/*//][0-9]+)?`, input)
+    stringIsValid, _ := regexp.MatchString(`([1-9][0-9]*[/+/-/*//])*([1-9][0-9]*)?d?[1-9][0-9]*([/+/-/*//][0-9]+)?`, input)
     if !stringIsValid{
         return result, errors.New("Fatal error - Invalid expression: " +input)
+    }
+
+
+    //small insert to deal with pure math expressions that have no math
+    if (!strings.Contains(input, "d")){
+        calc, calcErr := evaluate(input)
+        if calcErr != nil{
+            return 0, err
+        }
+        return int(calc.(float64)), nil
     }
 
     //Locate dice in string, find the type of dice being rolled
     sidesStr := regexp.MustCompile("d[0-9]+").FindString(strings.ToLower(input))
     sidesStr = strings.TrimPrefix(sidesStr, "d")                              //strip d as it is unnecessary
      if !isNumeric(sidesStr){                                                  //double-check that remainder is numeric
-         fmt.Println("Error: Problem parsing diceroll")
+         fmt.Println("Error parsing diceroll: not numeric")
     }
     sides, _ := strconv.Atoi(sidesStr)                                         //make sides an int so it can be parsed
-
+                                            //error is unecessary here as we already made sure the roll is numeric and such
 
     //Split input on the dice, to get left and right expressions
     splitInput := regexp.MustCompile("d[0-9]+").Split(strings.ToLower(input), 2)
@@ -129,7 +139,7 @@ func ParseRoll(input string)(result int, err error){
     result = sumSlice(diceResults)+int(right.(float64))
 
 
-    //fmt.Printf("%v+%v= ", diceResults, right) //DEBUG
+    fmt.Printf("%v+%v= ", diceResults, right) //DEBUG
 
     return result, nil
 }

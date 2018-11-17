@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Virtual Tabletop</title>       
+        
+        <!--Link to css reset. -->
+        <link rel="stylesheet" rel="text/css" href="static/cssre/reset.css">
+       
+        <!--Getting bootstrap CDN  -->
+       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+       
+       <!-- Link to stylesheet -->
+       <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
+
+       <script type="text/javascript" language="javascript">
+        // Box width
+        var bw = 400;
+        // Box height
+        var bh = 400;
+        // Padding
+        var p = 10;
+        
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+        function drawBoard(){
+        for (var x = 0; x <= bw; x += 40) {
+            context.moveTo(0.5 + x + p, p);
+            context.lineTo(0.5 + x + p, bh + p);
+        }
+        
+        
+        for (var x = 0; x <= bh; x += 40) {
+            context.moveTo(p, 0.5 + x + p);
+            context.lineTo(bw + p, 0.5 + x + p);
+        }
+        
+        context.strokeStyle = "black";
+        context.stroke();
+        }
+        
+        drawBoard();
+        </script>
+
+
+    </head>
+    <body>
+        <header>
+                <div class="logo"><a href="index.php">
+                  <span>Virtual</span>
+                  <span>Tabletop</span> 
+                    </a>
+                </div> 
+                <nav class="menu">   
+                  <a href="/" class="current">Home</a>
+                  <a href="/login">Log in</a>
+                  <a href="/register">Register</a>
+                  <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
+                </nav>       
+        </header>
+
+
+         <!-- Div Clear -->
+         <div class="clear"></div>
+
+
+
+        <!-- HTML5 Canvas -->
+        <canvas id="canvas" width="420px" height="420px" style="background: #fff; margin:20px"></canvas>
+
+
+        
+    </body>
+</html>

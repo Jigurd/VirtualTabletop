@@ -27,6 +27,7 @@ func main() {
 	r.HandleFunc("/profile", web.HandlerProfile)
 	r.HandleFunc("/login", web.HandlerLogin)
 	r.HandleFunc("/register", web.HandlerRegister)
+	r.HandleFunc("/board", web.HandlerBoard)
 	r.HandleFunc("/", web.HandleRoot)
 	r.HandleFunc("/chat/", web.HandleChat)
 	r.HandleFunc("/ws", web.HandleChatConnections)

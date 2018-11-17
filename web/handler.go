@@ -24,9 +24,7 @@ var Clients map[*websocket.Conn]bool
 var Broadcast chan Message
 var Upgrader websocket.Upgrader
 
-/*
-HandleRoot handles root
-*/
+// HandleRoot loads index.html
 func HandleRoot(w http.ResponseWriter, r *http.Request) {
 	html, err := readFile("html/index.html")
 	if err != nil {
@@ -357,4 +355,16 @@ func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
 	for _, game := range games {
 		fmt.Fprintln(w, game.Name)
 	}
+}
+
+// HandlerBoard loads board.html
+func HandlerBoard(w http.ResponseWriter, r *http.Request) {
+	html, err := readFile("html/board.html")
+	if err != nil {
+		fmt.Println("Error loading board.html:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	io.WriteString(w, html)
 }

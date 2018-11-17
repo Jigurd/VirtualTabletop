@@ -83,3 +83,43 @@ func Test_Login(t *testing.T) {
 		t.Errorf("Status code expected to be %d, but is %d.", http.StatusOK, resp.StatusCode)
 	}
 }
+
+/*
+Tests that registering fails when the form sent is badly formed
+*/
+func Test_RegisterMalformedForm(t *testing.T) {
+	testServer := httptest.NewServer(http.HandlerFunc(HandlerRegister)) // TODO: So it doesnt add to the actual database
+	defer testServer.Close()
+
+	expected := http.StatusUnprocessableEntity
+
+	form := url.Values{}
+	form.Add("username1", time.Now().String()) // Badly formed form key
+	form.Add("email", randSeq(5)+"@email.com")
+	form.Add("password", "Password")
+	form.Add("confirm", "Password")
+
+	resp, err := http.PostForm(testServer.URL, form)
+	if err != nil {
+		t.Errorf("Error: %s", err.Error())
+	}
+
+	if resp.StatusCode != expected {
+		t.Errorf("Statuscode expected to be %d, but is %d.", expected, resp.StatusCode)
+	}
+
+	form = url.Values{}
+	form.Add("username", time.Now().String())
+	form.Add("email", randSeq(5)+"@email.com")
+	form.Add("password", "") // Badly formed form value
+	form.Add("confirm", "Password")
+
+	resp, err = http.PostForm(testServer.URL, form)
+	if err != nil {
+		t.Errorf("Error: %s", err.Error())
+	}
+
+	if resp.StatusCode != expected {
+		t.Errorf("Statuscode expected to be %d, but is %d.", expected, resp.StatusCode)
+	}
+}

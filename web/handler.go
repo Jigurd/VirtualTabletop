@@ -456,10 +456,33 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 HandlePlayerDirectory shows all players
 */
 func HandlePlayerDirectory(w http.ResponseWriter, r *http.Request) {
-	users := tabletop.UserDB.GetAllVisibleInDirectory()
-	for _, user := range users {
-		fmt.Fprintln(w, "<div><a href=\"/u/"+user.Username+"\">"+user.Username+"</a></div>")
+	html, err := readFile("html/playerdirectory.html")
+	if err != nil {
+		fmt.Println("Error reading playerdirectory.html")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
+
+	message := ""
+
+	users := tabletop.UserDB.GetAllVisibleInDirectory()
+
+	if len(users) != 0 { // Make a list as long as there are players to make a list of
+		message = "<ul>"
+	}
+
+	for _, user := range users {
+		message += "<li><div><a href=\"/u/" + user.Username + "\">" + user.Username + "</a></div></li>"
+	}
+
+	if len(users) != 0 {
+		message += "</ul>"
+	}
+
+	bodyEnd := strings.Index(html, "</body>")
+	html = html[:bodyEnd] + message + html[bodyEnd:]
+
+	io.WriteString(w, html)
 }
 
 /*

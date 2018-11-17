@@ -27,7 +27,7 @@ func md5Hash(val string) string {
 	return fmt.Sprintf("%x", hashed)
 }
 
-// HandleRoot responds with 404
+// HandleRoot loads index.html
 func HandleRoot(w http.ResponseWriter, r *http.Request) {
 	tpl, err := template.ParseFiles("html/index.html")
 	if err != nil {
@@ -141,7 +141,8 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		if password == user.Password {
 			fmt.Fprintf(w, "Welcome back, %s", user.Username)
 			// Create a token
-			CreateToken(uName)
+			token := CreateToken(uName)
+			fmt.Printf("The token string is %s\n", token)
 		} else {
 			fmt.Fprintf(w, "Incorrect password")
 		}
@@ -169,5 +170,18 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Get user and shit from cookies I guess
+	}
+}
+
+// HandlerBoard loads board.html
+func HandlerBoard(w http.ResponseWriter, r *http.Request) {
+	tpl, err := template.ParseFiles("html/board.html")
+	if err != nil {
+		fmt.Println("Error parsing board.html")
+	}
+
+	err = tpl.Execute(w, nil)
+	if err != nil {
+		fmt.Println("Error executing board.html")
 	}
 }

@@ -58,7 +58,7 @@ Allows users to chat together.
 
 **/api/count**
 
-Returns a JSON with how many users are registered in the database.
+```GET```: Returns a JSON with how many users are registered in the database.
 
 Response body:
 

@@ -6,9 +6,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 
 	"github.com/gorilla/websocket"
 	"github.com/jigurd/VirtualTabletop/tabletop"
@@ -87,7 +87,7 @@ func HandlerCreate(w http.ResponseWriter, r *http.Request) {
 		} else {
 			cookie = &http.Cookie{
 				Name:    "char",
-				Value:  	id,
+				Value:   id,
 				Expires: time.Now().Add(5 * time.Minute),
 			}
 			http.SetCookie(w, cookie)
@@ -112,7 +112,7 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("Error getting cookie: %s", err.Error())
 			return
 		}
-		charId,_ := strconv.Atoi(cookie.Value)
+		charId, _ := strconv.Atoi(cookie.Value)
 
 		errmsg, userName := tabletop.CharDB.GetString(charId, "username")
 		if errmsg != "" {
@@ -437,16 +437,24 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
 	fmt.Println(parts)
 	fmt.Println(len(parts))
-	if len(parts) > 2 {
-		game, err := tabletop.GameDB.Get(parts[2])
-		if err != nil {
-			fmt.Println("HandleGame error")
-			return
-		}
-		fmt.Fprintln(w, game.Name)
-		fmt.Fprintln(w, game.System)
-		fmt.Fprintln(w, game.Owner)
-		fmt.Fprintln(w, game.Players)
-		fmt.Fprintln(w, game.GameMasters)
+	game, err := tabletop.GameDB.Get(parts[2])
+	if err != nil {
+		fmt.Println("HandleGame error")
+		return
+	}
+	fmt.Fprintln(w, game.Name)
+	fmt.Fprintln(w, game.System)
+	fmt.Fprintln(w, game.Owner)
+	fmt.Fprintln(w, game.Players)
+	fmt.Fprintln(w, game.GameMasters)
+}
+
+/*
+HandlePlayerDirectory shows all players
+*/
+func HandlePlayerDirectory(w http.ResponseWriter, r *http.Request) {
+	users := tabletop.UserDB.GetAll()
+	for _, user := range users {
+		fmt.Fprintln(w, user.Username)
 	}
 }

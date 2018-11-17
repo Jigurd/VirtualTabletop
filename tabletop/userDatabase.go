@@ -119,6 +119,26 @@ func (db *UsersDB) Get(uName string) (User, error) {
 }
 
 /*
+GetAll returns a slice containing all existing users.
+*/
+func (db *UsersDB) GetAll() []User {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	var all []User
+
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{}).All(&all)
+	if err != nil {
+		return []User{}
+	}
+
+	return all
+}
+
+/*
 Count returns the amount of users in the database
 */
 func (db *UsersDB) Count() int {

@@ -33,6 +33,7 @@ func main() {
 	r.HandleFunc("/chat/", web.HandleChat)
 	r.HandleFunc("/ws", web.HandleChatConnections)
 	r.HandleFunc("/newgame", web.HandleNewGame)
+	r.HandleFunc("/gamebrowser", web.HandleGameBrowser)
 	http.Handle("/", r)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 

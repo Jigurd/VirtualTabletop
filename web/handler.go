@@ -324,7 +324,6 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 	} else if r.Method == "POST" {
 		fmt.Fprintf(w, "this is not implemented, your game has not been added")
 	}
-
 }
 
 // HandlerBoard loads board.html

@@ -1,6 +1,7 @@
 package tabletop
 
 import (
+	"reflect"
 	"testing"
 
 	"gopkg.in/mgo.v2/bson"
@@ -8,7 +9,7 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-func setup(t *testing.T) *GamesDB {
+func setupGamesDB(t *testing.T) *GamesDB {
 	db := &GamesDB{
 		DatabaseURL:    "mongodb://localhost",
 		DatabaseName:   "testgamesdb",
@@ -25,7 +26,7 @@ func setup(t *testing.T) *GamesDB {
 	return db
 }
 
-func tearDown(t *testing.T, db *GamesDB) {
+func tearDownGamesDB(t *testing.T, db *GamesDB) {
 	session, err := mgo.Dial(db.DatabaseURL)
 	defer session.Close()
 
@@ -40,9 +41,9 @@ func tearDown(t *testing.T, db *GamesDB) {
 }
 
 func Test_AddGame(t *testing.T) {
-	db := setup(t)
+	db := setupGamesDB(t)
 	db.Init()
-	defer tearDown(t, db)
+	defer tearDownGamesDB(t, db)
 
 	newGame := Game{
 		GameId: bson.NewObjectId().Hex(),
@@ -63,11 +64,12 @@ func Test_AddGame(t *testing.T) {
 }
 
 func Test_GetGame(t *testing.T) {
-	db := setup(t)
+	db := setupGamesDB(t)
 	db.Init()
-	defer tearDown(t, db)
+	defer tearDownGamesDB(t, db)
 
 	newGame := Game{
+		GameId: bson.NewObjectId().Hex(),
 		Name:   "Test Game",
 		Owner:  "Test Owner",
 		System: "FATAL",
@@ -84,6 +86,14 @@ func Test_GetGame(t *testing.T) {
 		return
 	}
 
-	gameFromDB, err := db.Get
+	gameFromDB, err := db.Get(newGame.GameId)
+	if err != nil {
+		t.Error("Error getting game back from DB:", err.Error())
+		return
+	}
+
+	if !reflect.DeepEqual(newGame, gameFromDB) {
+		t.Error("Added and retrieved game are not equal.")
+	}
 
 }

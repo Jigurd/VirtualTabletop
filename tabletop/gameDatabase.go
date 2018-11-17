@@ -14,12 +14,12 @@ players, description, etc
 TODO: Add a public setting i.e. the owner can hide the game from the games listing
 */
 type Game struct {
-	GameId      bson.ObjectId `bson:"gameid"`
-	Name        string        `json:"name"`    // the is the name given to the game
-	Owner       string        `json:"owner"`   // the owner is the creator and "admin" of the game
-	System      string        `json:"system"`  // the system ran eg Shadowrun 5e, Stars Without Number etc
-	Players     []string      `json:"players"` // the people playing in the game, (including GMs?)
-	GameMasters []string      `json:"payers"`  // the people running the game, can access all information in the game etc
+	GameId      string   `json:"gameid"`
+	Name        string   `json:"name"`    // the is the name given to the game
+	Owner       string   `json:"owner"`   // the owner is the creator and "admin" of the game
+	System      string   `json:"system"`  // the system ran eg Shadowrun 5e, Stars Without Number etc
+	Players     []string `json:"players"` // the people playing in the game, (including GMs?)
+	GameMasters []string `json:"payers"`  // the people running the game, can access all information in the game etc
 }
 
 /*

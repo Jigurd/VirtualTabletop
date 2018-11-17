@@ -394,13 +394,15 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 		}
 
 		newGame := tabletop.Game{
-			bson.NewObjectId(),
+			bson.NewObjectId().Hex(),
 			r.FormValue("name"),
 			cookie.Value,
 			r.FormValue("system"),
 			[]string{},
 			[]string{},
 		}
+		newGame.Players = append(newGame.Players, cookie.Value)
+		newGame.GameMasters = append(newGame.GameMasters, cookie.Value)
 		tabletop.GameDB.Add(newGame)
 	}
 }
@@ -412,7 +414,7 @@ TODO: Cool html thing
 func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
 	games := tabletop.GameDB.GetAll()
 	for _, game := range games {
-		fmt.Fprintln(w, game.Name)
+		fmt.Fprintln(w, "<div><a href=\"/game/"+game.GameId+"\">"+game.Name+"</a></div>")
 	}
 }
 
@@ -426,4 +428,25 @@ func HandlerBoard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	io.WriteString(w, html)
+}
+
+/*
+HandleGame handles the page of one game
+*/
+func HandleGame(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	fmt.Println(parts)
+	fmt.Println(len(parts))
+	if len(parts) > 2 {
+		game, err := tabletop.GameDB.Get(parts[2])
+		if err != nil {
+			fmt.Println("HandleGame error")
+			return
+		}
+		fmt.Fprintln(w, game.Name)
+		fmt.Fprintln(w, game.System)
+		fmt.Fprintln(w, game.Owner)
+		fmt.Fprintln(w, game.Players)
+		fmt.Fprintln(w, game.GameMasters)
+	}
 }

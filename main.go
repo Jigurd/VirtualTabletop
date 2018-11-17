@@ -36,6 +36,7 @@ func main() {
 	r.HandleFunc("/gamebrowser", web.HandleGameBrowser)
 	r.HandleFunc("/game/{id}", web.HandleGame)
 	r.HandleFunc("/u/{id}", web.HandleU)
+	r.HandleFunc("/i/{id}", web.HandleI)
 	r.HandleFunc("/playerdirectory", web.HandlePlayerDirectory)
 	http.Handle("/", r)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

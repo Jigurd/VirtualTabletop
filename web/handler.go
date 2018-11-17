@@ -463,9 +463,8 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, game.Players)
 	fmt.Fprintln(w, game.GameMasters)
 
-	user, _ := r.Cookie("user")
-	// NOTE: This crashes if you are not logged in
-	if user.Value == game.Owner {
+	user, err := r.Cookie("user")
+	if err == nil && user.Value == game.Owner {
 		// check if there is an invite link for this game,
 		// if not create one
 		// TODO: This should be prompted by the owner, not happening automatically
@@ -528,5 +527,15 @@ func HandleU(w http.ResponseWriter, r *http.Request) {
 HandleI handles invite links
 */
 func HandleI(w http.ResponseWriter, r *http.Request) {
-
+	user, err := r.Cookie("user")
+	l, err := tabletop.InviteLinkDB.Get(r.URL.Path)
+	if err != nil {
+		fmt.Println("Oh no no no")
+		return
+	}
+	g, err := tabletop.GameDB.Get(l.GameId)
+	if err != nil {
+		fmt.Println("No no no no no no")
+	}
+	fmt.Println(user.Value + " joined " + g.Name)
 }

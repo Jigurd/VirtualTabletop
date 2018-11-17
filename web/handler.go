@@ -435,8 +435,6 @@ HandleGame handles the page of one game
 */
 func HandleGame(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
-	fmt.Println(parts)
-	fmt.Println(len(parts))
 	game, err := tabletop.GameDB.Get(parts[2])
 	if err != nil {
 		fmt.Println("HandleGame error")
@@ -447,6 +445,20 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, game.Owner)
 	fmt.Fprintln(w, game.Players)
 	fmt.Fprintln(w, game.GameMasters)
+
+	user, _ := r.Cookie("user")
+	// NOTE: This crashes if you are not logged in
+	if user.Value == game.Owner {
+		// check if there is an invite link for this game,
+		// if not create one
+		// TODO: This should be prompted by the owner, not happening automatically
+		l := tabletop.InviteLink{}
+		if !tabletop.InviteLinkDB.HasLink(game) {
+			l = tabletop.NewInviteLink(game)
+			tabletop.InviteLinkDB.Add(l)
+		}
+		fmt.Fprintln(w, l)
+	}
 }
 
 /*
@@ -470,4 +482,11 @@ func HandleU(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintln(w, user.Username+"\nDescription\nPreferred systems\nSend message (not implemented)\nInvite to game (not implemented)")
+}
+
+/*
+HandleI handles invite links
+*/
+func HandleI(w http.ResponseWriter, r *http.Request) {
+
 }

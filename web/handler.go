@@ -6,11 +6,13 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/jigurd/VirtualTabletop/tabletop"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type Message struct {
@@ -48,6 +50,11 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 //HandlerCreate handle Character creation
 func HandlerCreate(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
+		_, err := r.Cookie("user") // check if the User is logged in
+		if err != nil {            // if the user is not logged in
+			http.Redirect(w, r, "/", 303) //Throw user back to the index
+			return
+		}
 		html, err := readFile("html/create.html")
 		if err != nil {
 			fmt.Println("Error reading html file:", err.Error())
@@ -60,25 +67,78 @@ func HandlerCreate(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
 			fmt.Printf("Error parsing form: %s\n", err.Error())
+			return
 		}
 		//Get values for the character
-		characterName := r.FormValue("charName")
-		system := r.FormValue("system")
 		cookie, err := r.Cookie("user")
 		if err != nil {
 			fmt.Printf("Error getting username: %s\n", err.Error())
+			return
 		}
 		userName := cookie.Value
+		characterName := r.FormValue("charName")
+		system := r.FormValue("system")
 
-		var newChar tabletop.Character
-		newChar.Username = userName
-		newChar.Charactername = characterName
-		newChar.System = system
+		intId, errormsg := tabletop.CreateChar(characterName, userName, system)
+		id := strconv.Itoa(intId)
+		if errormsg != "" {
+			fmt.Printf(errormsg)
+			return
+		} else {
+			cookie = &http.Cookie{
+				Name:    "char",
+				Value:   id,
+				Expires: time.Now().Add(5 * time.Minute),
+			}
+			http.SetCookie(w, cookie)
+			http.Redirect(w, r, "/editChar", 303)
+		}
 
 	} else {
 		w.WriteHeader(501)
 	}
 
+}
+
+func HandlerEdit(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		html, err := readFile("html/edit.html")
+		if err != nil {
+			fmt.Printf("Error reading html file: %s", err.Error())
+			return
+		}
+		cookie, err := r.Cookie("char")
+		if err != nil {
+			fmt.Printf("Error getting cookie: %s", err.Error())
+			return
+		}
+		charId, _ := strconv.Atoi(cookie.Value)
+
+		errmsg, userName := tabletop.CharDB.GetString(charId, "username")
+		if errmsg != "" {
+			fmt.Print(errmsg)
+			return
+		}
+		errmsg, charName := tabletop.CharDB.GetString(charId, "charname")
+		if errmsg != "" {
+			fmt.Print(errmsg)
+			return
+		}
+		errmsg, system := tabletop.CharDB.GetString(charId, "system")
+		if errmsg != "" {
+			fmt.Print(errmsg)
+			return
+		}
+
+		page := "<!DOCTYPE html><html><body><h1>" + charName + "</h1><h3>" + userName + "</h3><h4>" + system + "</h4>" + html
+
+		io.WriteString(w, page)
+
+	} else if r.Method == "POST" {
+
+	} else {
+		w.WriteHeader(501)
+	}
 }
 
 /*
@@ -105,6 +165,9 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 			Username: r.FormValue("username"),
 			Password: r.FormValue("password"),
 			Email:    r.FormValue("email"),
+			Options: tabletop.UserOptions{
+				VisibleInDirectory: true, // Visible by default
+			},
 		}
 
 		if newUser.Username == "" {
@@ -305,9 +368,9 @@ HandleNewGame handles the creation of a new game
 func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		html, err := readFile("html/newgame.html")
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		if err != nil {
 			log.Fatal(err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 
 		message := ""
@@ -322,7 +385,39 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 
 		io.WriteString(w, html)
 	} else if r.Method == "POST" {
-		fmt.Fprintf(w, "this is not implemented, your game has not been added")
+		cookie, err := r.Cookie("user")
+		if err != nil || cookie.Value == "" {
+			fmt.Fprintf(w, "You are not logged in you retard. You fucking imbecile.")
+			return
+		}
+		fmt.Println(cookie.Value)
+		err = r.ParseForm()
+		if err != nil {
+			fmt.Printf("Error parsing form: %s\n", err.Error())
+		}
+
+		newGame := tabletop.Game{
+			bson.NewObjectId().Hex(),
+			r.FormValue("name"),
+			cookie.Value,
+			r.FormValue("system"),
+			[]string{},
+			[]string{},
+		}
+		newGame.Players = append(newGame.Players, cookie.Value)
+		newGame.GameMasters = append(newGame.GameMasters, cookie.Value)
+		tabletop.GameDB.Add(newGame)
+	}
+}
+
+/*
+HandleGameBrowser shows available games
+TODO: Cool html thing
+*/
+func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
+	games := tabletop.GameDB.GetAll()
+	for _, game := range games {
+		fmt.Fprintln(w, "<div><a href=\"/game/"+game.GameId+"\">"+game.Name+"</a></div>")
 	}
 }
 
@@ -336,4 +431,46 @@ func HandlerBoard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	io.WriteString(w, html)
+}
+
+/*
+HandleGame handles the page of one game
+*/
+func HandleGame(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	fmt.Println(parts)
+	fmt.Println(len(parts))
+	game, err := tabletop.GameDB.Get(parts[2])
+	if err != nil {
+		fmt.Println("HandleGame error")
+		return
+	}
+	fmt.Fprintln(w, game.Name)
+	fmt.Fprintln(w, game.System)
+	fmt.Fprintln(w, game.Owner)
+	fmt.Fprintln(w, game.Players)
+	fmt.Fprintln(w, game.GameMasters)
+}
+
+/*
+HandlePlayerDirectory shows all players
+*/
+func HandlePlayerDirectory(w http.ResponseWriter, r *http.Request) {
+	users := tabletop.UserDB.GetAllVisibleInDirectory()
+	for _, user := range users {
+		fmt.Fprintln(w, "<div><a href=\"/u/"+user.Username+"\">"+user.Username+"</a></div>")
+	}
+}
+
+/*
+HandleU handles a user profile
+*/
+func HandleU(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	user, err := tabletop.UserDB.Get(parts[2])
+	if err != nil {
+		fmt.Println("HandleU error")
+		return
+	}
+	fmt.Fprintln(w, user.Username+"\nDescription\nPreferred systems\nSend message (not implemented)\nInvite to game (not implemented)")
 }

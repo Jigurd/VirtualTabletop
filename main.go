@@ -23,6 +23,7 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/createChar", web.HandlerCreate)
+	r.HandleFunc("/editChar", web.HandlerEdit)
 	r.HandleFunc("/api/usercount", web.HandleAPIUserCount)
 	r.HandleFunc("/profile", web.HandlerProfile)
 	r.HandleFunc("/login", web.HandlerLogin)
@@ -32,6 +33,10 @@ func main() {
 	r.HandleFunc("/chat/", web.HandleChat)
 	r.HandleFunc("/ws", web.HandleChatConnections)
 	r.HandleFunc("/newgame", web.HandleNewGame)
+	r.HandleFunc("/gamebrowser", web.HandleGameBrowser)
+	r.HandleFunc("/game/{id}", web.HandleGame)
+	r.HandleFunc("/u/{id}", web.HandleU)
+	r.HandleFunc("/playerdirectory", web.HandlePlayerDirectory)
 	http.Handle("/", r)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 

@@ -11,6 +11,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/jigurd/VirtualTabletop/tabletop"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type Message struct {
@@ -307,9 +308,9 @@ HandleNewGame handles the creation of a new game
 func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		html, err := readFile("html/newgame.html")
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		if err != nil {
 			log.Fatal(err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 
 		message := ""
@@ -324,6 +325,36 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 
 		io.WriteString(w, html)
 	} else if r.Method == "POST" {
-		fmt.Fprintf(w, "this is not implemented, your game has not been added")
+		cookie, err := r.Cookie("user")
+		if err != nil || cookie.Value == "" {
+			fmt.Fprintf(w, "You are not logged in you retard. You fucking imbecile.")
+			return
+		}
+		fmt.Println(cookie.Value)
+		err = r.ParseForm()
+		if err != nil {
+			fmt.Printf("Error parsing form: %s\n", err.Error())
+		}
+
+		newGame := tabletop.Game{
+			bson.NewObjectId(),
+			r.FormValue("name"),
+			cookie.Value,
+			r.FormValue("system"),
+			[]string{},
+			[]string{},
+		}
+		tabletop.GameDB.Add(newGame)
+	}
+}
+
+/*
+HandleGameBrowser shows available games
+TODO: Cool html thing
+*/
+func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
+	games := tabletop.GameDB.GetAll()
+	for _, game := range games {
+		fmt.Fprintln(w, game.Name)
 	}
 }

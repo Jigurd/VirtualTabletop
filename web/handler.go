@@ -276,7 +276,21 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 
 	userCookie, err := r.Cookie("user")
 	if err != http.ErrNoCookie {
-		message = "<h2>" + userCookie.Value + "'s profile.</h2>"
+		user, err := tabletop.UserDB.Get(userCookie.Value)
+		if err != nil {
+			fmt.Println("Error getting user.")
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		message = "<h2>" + user.Username + "'s profile.</h2>"
+		if r.Method == http.MethodPost { // Update the profile on POST
+			r.ParseForm()
+
+			if r.FormValue("visibileindirectory") == "visible" {
+				fmt.Println("visible is true")
+			}
+		}
 	} else {
 		message = "<h3>Hmm.. Seems like you are not logged in. Head over to the log in page to change that!</h3>"
 	}

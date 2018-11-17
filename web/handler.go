@@ -165,6 +165,9 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 			Username: r.FormValue("username"),
 			Password: r.FormValue("password"),
 			Email:    r.FormValue("email"),
+			Options: tabletop.UserOptions{
+				VisibleInDirectory: true, // Visible by default
+			},
 		}
 
 		if newUser.Username == "" {
@@ -453,7 +456,7 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 HandlePlayerDirectory shows all players
 */
 func HandlePlayerDirectory(w http.ResponseWriter, r *http.Request) {
-	users := tabletop.UserDB.GetAll()
+	users := tabletop.UserDB.GetAllVisibleInDirectory()
 	for _, user := range users {
 		fmt.Fprintln(w, "<div><a href=\"/u/"+user.Username+"\">"+user.Username+"</a></div>")
 	}

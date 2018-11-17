@@ -7,6 +7,7 @@ require (
 	github.com/benjabe/paragliding v0.0.0-20181029221339-cd681a3e0236 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fogleman/gg v1.1.0
+	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/gorilla/mux v1.6.2
 	github.com/gorilla/sessions v1.1.3

@@ -18,22 +18,29 @@
         
     </head>
     <body>
-
         <header>
-            <div class="logo"><a href="/">
-                <span>Virtual</span>
-                <span>TableTop</span>
+            <div class="logo">
+                <a href="/">
+                    <span>Virtual</span>
+                    <span>Tabletop</span> 
                 </a>
-            </div>
-
+            </div> 
             <nav class="menu">   
                 <a href="/" class="current">Home</a>
                 <a href="/login">Log in</a>
                 <a href="/register">Register</a>
                 <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
+                <a href="/newgame">Create Game</a>
+                <a href="/gamebrowser">Fing Game</a>
+                <div class = "dropdown">
+                    <button onclick= "myFunction()" class = "dropbtn"> Characters </button>
+                    <div id = "myDropdown" class="dropdown-content">
+                        <a href = "/createChar" title ="Make a new Character from Scratch" >Create Character</a>
+                        <a href = "/viewChar" title = "View your existing Characters">View Character</a>
+                    </div>
+                </div>
                 <a href="/chat">Chat</a>
-            </nav>    
-
+            </nav>  
         </header>
     
         <!-- Game creation form -->

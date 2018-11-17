@@ -192,3 +192,20 @@ func (db *UsersDB) GetAllVisibleInDirectory() []User {
 
 	return users
 }
+
+/*
+UpdateVisibilityInDirectory updates the users visibility in the player directory
+*/
+func (db *UsersDB) UpdateVisibilityInDirectory(u User) {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	updateQ := bson.M{"$set": bson.M{"options": bson.M{"visibleindirectory": u.Options.VisibleInDirectory}}}
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"username": u.Username}, updateQ)
+	if err != nil {
+		fmt.Println("Error updating the visibility.")
+	}
+}

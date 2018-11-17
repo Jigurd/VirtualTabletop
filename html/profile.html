@@ -50,9 +50,16 @@
             </nav>
         </header>
 
-
         <form action="/profile" method="post">
-            <input type="checkbox" name="visibileindirectory" value="visible">Visible </br>
+            <!--<input type="checkbox" name="visibileindirectory" value=" ">Visible </br>-->
+            <p>Select visibility in player directory
+                <select id="visible" name="visible">
+                    {{range .}}
+                    <option value="{{.Value}}" {{if .Selected}}selected="selected"{{end}}>{{.Text}}</option>
+                    {{end}}
+                    <!--<option value="notvisisble">Not visible</option>-->
+                </select>
+            </p>
             <button type="submit"  class="btn btn-success">Update profile</button>
        </form>
     </body>

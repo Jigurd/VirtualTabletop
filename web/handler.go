@@ -3,6 +3,7 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -265,17 +266,21 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 HandlerProfile handles "My Profile"
 */
 func HandlerProfile(w http.ResponseWriter, r *http.Request) {
-	html, err := readFile("html/profile.html")
-	if err != nil {
-		fmt.Println("Error reading html file:", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	message := ""
-
 	userCookie, err := r.Cookie("user")
 	if err != http.ErrNoCookie {
+		tpl, err := template.ParseFiles("html/profile.html") // Parse the HTML template
+		if err != nil {
+			fmt.Println("Error reading profile.html:", err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		type Option struct { // Options for select tag in the HTML file
+			Value, Text string
+			Selected    bool
+		}
+
+		htmlData := []Option{} // Data for the HTML template
 		user, err := tabletop.UserDB.Get(userCookie.Value)
 		if err != nil {
 			fmt.Println("Error getting user.")
@@ -283,22 +288,46 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		message = "<h2>" + user.Username + "'s profile.</h2>"
+		visible := user.Options.VisibleInDirectory
+
+		htmlData = []Option{
+			Option{
+				Value:    "visible",
+				Text:     "Visible",
+				Selected: true,
+			},
+			Option{
+				Value:    "notvisible",
+				Text:     "Not visisble",
+				Selected: true,
+			},
+		}
+
+		if visible { // Is visible, set notvisible to not be selected
+			htmlData[1].Selected = false
+		} else {
+			htmlData[0].Selected = false
+		}
+
 		if r.Method == http.MethodPost { // Update the profile on POST
 			r.ParseForm()
 
-			if r.FormValue("visibileindirectory") == "visible" {
-				fmt.Println("visible is true")
+			if r.Form["visible"][0] == "visible" {
+				user.Options.VisibleInDirectory = true
+			} else {
+				user.Options.VisibleInDirectory = false
 			}
+
+			if visible != user.Options.VisibleInDirectory { // Only update the database if there actually was a change
+				tabletop.UserDB.UpdateVisibilityInDirectory(user)
+				http.Redirect(w, r, "/profile", http.StatusMovedPermanently) // So it actually refreshes the value for you
+			} // This is such a shitty way to do it but fuck it :) Who cares about data usage these days right
 		}
-	} else {
-		message = "<h3>Hmm.. Seems like you are not logged in. Head over to the log in page to change that!</h3>"
+
+		tpl.Execute(w, htmlData)
+	} else { // For now we just 404 on non-logged in users
+		http.Error(w, "Not found", http.StatusNotFound)
 	}
-
-	bodyEnd := strings.Index(html, "</body>")
-	html = html[:bodyEnd] + message + html[bodyEnd:]
-
-	io.WriteString(w, html)
 }
 
 /*

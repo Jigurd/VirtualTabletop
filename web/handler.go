@@ -455,6 +455,19 @@ HandlePlayerDirectory shows all players
 func HandlePlayerDirectory(w http.ResponseWriter, r *http.Request) {
 	users := tabletop.UserDB.GetAll()
 	for _, user := range users {
-		fmt.Fprintln(w, user.Username)
+		fmt.Fprintln(w, "<div><a href=\"/u/"+user.Username+"\">"+user.Username+"</a></div>")
 	}
+}
+
+/*
+HandleU handles a user profile
+*/
+func HandleU(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	user, err := tabletop.UserDB.Get(parts[2])
+	if err != nil {
+		fmt.Println("HandleU error")
+		return
+	}
+	fmt.Fprintln(w, user.Username+"\nDescription\nPreferred systems\nSend message (not implemented)\nInvite to game (not implemented)")
 }

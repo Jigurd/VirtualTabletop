@@ -172,3 +172,23 @@ func (db *UsersDB) Remove(username string) bool {
 	}
 	return true
 }
+
+/*
+GetAllVisibleInDirectory gets all the users that have enabled visibility in the player directory
+*/
+func (db *UsersDB) GetAllVisibleInDirectory() []User {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	users := []User{}
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"options": bson.M{"visibleindirectory": true}}).All(&users)
+	if err != nil {
+		fmt.Println("Error retrieving users (all visible)")
+		return []User{}
+	}
+
+	return users
+}

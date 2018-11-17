@@ -165,6 +165,9 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 			Username: r.FormValue("username"),
 			Password: r.FormValue("password"),
 			Email:    r.FormValue("email"),
+			Options: tabletop.UserOptions{
+				VisibleInDirectory: true, // Visible by default
+			},
 		}
 
 		if newUser.Username == "" {
@@ -273,7 +276,21 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 
 	userCookie, err := r.Cookie("user")
 	if err != http.ErrNoCookie {
-		message = "<h2>" + userCookie.Value + "'s profile.</h2>"
+		user, err := tabletop.UserDB.Get(userCookie.Value)
+		if err != nil {
+			fmt.Println("Error getting user.")
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		message = "<h2>" + user.Username + "'s profile.</h2>"
+		if r.Method == http.MethodPost { // Update the profile on POST
+			r.ParseForm()
+
+			if r.FormValue("visibileindirectory") == "visible" {
+				fmt.Println("visible is true")
+			}
+		}
 	} else {
 		message = "<h3>Hmm.. Seems like you are not logged in. Head over to the log in page to change that!</h3>"
 	}
@@ -465,10 +482,33 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 HandlePlayerDirectory shows all players
 */
 func HandlePlayerDirectory(w http.ResponseWriter, r *http.Request) {
-	users := tabletop.UserDB.GetAll()
-	for _, user := range users {
-		fmt.Fprintln(w, "<div><a href=\"/u/"+user.Username+"\">"+user.Username+"</a></div>")
+	html, err := readFile("html/playerdirectory.html")
+	if err != nil {
+		fmt.Println("Error reading playerdirectory.html")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
+
+	message := ""
+
+	users := tabletop.UserDB.GetAllVisibleInDirectory()
+
+	if len(users) != 0 { // Make a list as long as there are players to make a list of
+		message = "<ul>"
+	}
+
+	for _, user := range users {
+		message += "<li><div><a href=\"/u/" + user.Username + "\">" + user.Username + "</a></div></li>"
+	}
+
+	if len(users) != 0 {
+		message += "</ul>"
+	}
+
+	bodyEnd := strings.Index(html, "</body>")
+	html = html[:bodyEnd] + message + html[bodyEnd:]
+
+	io.WriteString(w, html)
 }
 
 /*

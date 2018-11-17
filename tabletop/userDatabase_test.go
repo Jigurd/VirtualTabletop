@@ -40,7 +40,7 @@ func tearDown(t *testing.T, db *UsersDB) {
 /*
 Tests if adding a user is possible. Also tests the Exists function.
 */
-func TestAdd(t *testing.T) {
+func Test_AddUser(t *testing.T) {
 	db := setup(t)
 	db.Init()
 	defer tearDown(t, db)
@@ -77,9 +77,37 @@ func TestAdd(t *testing.T) {
 }
 
 /*
-Tests that adding the same user twice fails
+Tests that adding a user with a taken username (but different email) fails
 */
-func TestAddDuplicateName(t *testing.T) {
+func Test_AddDuplicateName(t *testing.T) {
+	db := setup(t)
+	db.Init()
+	defer tearDown(t, db)
+
+	newUser := User{
+		Username: "Testing",
+		Password: "Password_test",
+		Email:    "tester@testing.us.gov.org",
+	}
+	if !db.Add(newUser) {
+		t.Error("Error adding initial user")
+	}
+
+	duplicateUser := User{
+		Username: "Testing",
+		Password: "Password_test",
+		Email:    "tester@testing.us.gov.org",
+	}
+
+	if db.Add(duplicateUser) {
+		t.Error("Managed to add duplicate username.")
+	}
+}
+
+/*
+Tests that adding a user with a taken email (but different username) fails
+*/
+func Test_AddDuplicateEmail(t *testing.T) {
 	db := setup(t)
 	db.Init()
 	defer tearDown(t, db)
@@ -90,9 +118,17 @@ func TestAddDuplicateName(t *testing.T) {
 		Email:    "tester@testing.us.gov.org",
 	}
 
-	db.Add(newUser)
+	if !db.Add(newUser) {
+		t.Error("Error adding initial user")
+	}
 
-	if db.Add(newUser) {
-		t.Error("Managed to add same user twice.")
+	duplicateUser := User{
+		Username: "TestingDuplicate",
+		Password: "Password_test",
+		Email:    "tester@testing.us.gov.org",
+	}
+
+	if db.Add(duplicateUser) {
+		t.Error("Managed to add duplicate email.")
 	}
 }

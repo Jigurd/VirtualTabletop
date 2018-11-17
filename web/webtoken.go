@@ -1,8 +1,7 @@
 package web
 
 import (
-	jwt "github.com/dgrijalva/jwt-go"
-	"log"
+	//jwt "github.com/dgrijalva/jwt-go"
 	"time"
 )
 

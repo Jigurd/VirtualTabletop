@@ -7,10 +7,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const (
-	dbURL = "mongodb://admin:greatadminpassword69@ds151523.mlab.com:51523/virtualtabletop"
-)
-
 var (
 	UserDB UsersDB // UserDB contains the users
 )
@@ -62,19 +58,23 @@ func (db *UsersDB) Init() {
 Add adds a new user to the database, returns if the adding was successful
 */
 func (db *UsersDB) Add(u User) bool {
-	session, err := mgo.Dial(db.DatabaseURL)
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
+	if !db.Exists(u) { // MongoDB index keys need both to be there, so check if it exists first
+		session, err := mgo.Dial(db.DatabaseURL)
+		if err != nil {
+			panic(err)
+		}
+		defer session.Close()
 
-	err = session.DB(db.DatabaseName).C(db.CollectionName).Insert(u)
-	if err != nil {
-		fmt.Printf("Error inserting user into the DB: %s", err.Error())
-		return false
+		err = session.DB(db.DatabaseName).C(db.CollectionName).Insert(u)
+		if err != nil {
+			fmt.Printf("Error inserting user into the DB: %s", err.Error())
+			return false
+		}
+
+		return true
 	}
 
-	return true
+	return false
 }
 
 /*
@@ -116,4 +116,39 @@ func (db *UsersDB) Get(uName string) (User, error) {
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"username": uName}).One(&user)
 
 	return user, err
+}
+
+/*
+Count returns the amount of users in the database
+*/
+func (db *UsersDB) Count() int {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	count, err := session.DB(db.DatabaseName).C(db.CollectionName).Count()
+	if err != nil {
+		fmt.Println("Error getting count.")
+	}
+
+	return count
+}
+
+/*
+Remove removes a give user from the database, returns true if a user was removed
+*/
+func (db *UsersDB) Remove(username string) bool {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Remove(bson.M{"username": username})
+	if err != nil {
+		return false
+	}
+	return true
 }

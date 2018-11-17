@@ -328,13 +328,12 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 
 // HandlerBoard loads board.html
 func HandlerBoard(w http.ResponseWriter, r *http.Request) {
-	tpl, err := template.ParseFiles("html/board.html")
+	html, err := readFile("html/board.html")
 	if err != nil {
-		fmt.Println("Error parsing board.html")
+		fmt.Println("Error loading board.html:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
-	err = tpl.Execute(w, nil)
-	if err != nil {
-		fmt.Println("Error executing board.html")
-	}
+	io.WriteString(w, html)
 }

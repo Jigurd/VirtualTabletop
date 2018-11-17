@@ -135,3 +135,20 @@ func (db *UsersDB) Count() int {
 
 	return count
 }
+
+/*
+Remove removes a give user from the database, returns true if a user was removed
+*/
+func (db *UsersDB) Remove(username string) bool {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Remove(bson.M{"username": username})
+	if err != nil {
+		return false
+	}
+	return true
+}

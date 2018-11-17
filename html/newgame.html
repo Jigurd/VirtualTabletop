@@ -36,32 +36,24 @@
 
         </header>
     
-        <!-- Register Form-->
-        <div class="register">   
-                <h1>Register new user</h1>
+        <!-- Game creation form -->
+        <!-- TODO: if you're like not logged in you shouldn't even be here  :( -->
+        <div class="newgame">   
+            <h1>New game :)</h1>
                 <div class="form">
-                      <form action="/register" method="post">
+                      <form action="/newgame" method="post">
                            <ul>
                                 <li>
                                     <span class="glyphicon glyphicon-user"></span>
-                                    <input type="text" name="username" size="20" maxlength="20" placeholder="Username" />
+                                    <input type="text" name="name" size="20" maxlength="69" placeholder="Name" />
                                </li>
                                 <li>
                                     <span class="glyphicon glyphicon-envelope"></span>
-                                    <input type="text" name="email" size="20" maxlength="69" placeholder="Email" /> 
-                                    <span class="glyphicon glyphicon-info-sign" title="The email name part can consist of 0-9 and lower- and uppercase characters, it must be at least 3 characters long. The domain must be at least 2 characters both before and after the dot."></span>
+                                    <input type="text" name="system" size="20" maxlength="69" placeholder="System" /> 
                                </li>
                                <li>
-                                    <span class="glyphicon glyphicon-lock"></span>
-                                    <input type="password" name="password" size="20" maxlength="20" placeholder="Password" />
-                                    <span class="glyphicon glyphicon-info-sign" title="The password must be at least 5 characters long and can include both numbers and characters"></span>
-                               </li>
                                <li>
-                                    <span class="glyphicon glyphicon-lock"></span>
-                                    <input type="password" name="confirm" size="20" maxlength="20" placeholder="Confirm password" />
-                               </li>
-                               <li>
-                                    <button type="submit"  class="btn btn-success">Register</button>
+                                    <button type="submit"  class="btn btn-success">Create Game</button>
                                 </li>
                             </ul>
                       </form>  

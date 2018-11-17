@@ -34,12 +34,13 @@ type GamesDB struct {
 var GameDB GamesDB // the db containing all games
 
 func init() {
-	fmt.Println("lol rawr xD OwO")
 	GameDB = GamesDB{
 		dbURL,
 		"virtualtabletop",
 		"games",
 	}
+
+	GameDB.Init()
 }
 
 /*//////////////////////////////////////////////////////////////////////////////////////////////////////

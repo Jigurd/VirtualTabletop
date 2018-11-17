@@ -1,11 +1,9 @@
 package web
 
 import (
-	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -26,32 +24,13 @@ var Broadcast chan Message
 var Upgrader websocket.Upgrader
 
 /*
-Creates an MD5 hash out of the given string
-*/
-func md5Hash(val string) string {
-	hashed := md5.Sum([]byte(val))
-	return fmt.Sprintf("%x", hashed)
-}
-
-/*
-Reads a file and returns it as a string, and eventual error
-*/
-func readFile(fileName string) (string, error) {
-	htmlByte, err := ioutil.ReadFile(fileName)
-	if err != nil {
-		return "", err
-	}
-
-	return string(htmlByte), nil
-}
-
-/*
 HandleRoot handles root
 */
 func HandleRoot(w http.ResponseWriter, r *http.Request) {
 	html, err := readFile("html/index.html")
 	if err != nil {
 		fmt.Println("Error reading html file:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -74,6 +53,7 @@ func HandlerCreate(w http.ResponseWriter, r *http.Request) {
 		html, err := readFile("html/create.html")
 		if err != nil {
 			fmt.Println("Error reading html file:", err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
@@ -110,11 +90,12 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 	html, err := readFile("html/register.html")
 	if err != nil {
 		fmt.Println("Error reading html file:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	message := ""
-	statusCode := 200
+	statusCode := http.StatusOK
 
 	if r.Method == http.MethodPost {
 		err := r.ParseForm()
@@ -124,29 +105,36 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 
 		newUser := tabletop.User{ // Create a user based on the form values
 			Username: r.FormValue("username"),
-			Password: md5Hash(r.FormValue("password")),
+			Password: r.FormValue("password"),
 			Email:    r.FormValue("email"),
 		}
 
 		if newUser.Username == "" {
-			message = fmt.Sprint("Please enter a username.") // Status code 422: Unprocessable entity means
-			statusCode = http.StatusUnprocessableEntity      // the syntax was understood but the data is bad
+			message = "Please enter a username."        // Status code 422: Unprocessable entity means
+			statusCode = http.StatusUnprocessableEntity // the syntax was understood but the data is bad
 		} else if newUser.Email == "" {
-			message = fmt.Sprint("Please enter an email.")
+			message = "Please enter an email."
+			statusCode = http.StatusUnprocessableEntity
+		} else if !validEmail(newUser.Email) {
+			message = "Email is invalid."
+			statusCode = http.StatusUnprocessableEntity
+		} else if !validPassword(newUser.Password) {
+			message = "Password is invalid"
 			statusCode = http.StatusUnprocessableEntity
 		} else if tabletop.UserDB.Exists(newUser) {
-			message = fmt.Sprint("That username/email is taken.")
+			message = "That username/email is taken."
 			statusCode = http.StatusUnprocessableEntity
 		} else { // OK username/Email
-			if newUser.Password != md5Hash(r.FormValue("confirm")) {
-				message = fmt.Sprint("Passwords don't match.")
+			if newUser.Password != r.FormValue("confirm") {
+				message = "Passwords don't match."
 				statusCode = http.StatusUnprocessableEntity
-			} else { // OK password
+			} else { // OK password, eveything is OK and the user is added.
+				newUser.Password = md5Hash(newUser.Password) // Hash the password before storing it
 				if tabletop.UserDB.Add(newUser) {
-					message = fmt.Sprint("User created!")
-					w.WriteHeader(http.StatusCreated)
+					message = "User created!"
+					statusCode = http.StatusCreated
 				} else {
-					message = fmt.Sprint("Unknonwn error in creating the user.")
+					message = "Unknonwn error in creating the user."
 					statusCode = http.StatusUnprocessableEntity
 				}
 			}
@@ -169,6 +157,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	html, err := readFile("html/login.html") // Conversion from []byte to string
 	if err != nil {
 		fmt.Println("Error reading html file:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -195,7 +184,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 			}
 			http.SetCookie(w, cookie)
 
-			http.Redirect(w, r, "/profile", http.StatusMovedPermanently) // TODO: Redirect to my profile?
+			http.Redirect(w, r, "/profile", http.StatusMovedPermanently)
 		} else {
 			message = fmt.Sprintf("Couldn't log in")
 			statusCode = http.StatusUnprocessableEntity
@@ -218,6 +207,7 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 	html, err := readFile("html/profile.html")
 	if err != nil {
 		fmt.Println("Error reading html file:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -243,6 +233,7 @@ func HandleChat(w http.ResponseWriter, r *http.Request) {
 	html, err := readFile("html/chat.html")
 	if err != nil {
 		fmt.Println("Error reading html file:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 	message := ""
@@ -316,6 +307,7 @@ HandleNewGame handles the creation of a new game
 func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		html, err := readFile("html/newgame.html")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		if err != nil {
 			log.Fatal(err)
 		}

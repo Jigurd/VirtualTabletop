@@ -1,11 +1,6 @@
 # VirtualTabletop
 ## Project description
 
-This project uses:
-1. Heroku
-2. OpenStack
-3. Databases
-
 Create a better Roll20.
 
 Users can register accounts and login.
@@ -23,14 +18,20 @@ Users can chat with eachother.
 
 3. How to use OpenStack and deploy apps there.
 
+4. The Linux command ```screen```. This is very useful for OpenStack deployment.
+
 
 **What was hard**:
-1. As mentioned under *What we learned* we learned two methods for serving HTML. The first was using a template, by first parsing the HTML file and then executing it. This worked fine to start with, but when trying to incorporate cookies this proved otherwise. When we did this we executed the template at the start, which involves writing to the responseWriter. As it turns out, all headers and similar information must be written before any other information (as far as we understood, this is a problem with HTTP and not specific to Go). Our solution was to read the HTML file as pure text and using *func WriteString(w Writer, s string)*, and calling this at the end of the relevant handler function. This also makes it possible to add more to the HTML file without changing the actual file.
+1. As mentioned under *What we learned* we learned two methods for serving HTML. The first was using a template, by first parsing the HTML file and then executing it. This worked fine to start with, but when trying to incorporate cookies this proved otherwise. When we did this we executed the template at the start, which involves writing to the responseWriter. As it turns out, all headers and similar information must be written before any other information (as far as we understood, this is a problem with HTTP and not specific to Go). Our solution was to read the HTML file as pure text and using *func WriteString(w Writer, s string)*, and calling this at the end of the relevant handler function. This also makes it possible, and fairly easy, to add more to the HTML output without changing the actual file.
 
 
 **Total hours**:
 4102 (sike)
 
+**This project uses**:
+1. Heroku
+2. OpenStack
+3. Databases (MongoDB)
 
 # Usage
 **/**
@@ -57,7 +58,7 @@ Allows users to chat together.
 
 **/api/count**
 
-Returns a JSON with how many users are registered in the database.
+```GET```: Returns a JSON with how many users are registered in the database.
 
 Response body:
 
@@ -99,5 +100,9 @@ This application is deployed on Heroku with the link: https://glacial-bastion-87
 
 
 # Clock trigger
+An independent application sends a GET request every 10 minutes to */api/count* and if the count has changed since the last check it notifies a Discord channel with how many users there are. This application is deployed on OpenStack, and the source code resides
+in this repo in the folder ```clocktrigger```.
 
-An independent application sends a GET request every 10 minutes to */api/count* and if the count has changed since it notifies a Discord channel with how many users there are. This application is deployed on OpenStack, and in this repo it resides in the folder ```clocktrigger```.
+
+# Other notes
+1. The *HTML* folder is present two places, at the top level and in the *web* folder. This is not an accidental duplication. Since our ```main.go``` file is at the top level, this is where the program looks for ```html/<htmlfile.html>``` when referenced in the code. ```handler.go``` lies in the ```web``` folder, and when the handler functions are ran through the tests, they will look for ```web/html/<htmlfile.html>```. This causes an error when they normally can't be found, making the tests fail. The tests obviously don't need the HTML itself, but when the handlers can't find the files they abort. Having the HTML in two locations is a hacky solution, and not a very good one, but we feel it is better than changing the actual code to pass the test cases (by for example looking for the files in two locations). 

@@ -1,12 +1,30 @@
 package web
 
 import (
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 	"time"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+/*
+Create a random string (used for email generation)
+*/
+func randSeq(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
 
 func Test_Register(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(HandlerRegister)) // TODO: So it doesnt add to the actual database
@@ -16,7 +34,7 @@ func Test_Register(t *testing.T) {
 
 	form := url.Values{}
 	form.Add("username", time.Now().String()) // To not add a user with the same credentials for each test
-	form.Add("email", time.Now().String())
+	form.Add("email", randSeq(5)+"@email.com")
 	form.Add("password", "Password")
 	form.Add("confirm", "Password")
 
@@ -38,7 +56,7 @@ func Test_Login(t *testing.T) {
 
 	form := url.Values{}
 	form.Add("username", username)
-	form.Add("email", time.Now().String())
+	form.Add("email", randSeq(5)+"@email.com")
 	form.Add("password", "Password")
 	form.Add("confirm", "Password")
 

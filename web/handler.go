@@ -74,6 +74,7 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 	html, err := readFile("html/index.html")
 	if err != nil {
 		fmt.Println("Error reading html file:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -96,6 +97,7 @@ func HandlerCreate(w http.ResponseWriter, r *http.Request) {
 		html, err := readFile("html/create.html")
 		if err != nil {
 			fmt.Println("Error reading html file:", err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
@@ -132,6 +134,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 	html, err := readFile("html/register.html")
 	if err != nil {
 		fmt.Println("Error reading html file:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -200,6 +203,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	html, err := readFile("html/login.html") // Conversion from []byte to string
 	if err != nil {
 		fmt.Println("Error reading html file:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -249,6 +253,7 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 	html, err := readFile("html/profile.html")
 	if err != nil {
 		fmt.Println("Error reading html file:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -274,6 +279,7 @@ func HandleChat(w http.ResponseWriter, r *http.Request) {
 	html, err := readFile("html/chat.html")
 	if err != nil {
 		fmt.Println("Error reading html file:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 	message := ""
@@ -347,6 +353,7 @@ HandleNewGame handles the creation of a new game
 func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		html, err := readFile("html/newgame.html")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -31,7 +31,7 @@
                 <a href="/login">Log in</a>
                 <a href="/register">Register</a>
                 <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
-                <a href="/chat">LE CHAT</a>
+                <a href="/chat">Chat</a>
             </nav>    
 
         </header>
@@ -46,23 +46,22 @@
                                     <span class="glyphicon glyphicon-user"></span>
                                     <input type="text" name="username" size="20" maxlength="20" placeholder="Username" />
                                </li>
-                               
                                 <li>
                                     <span class="glyphicon glyphicon-envelope"></span>
-                                    <input type="text" name="email" size="20" maxlength="20" placeholder="Email" /> 
+                                    <input type="text" name="email" size="20" maxlength="69" placeholder="Email" /> 
+                                    <span class="glyphicon glyphicon-info-sign" title="The email part can consist of 0-9 and lower- and uppercase characters, it must be at least 3 characters long. The domain must be at least 2 characters both before and after the dot."></span>
                                </li>
                                <li>
                                     <span class="glyphicon glyphicon-lock"></span>
                                     <input type="password" name="password" size="20" maxlength="20" placeholder="Password" />
+                                    <span class="glyphicon glyphicon-info-sign" title="The password must be at least 5 characters long and can include both numbers and characters"></span>
                                </li>
                                <li>
-    
                                     <span class="glyphicon glyphicon-lock"></span>
                                     <input type="password" name="confirm" size="20" maxlength="20" placeholder="Confirm password" />
                                </li>
                                <li>
-    
-                                       <button type="submit"  class="btn btn-success">Register</button>
+                                    <button type="submit"  class="btn btn-success">Register</button>
                                 </li>
                             </ul>
                       </form>  

@@ -320,8 +320,8 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 
 			if r.Form["visible"][0] == "visible" { // The first option is "Visible"
 				user.Options.VisibleInDirectory = true
-			} else {
-				user.Options.VisibleInDirectory = false
+			} else if r.Form["visible"][0] == "notvisible" { // If the form has neither of the two
+				user.Options.VisibleInDirectory = false // nothing is done
 			}
 
 			tabletop.UserDB.UpdateVisibilityInDirectory(user)

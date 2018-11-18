@@ -140,13 +140,11 @@ func PrepImage(file os.File, tags []string) (ImageData, error) {
 	if err != nil {
 		return ImageData{file.Name(), "", 0, tags}, err
 	}
-	//buffer and encode to string
-	buf2 := new(bytes.Buffer)
-	err2 := jpeg.Encode(buf2, m, nil)
+	//encode to string
+	imgBase64Str, err2 := EncodeImage(m)
 	if err2 != nil {
 		return ImageData{file.Name(), "", 0, tags}, err2
 	}
-	imgBase64Str := base64.StdEncoding.EncodeToString(buf2.Bytes())
 
 	imgData := ImageData{file.Name(), imgBase64Str, setTimestamp(), tags}
 
@@ -162,4 +160,17 @@ func DecodeImage(imgData ImageData) (image.Image, error) {
 		return p, err
 	}
 	return p, nil
+}
+
+//EncodeImage takes an image and encodes it into a string using base64
+func EncodeImage(m image.Image) (string, error) {
+	//buffer and encode to bytes
+	buf2 := new(bytes.Buffer)
+	err2 := jpeg.Encode(buf2, m, nil)
+	if err2 != nil {
+		return "", err2
+	}
+	//encode bytes to string
+	imgBase64Str := base64.StdEncoding.EncodeToString(buf2.Bytes())
+	return imgBase64Str, nil
 }

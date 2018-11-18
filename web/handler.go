@@ -577,6 +577,11 @@ func HandlePlayerDirectory(w http.ResponseWriter, r *http.Request) {
 		htmlData["AnyPlayers"] = false
 	}
 
+	_, err = r.Cookie("user")
+	if err != http.ErrNoCookie {
+		htmlData["LoggedIn"] = true
+	}
+
 	err = tpl.Execute(w, htmlData)
 	if err != nil {
 		fmt.Println("Error executing template:", err.Error())

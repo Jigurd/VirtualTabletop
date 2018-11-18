@@ -20,10 +20,10 @@
     </head>
     <body>
         <header>
-            {{template "header.html"}}
+            {{template "header.html" .}}
         </header>
 
-        {{if .UserFound}}
+        {{if .LoggedIn}}
         <form action="/profile" method="post">
             <!--<input type="checkbox" name="visibileindirectory" value=" ">Visible </br>-->
             <p>Select visibility in player directory

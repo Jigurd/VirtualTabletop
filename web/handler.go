@@ -296,7 +296,7 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 	htmlData := make(map[string]interface{}) // The data that will be used with the HTML template
 	userCookie, err := r.Cookie("user")
 	if err != http.ErrNoCookie { // A user cookie was found
-		htmlData["UserFound"] = true
+		htmlData["LoggedIn"] = true
 
 		type Option struct { // Options for select tag in the HTML file
 			Value, Text string
@@ -351,7 +351,7 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else {
-		htmlData["UserFound"] = false
+		htmlData["LoggedIn"] = false
 	}
 
 	err = tpl.Execute(w, htmlData)

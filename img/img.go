@@ -6,6 +6,7 @@ import (
 	"image"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"gopkg.in/mgo.v2"
@@ -151,4 +152,14 @@ func PrepImage(file os.File, tags []string) (ImageData, error) {
 
 	//we're done!
 	return imgData, nil
+}
+
+//DecodeImage takes an image stuct and returns the image.Image data.
+func DecodeImage(imgData ImageData) (image.Image, error) {
+	back := base64.NewDecoder(base64.StdEncoding, strings.NewReader(imgData.ImgB64))
+	p, _, err := image.Decode(back)
+	if err != nil {
+		return p, err
+	}
+	return p, nil
 }

@@ -449,18 +449,14 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
-
-		//message := ""
+		htmlData := make(map[string]interface{})
 
 		_, err = r.Cookie("user")
-		if err == http.ErrNoCookie {
-			//message = "<h3>Hmm.. Seems like you are not logged in. Head over to the log in page to change that!</h3>"
+		if err != http.ErrNoCookie {
+			htmlData["LoggedIn"] = true
 		}
 
-		//bodyEnd := strings.Index(html, "</body>")
-		//html = html[:bodyEnd] + message + html[bodyEnd:]
-
-		err = tpl.Execute(w, nil)
+		err = tpl.Execute(w, htmlData)
 		if err != nil {
 			fmt.Println("Error executing template:", err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -496,10 +492,38 @@ HandleGameBrowser shows available games
 TODO: Cool html thing
 */
 func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
-	games := tabletop.GameDB.GetAll()
-	for _, game := range games {
-		fmt.Fprintln(w, "<div><a href=\"/game/"+game.GameId+"\">"+game.Name+"</a></div>")
+	tpl, err := template.ParseFiles("html/gamebrowser.html", "html/header.html")
+	if err != nil {
+		fmt.Println("Error loading gamebrowser.html:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
+	htmlData := make(map[string]interface{})
+
+	_, err = r.Cookie("user")
+	if err != http.ErrNoCookie {
+		htmlData["LoggedIn"] = true
+	}
+
+	games := tabletop.GameDB.GetAll()
+	gameNames := []string{}
+
+	for _, game := range games {
+		gameNames = append(gameNames, game.Name)
+	}
+
+	htmlData["Games"] = gameNames
+
+	if len(games) != 0 {
+		htmlData["AnyGames"] = true
+	}
+
+	err = tpl.Execute(w, htmlData)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
+
 }
 
 // HandlerBoard loads board.html

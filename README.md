@@ -12,9 +12,9 @@ Users can chat with eachother.
 
 
 **What we learned**:
-1. How to serve HTML from Go. We learned two methods for doing this. As described in point 1 under *What was hard*, we faced some challenges with one method, which lead us to using another method.
+1. How to serve HTML from Go. We learned two methods for doing this: Templates and reading the file as is and using ```func WriteString(w Writer, s string)```. For static HTML files (or very basic editing), using the second method is probably the easiest and most straight forward, but using templates allows for a lot more dynamic websites. The syntax isn't exactly the prettiest, though.
 
-2. How to use cookies with Go.
+2. How to use cookies with Go (which wasn't as straight forward as one might think, see point 1 under *What was hard*)
 
 3. How to use OpenStack and deploy apps there.
 
@@ -22,7 +22,7 @@ Users can chat with eachother.
 
 
 **What was hard**:
-1. As mentioned under *What we learned* we learned two methods for serving HTML. The first was using a template, by first parsing the HTML file and then executing it. This worked fine to start with, but when trying to incorporate cookies this proved otherwise. When we did this we executed the template at the start, which involves writing to the responseWriter. As it turns out, all headers and similar information must be written before any other information (as far as we understood, this is a problem with HTTP and not specific to Go). Our solution was to read the HTML file as pure text and using *func WriteString(w Writer, s string)*, and calling this at the end of the relevant handler function. This also makes it possible, and fairly easy, to add more to the HTML output without changing the actual file.
+1. When figuring out how to use cookies we had a lot of problems. At the start we were parsing the html to a template and executing it at the top of the handlers. This was not a very good idea. As it turns out, headers and cookies need to be set before anything is written to the responseWriter (as far as we understand this is a "problem" with HTTP and not specific to Go), so when we tried to set the cookies, nothing was saved. This was obviously a fairly easy fix. All that is needed is to execute or write the HTML at the end, but nevertheless this was time consuming to figure out.
 
 
 **Total hours**:
@@ -40,15 +40,19 @@ This is the index page, which doesn't hold much useful information. If logged in
 
 **/register**
 
-```POST```: With the form values "username", "email", "password" and "confirm" a user can be registered to the database.
+```POST```: With the form keys "username", "email", "password" and "confirm" a user can be registered to the database.
 
 **/login**
 
-```POST```: With the form values "username" and "password" you can log in. Redirects to "/" on successfull login.
+```POST```: With the form keys "username" and "password" you can log in. Redirects to "/" on successfull login.
 
+**/playerdirectory**:
+Shows a list of users available to play (being shown here can be toggled, see more below).
 
 **/profile**
+```POST```: With the form keys "visible" (value "visible" or "notvisible", this updates a users visibility under ```/playerdirectory```) and "desc" you can update user information (only if you are looged in).
 
+When not logged in a link to /register and /login is shown.
 
 
 **/chat**

@@ -26,26 +26,30 @@ var Clients map[*websocket.Conn]bool
 var Broadcast chan Message
 var Upgrader websocket.Upgrader
 
-// HandleRoot loads index.html
+/*
+HandleRoot loads index.html
+*/
 func HandleRoot(w http.ResponseWriter, r *http.Request) {
-	html, err := readFile("html/index.html")
+	tpl, err := template.ParseFiles("html/index.html", "html/header.html") // Parse the HTML files into a template
 	if err != nil {
-		fmt.Println("Error reading html file:", err.Error())
+		fmt.Println("Error reading profile.html:", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	message := "" // Message to be output to the user
+	htmlData := make(map[string]interface{})
 
-	cookie, err := r.Cookie("user") // Get the user cookie
-	if err != http.ErrNoCookie {    // If a cookie was found we display a nice welcome message
-		message = "<h1>Hello, " + cookie.Value + " :)</h1>"
+	userCookie, err := r.Cookie("user") // Get the user cookie
+	if err != http.ErrNoCookie {        // If a cookie was found we display a nice welcome message
+		htmlData["LoggedIn"] = true
+		htmlData["Message"] = "Hello, " + userCookie.Value + " :)"
 	}
 
-	bodyEnd := strings.Index(html, "</body>")
-	html = html[:bodyEnd] + message + html[bodyEnd:] // Inset the message at the end of the body
-
-	io.WriteString(w, html)
+	err = tpl.Execute(w, htmlData)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 }
 
 //HandlerCreate handle Character creation
@@ -146,20 +150,22 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 HandlerRegister handle registering a new user
 */
 func HandlerRegister(w http.ResponseWriter, r *http.Request) {
-	html, err := readFile("html/register.html")
+	tpl, err := template.ParseFiles("html/register.html", "html/header.html")
 	if err != nil {
-		fmt.Println("Error reading html file:", err.Error())
+		fmt.Println("Error reading register.html:", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	message := ""
+	htmlData := make(map[string]interface{})
 	statusCode := http.StatusOK
 
 	if r.Method == http.MethodPost {
 		err := r.ParseForm()
 		if err != nil {
 			fmt.Printf("Error parsing form: %s\n", err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
 		}
 
 		newUser := tabletop.User{ // Create a user based on the form values
@@ -173,31 +179,31 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if newUser.Username == "" {
-			message = "Please enter a username."        // Status code 422: Unprocessable entity means
-			statusCode = http.StatusUnprocessableEntity // the syntax was understood but the data is bad
+			htmlData["Message"] = "Please enter a username." // Status code 422: Unprocessable entity means
+			statusCode = http.StatusUnprocessableEntity      // the syntax was understood but the data is bad
 		} else if newUser.Email == "" {
-			message = "Please enter an email."
+			htmlData["Message"] = "Please enter an email."
 			statusCode = http.StatusUnprocessableEntity
 		} else if !validEmail(newUser.Email) {
-			message = "Email is invalid."
+			htmlData["Message"] = "Email is invalid."
 			statusCode = http.StatusUnprocessableEntity
 		} else if !validPassword(newUser.Password) {
-			message = "Password is invalid"
+			htmlData["Message"] = "Password is invalid"
 			statusCode = http.StatusUnprocessableEntity
 		} else if tabletop.UserDB.Exists(newUser) {
-			message = "That username/email is taken."
+			htmlData["Message"] = "That username/email is taken."
 			statusCode = http.StatusUnprocessableEntity
 		} else { // OK username/Email
 			if newUser.Password != r.FormValue("confirm") {
-				message = "Passwords don't match."
+				htmlData["Message"] = "Passwords don't match."
 				statusCode = http.StatusUnprocessableEntity
 			} else { // OK password, eveything is OK and the user is added.
 				newUser.Password = md5Hash(newUser.Password) // Hash the password before storing it
 				if tabletop.UserDB.Add(newUser) {
-					message = "User created!"
+					htmlData["Message"] = "User created!"
 					statusCode = http.StatusCreated
 				} else {
-					message = "Unknonwn error in creating the user."
+					htmlData["Message"] = "Unknonwn error in creating the user."
 					statusCode = http.StatusUnprocessableEntity
 				}
 			}
@@ -206,25 +212,26 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		statusCode = http.StatusNotImplemented
 	}
 
-	bodyEnd := strings.Index(html, "</body>")
-	html = html[:bodyEnd] + "<h3>" + message + "</h3>" + html[bodyEnd:] // Inset the message at the end of the body
-
 	w.WriteHeader(statusCode)
-	io.WriteString(w, html)
+	err = tpl.Execute(w, htmlData)
+	if err != nil {
+		fmt.Println("Error reading executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 }
 
 /*
 HandlerLogin handles users logging in
 */
 func HandlerLogin(w http.ResponseWriter, r *http.Request) {
-	html, err := readFile("html/login.html") // Conversion from []byte to string
+	tpl, err := template.ParseFiles("html/login.html", "html/header.html")
 	if err != nil {
 		fmt.Println("Error reading html file:", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	message := ""
+	htmlData := make(map[string]interface{})
 	statusCode := 200
 
 	if r.Method == http.MethodPost {
@@ -235,7 +242,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 
 		user, err := tabletop.UserDB.Get(uName)
 		if err != nil {
-			message = fmt.Sprintf("Couldn't log in: %s", err.Error())
+			htmlData["Message"] = fmt.Sprintf("Couldn't log in: %s", err.Error())
 			statusCode = 500 // Not sure if this code makes sense, but not sure what else to give
 		}
 
@@ -249,25 +256,25 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 
 			http.Redirect(w, r, "/profile", http.StatusMovedPermanently)
 		} else {
-			message = fmt.Sprintf("Couldn't log in")
+			htmlData["Message"] = fmt.Sprintf("Couldn't log in")
 			statusCode = http.StatusUnprocessableEntity
 		}
 	} else if r.Method != http.MethodGet { // In Postman it will write this first and then the html, but who cares
 		statusCode = http.StatusNotImplemented
 	}
 
-	bodyEnd := strings.Index(html, "</body>")                           // Find the position of the closing body tag
-	html = html[:bodyEnd] + "<h3>" + message + "</h3>" + html[bodyEnd:] // Inserts the message to the html at the end of the body
-
 	w.WriteHeader(statusCode)
-	io.WriteString(w, html)
+	err = tpl.Execute(w, htmlData)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+	}
 }
 
 /*
 HandlerProfile handles "My Profile"
 */
 func HandlerProfile(w http.ResponseWriter, r *http.Request) {
-	tpl, err := template.ParseFiles("html/profile.html") // Parse the HTML template
+	tpl, err := template.ParseFiles("html/profile.html", "html/header.html") // Parse the HTML template
 	if err != nil {
 		fmt.Println("Error reading profile.html:", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -345,18 +352,22 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 HandleChat handles "Chat" (/chat)
 */
 func HandleChat(w http.ResponseWriter, r *http.Request) {
-	html, err := readFile("html/chat.html")
+	tpl, err := template.ParseFiles("html/chat.html", "html/header.html")
 	if err != nil {
 		fmt.Println("Error reading html file:", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	message := ""
+	//message := ""
 
-	bodyEnd := strings.Index(html, "</body>")
-	html = html[:bodyEnd] + message + html[bodyEnd:]
+	//bodyEnd := strings.Index(html, "</body>")
+	//html = html[:bodyEnd] + message + html[bodyEnd:]
 
-	io.WriteString(w, html)
+	err = tpl.Execute(w, nil)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 
 	go HandleChatMessages()
 }
@@ -421,23 +432,27 @@ HandleNewGame handles the creation of a new game
 */
 func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		html, err := readFile("html/newgame.html")
+		tpl, err := template.ParseFiles("html/newgame.html", "html/header.html")
 		if err != nil {
 			log.Fatal(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 
-		message := ""
+		//message := ""
 
 		_, err = r.Cookie("user")
 		if err == http.ErrNoCookie {
-			message = "<h3>Hmm.. Seems like you are not logged in. Head over to the log in page to change that!</h3>"
+			//message = "<h3>Hmm.. Seems like you are not logged in. Head over to the log in page to change that!</h3>"
 		}
 
-		bodyEnd := strings.Index(html, "</body>")
-		html = html[:bodyEnd] + message + html[bodyEnd:]
+		//bodyEnd := strings.Index(html, "</body>")
+		//html = html[:bodyEnd] + message + html[bodyEnd:]
 
-		io.WriteString(w, html)
+		err = tpl.Execute(w, nil)
+		if err != nil {
+			fmt.Println("Error executing template:", err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
 	} else if r.Method == "POST" {
 		cookie, err := r.Cookie("user")
 		if err != nil || cookie.Value == "" {
@@ -477,14 +492,18 @@ func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
 
 // HandlerBoard loads board.html
 func HandlerBoard(w http.ResponseWriter, r *http.Request) {
-	html, err := readFile("html/board.html")
+	tpl, err := template.ParseFiles("html/board.html", "html/header.html")
 	if err != nil {
 		fmt.Println("Error loading board.html:", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	io.WriteString(w, html)
+	err = tpl.Execute(w, nil)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 }
 
 /*
@@ -521,33 +540,36 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 HandlePlayerDirectory shows all players
 */
 func HandlePlayerDirectory(w http.ResponseWriter, r *http.Request) {
-	html, err := readFile("html/playerdirectory.html")
+	tpl, err := template.ParseFiles("html/playerdirectory.html", "html/header.html")
 	if err != nil {
 		fmt.Println("Error reading playerdirectory.html")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	message := ""
+	htmlData := make(map[string]interface{})
 
 	users := tabletop.UserDB.GetAllVisibleInDirectory()
-
-	if len(users) != 0 { // Make a list as long as there are players to make a list of
-		message = "<ul>"
-	}
-
-	for _, user := range users {
-		message += "<li><div><a href=\"/u/" + user.Username + "\">" + user.Username + "</a></div></li>"
-	}
-
 	if len(users) != 0 {
-		message += "</ul>"
+		htmlData["AnyPlayers"] = true
+
+		players := []string{}
+
+		for _, user := range users {
+			players = append(players, user.Username)
+		}
+
+		htmlData["Players"] = players
+
+	} else {
+		htmlData["AnyPlayers"] = false
 	}
 
-	bodyEnd := strings.Index(html, "</body>")
-	html = html[:bodyEnd] + message + html[bodyEnd:]
-
-	io.WriteString(w, html)
+	err = tpl.Execute(w, htmlData)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 }
 
 /*

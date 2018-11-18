@@ -131,7 +131,7 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		page := "<!DOCTYPE html><html><body><h1>" + charName + "</h1><h3>" + userName + "</h3><h4>" + system + "</h4>" + html
+		page := "<!DOCTYPE html><html><body><h2>" + charName + "</h2><h3>" + userName + "</h3><h4>" + system + "</h4>" + html
 
 		io.WriteString(w, page)
 

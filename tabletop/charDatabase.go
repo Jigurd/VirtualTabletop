@@ -10,11 +10,11 @@ import (
 
 type Character struct {
 	//Character metadata
-	Username      string        `json:"username"` //Karl Gustav
-	Charactername string        `json:"charname"` //Grog Kragson
-	System        string        `json:"system"`   //DnD 5e
-	CharId        int 		`bson:"_id"`      //Autogeneres under lagring, ingen verdi før det
-	Token         string        `json:"token"`    //OrcViking.jpg
+	Username      string `json:"username"` //Karl Gustav
+	Charactername string `json:"charname"` //Grog Kragson
+	System        string `json:"system"`   //DnD 5e
+	CharId        int    `bson:"_id"`      //Autogeneres under lagring, ingen verdi før det
+	Token         string `json:"token"`    //OrcViking.jpg
 
 	//Statline and skills
 	Stats  []nameDesc `json:"stats"`  //{Dex, 10}, {Str, 15}, etc
@@ -104,7 +104,7 @@ func (db *CharsDB) MakeChar(char Character) (int, string) {
 	defer session.Close()
 
 	var errmsg string
-	charId := int(time.Since(time.Date(1990, time.January,1,0 ,0,0,1,time.UTC)).Nanoseconds())
+	charId := int(time.Since(time.Date(1990, time.January, 1, 0, 0, 0, 1, time.UTC)).Nanoseconds())
 	char.CharId = charId
 
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Insert(char)
@@ -287,7 +287,7 @@ func (db *CharsDB) GetString(charId int, field string) (string, string) {
 	var parsedChar Character
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"_id": charId}).Select(bson.M{"_id": 0, field: 1}).One(&parsedChar)
 	if err != nil {
-		errmsg := fmt.Sprintf("Something went wrong when fetching a character with id %s. Field %s not returned", charId, field)
+		errmsg := fmt.Sprintf("Something went wrong when fetching a character with id %v. Field %s not returned", charId, field)
 		return errmsg, ""
 	} else {
 		switch field {
@@ -298,7 +298,7 @@ func (db *CharsDB) GetString(charId int, field string) (string, string) {
 		case ("system"):
 			return "", parsedChar.System
 		default:
-			errmsg := fmt.Sprintf("The field %s does not exist in the database for character %s.", field, charId)
+			errmsg := fmt.Sprintf("The field %s does not exist in the database for character %v.", field, charId)
 			return errmsg, ""
 		}
 	}

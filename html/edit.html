@@ -1,6 +1,60 @@
-
-        <h2>
-            There is nothing here.
-        </h2>
+<!DOCTYPE html>
+<html>
+    <head>  
+    </head>
+    <body>
+        <h1>
+            {{.charName}}
+        </h1>
+        <hr>
+        <h3>
+            {{.userName}}
+        </h3>
+        <h4>
+            {{.system}}
+        </h4>
+        <form method = "POST" name = "stat">
+            Stats<br>
+            <input type = "text" name = "name" value="" size = "10"><input type = "number" name = "desc" size = "8"><br>
+            <input type ="submit" value = "+ Add"><br>
+            Enter the name of the stat in the first box, and the value of it in the second.<br>
+        </form><br>
+        <hr>
+        <form method = "POST" name = "skill">
+            Skills<br>
+            <input type = "text" name = "name" value="" size = "10"><input type = "number" name = "desc" size = "8"><br>
+            <input type ="submit" value = "+ Add"><br>
+            Enter the name of the skill in the first box, and the value of it in the second.<br>
+        </form><br>
+        <hr>
+        <form method="POST" name = "inventory">
+            Inventory<br>
+            <input type = "text" name = "item" value = "" size = "100"><br>
+            Enter the item to be added to the inventory.
+        </form><br>
+        <form method="POST" name="Money">
+            Money<br>
+            <input type = "text" name = "name" value="" size = "20"><input type = "number" name = "desc" size = "8"><br>
+            <input type ="submit" value = "+ Add"><br>
+            Enter the Name of the currency in the first box, and the amount of it in the second.<br>
+        </form><br>
+        <form method="POST" name="Asset">
+                Asset<br>
+                <input type = "text" name = "name" value="" size = "20"><input type="textarea" name ="desc" value=""><br>
+                <input type ="submit" value = "+ Add"><br>
+                Enter the Name of your Asset in the first box, and a Description of it in the second.<br>
+        </form><br>
+        <form method="POST" name="tag">
+            Tag<br>
+            <input type = text name ="item" value ="" size = "20"><br>
+            Enter a tag for your character. These can be used to find them more easily later on.<br>
+        </form>
+        <form method = "POST" name = "macro">
+                Asset<br>
+                <input type = "text" name = "name" value="" size = "20"><input type="text" name ="desc" value="" size = "200"><br>
+                <input type ="submit" value = "+ Add"><br>
+                Enter a custom macro that can be used on the chat later on. Name in the first box.<br>
+                And the macro itself in the second<br>
+        </form>
     </body>
 </html>

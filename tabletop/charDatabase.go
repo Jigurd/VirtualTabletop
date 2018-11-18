@@ -149,7 +149,7 @@ func (db *CharsDB) FindChar(charId int) (Character, string) {
 
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"_id": charId}).One(&foundChar)
 	if err != nil {
-		errormsg = fmt.Sprintf("There was an error finding the character %s", charId)
+		errormsg = fmt.Sprintf("There was an error finding the character %v", charId)
 		return Character{}, errormsg
 	}
 	return foundChar, ""
@@ -169,7 +169,7 @@ func (db *CharsDB) UpdateCharString(charId int, field string, values []string) s
 	var char Character
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"_id": charId}).One(&char)
 	if err != nil {
-		errormsg = fmt.Sprintf("There was an error finding a character with %s", charId)
+		errormsg = fmt.Sprintf("There was an error finding a character with %v", charId)
 		return errormsg
 	}
 	switch field {
@@ -191,7 +191,7 @@ func (db *CharsDB) UpdateCharString(charId int, field string, values []string) s
 
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"_id": charId}, char)
 	if err != nil {
-		errormsg = fmt.Sprintf("There was a problem updating character %s's field %s with the value %v", charId, field, values)
+		errormsg = fmt.Sprintf("There was a problem updating character %v's field %s with the value %v", charId, field, values)
 		return errormsg
 	}
 	return ""
@@ -210,7 +210,7 @@ func (db *CharsDB) UpdateChar_nameDesc(charId int, field string, values []nameDe
 	var char Character
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"_id": charId}).One(&char)
 	if err != nil {
-		errormsg = fmt.Sprintf("There was an error finding a character with %s", charId)
+		errormsg = fmt.Sprintf("There was an error finding a character with %v", charId)
 		return errormsg
 	}
 	switch field {
@@ -251,7 +251,7 @@ func (db *CharsDB) UpdateChar_nameDesc(charId int, field string, values []nameDe
 
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"_id": charId}, char)
 	if err != nil {
-		errormsg = fmt.Sprintf("There was a problem updating character %s's field %s with the value %v", charId, field, values)
+		errormsg = fmt.Sprintf("There was a problem updating character %v's field %s with the value %v", charId, field, values)
 		return errormsg
 	}
 	return ""
@@ -293,15 +293,19 @@ func (db *CharsDB) GetString(charId int, field string) (string, string) {
 		switch field {
 		case ("username"):
 			return "", parsedChar.Username
-		case ("charname"):
+
+		case ("charactername"):
 			return "", parsedChar.Charactername
+
 		case ("system"):
 			return "", parsedChar.System
+
 		default:
 			errmsg := fmt.Sprintf("The field %s does not exist in the database for character %v.", field, charId)
 			return errmsg, ""
 		}
 	}
+
 }
 
 /*////////////////////////////////////////////////////////////////////////////////////////////////////

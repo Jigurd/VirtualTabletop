@@ -106,42 +106,54 @@ func HandlerCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandlerEdit(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		html, err := readFile("html/edit.html")
+	tpl, err := template.ParseFiles("html/edit.html", "html/header.html")
+	if err != nil {
+		fmt.Println("Error reading register.html:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	htmlData := make(map[string]interface{})
+
+	cookie, err := r.Cookie("char")
+	if err != nil {
+		fmt.Printf("Error getting cookie: %s", err.Error())
+		return
+	}
+	charId, _ := strconv.Atoi(cookie.Value)
+
+	var errmsg string
+
+	errmsg, htmlData["userName"] = tabletop.CharDB.GetString(charId, "username")
+	if errmsg != "" {
+		fmt.Print(errmsg)
+		return
+	}
+	errmsg, htmlData["charName"] = tabletop.CharDB.GetString(charId, "charactername")
+	if errmsg != "" {
+		fmt.Print(errmsg)
+		return
+	}
+	errmsg, htmlData["system"] = tabletop.CharDB.GetString(charId, "system")
+	if errmsg != "" {
+		fmt.Print(errmsg)
+		return
+	}
+
+	err = tpl.Execute(w, htmlData)
+	if err != nil {
+		fmt.Println("Error reading executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
+
+	if r.Method == "POST" {
+		err := r.ParseForm()
 		if err != nil {
-			fmt.Printf("Error reading html file: %s", err.Error())
-			return
-		}
-		cookie, err := r.Cookie("char")
-		if err != nil {
-			fmt.Printf("Error getting cookie: %s", err.Error())
-			return
-		}
-		charId, _ := strconv.Atoi(cookie.Value)
-
-		errmsg, userName := tabletop.CharDB.GetString(charId, "username")
-		if errmsg != "" {
-			fmt.Print(errmsg)
-			return
-		}
-		errmsg, charName := tabletop.CharDB.GetString(charId, "charname")
-		if errmsg != "" {
-			fmt.Print(errmsg)
-			return
-		}
-		errmsg, system := tabletop.CharDB.GetString(charId, "system")
-		if errmsg != "" {
-			fmt.Print(errmsg)
+			fmt.Printf("Error parsing form: %s\n", err.Error())
 			return
 		}
 
-		page := "<!DOCTYPE html><html><body><h2>" + charName + "</h2><h3>" + userName + "</h3><h4>" + system + "</h4>" + html
-
-		io.WriteString(w, page)
-
-	} else if r.Method == "POST" {
-
-	} else {
+	} else if r.Method != "GET" {
 		w.WriteHeader(501)
 	}
 }

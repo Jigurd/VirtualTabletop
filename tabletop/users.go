@@ -4,10 +4,11 @@ package tabletop
 User contains various information about the user
 */
 type User struct {
-	Username string      `json:"username"`
-	Password string      `json:"password"`
-	Email    string      `json:"email"`
-	Options  UserOptions `json:"options"`
+	Username    string      `json:"username"`
+	Password    string      `json:"password"`
+	Email       string      `json:"email"`
+	Description string      `json:"description"`
+	Options     UserOptions `json:"options"`
 }
 
 /*

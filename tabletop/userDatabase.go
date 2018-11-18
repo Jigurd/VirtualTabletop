@@ -209,3 +209,20 @@ func (db *UsersDB) UpdateVisibilityInDirectory(u User) {
 		fmt.Println("Error updating the visibility.")
 	}
 }
+
+/*
+UpdateBio updates the users bio/description
+*/
+func (db *UsersDB) UpdateDescription(u User) {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	updateQ := bson.M{"$set": bson.M{"description": u.Description}}
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"username": u.Username}, updateQ)
+	if err != nil {
+		fmt.Println("Error updating the visibility.")
+	}
+}

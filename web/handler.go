@@ -163,9 +163,10 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		}
 
 		newUser := tabletop.User{ // Create a user based on the form values
-			Username: r.FormValue("username"),
-			Password: r.FormValue("password"),
-			Email:    r.FormValue("email"),
+			Username:    r.FormValue("username"),
+			Password:    r.FormValue("password"),
+			Email:       r.FormValue("email"),
+			Description: "",
 			Options: tabletop.UserOptions{
 				VisibleInDirectory: true, // Visible by default
 			},
@@ -242,7 +243,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 			cookie := &http.Cookie{
 				Name:    "user",
 				Value:   user.Username,
-				Expires: time.Now().Add(15 * time.Minute),
+				Expires: time.Now().Add(60 * time.Minute),
 			}
 			http.SetCookie(w, cookie)
 
@@ -266,21 +267,23 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 HandlerProfile handles "My Profile"
 */
 func HandlerProfile(w http.ResponseWriter, r *http.Request) {
+	tpl, err := template.ParseFiles("html/profile.html") // Parse the HTML template
+	if err != nil {
+		fmt.Println("Error reading profile.html:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	htmlData := make(map[string]interface{}) // The data that will be used with the HTML template
 	userCookie, err := r.Cookie("user")
-	if err != http.ErrNoCookie {
-		tpl, err := template.ParseFiles("html/profile.html") // Parse the HTML template
-		if err != nil {
-			fmt.Println("Error reading profile.html:", err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
+	if err != http.ErrNoCookie { // A user cookie was found
+		htmlData["UserFound"] = true
 
 		type Option struct { // Options for select tag in the HTML file
 			Value, Text string
 			Selected    bool
 		}
 
-		htmlData := []Option{} // Data for the HTML template
 		user, err := tabletop.UserDB.Get(userCookie.Value)
 		if err != nil {
 			fmt.Println("Error getting user.")
@@ -288,45 +291,53 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		visible := user.Options.VisibleInDirectory
-
-		htmlData = []Option{
+		visibleOptions := []Option{ // The options for the "visible" selector
 			Option{
 				Value:    "visible",
 				Text:     "Visible",
-				Selected: true,
+				Selected: false,
 			},
 			Option{
 				Value:    "notvisible",
 				Text:     "Not visisble",
-				Selected: true,
+				Selected: false,
 			},
 		}
 
-		if visible { // Is visible, set notvisible to not be selected
-			htmlData[1].Selected = false
+		if user.Options.VisibleInDirectory { // Set the values corresponding to the value from the DB
+			visibleOptions[0].Selected = true
 		} else {
-			htmlData[0].Selected = false
+			visibleOptions[1].Selected = true
 		}
+
+		htmlData["VisibleOptions"] = visibleOptions
+		htmlData["Desc"] = user.Description
 
 		if r.Method == http.MethodPost { // Update the profile on POST
 			r.ParseForm()
 
-			if r.Form["visible"][0] == "visible" {
+			user.Description = r.FormValue("desc")
+
+			if r.Form["visible"][0] == "visible" { // The first option is "Visible"
 				user.Options.VisibleInDirectory = true
 			} else {
 				user.Options.VisibleInDirectory = false
 			}
 
-			if visible != user.Options.VisibleInDirectory { // Only update the database if there actually was a change
-				tabletop.UserDB.UpdateVisibilityInDirectory(user)
-				http.Redirect(w, r, "/profile", http.StatusMovedPermanently) // So it actually refreshes the value for you
-			} // This is such a shitty way to do it but fuck it :) Who cares about data usage these days right
+			tabletop.UserDB.UpdateVisibilityInDirectory(user)
+			tabletop.UserDB.UpdateDescription(user)
+
+			http.Redirect(w, r, "/profile", http.StatusMovedPermanently) // So it actually refreshes the value for you
+			// Obviously a pretty terrible way to do it (way higher data usage), but hey, it works right
 		}
 
-		tpl.Execute(w, htmlData)
-	} else { // For now we just 404 on non-logged in users
-		http.Error(w, "Not found", http.StatusNotFound)
+	} else {
+		htmlData["UserFound"] = false
+	}
+
+	err = tpl.Execute(w, htmlData)
+	if err != nil {
+		fmt.Println("Error executing profile.html template:", err.Error())
 	}
 }
 

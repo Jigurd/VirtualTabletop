@@ -50,17 +50,24 @@
             </nav>
         </header>
 
+        {{if .UserFound}}
         <form action="/profile" method="post">
             <!--<input type="checkbox" name="visibileindirectory" value=" ">Visible </br>-->
             <p>Select visibility in player directory
                 <select id="visible" name="visible">
-                    {{range .}}
+                    {{range .VisibleOptions}}
                     <option value="{{.Value}}" {{if .Selected}}selected="selected"{{end}}>{{.Text}}</option>
                     {{end}}
-                    <!--<option value="notvisisble">Not visible</option>-->
                 </select>
             </p>
+            </br><p>Description - Write something about yourself!</p>
+            <textarea class="scrollabletextbox" name="desc" cols="45" rows="4">{{.Desc}}</textarea>
+            </br></br></br>
+
             <button type="submit"  class="btn btn-success">Update profile</button>
        </form>
+       {{else}} <!-- User not found -->
+       <h1>You are not logged in. <a href="/register">Register</a> or <a href="/login">log in</a></h1>
+       {{end}} <!-- End .UserFound -->
     </body>
 </html>

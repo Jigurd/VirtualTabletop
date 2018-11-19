@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
 	"github.com/gorilla/websocket"
-	"github.com/jigurd/VirtualTabletop/tabletop"
+	"../tabletop"
+	"../diceparse"
 )
 
 type Message struct {
@@ -283,6 +283,21 @@ func HandleChatMessages() {
 				delete(Clients, client)
 			}
 		}
+        if strings.Contains(msg.Message, "[") || strings.Contains(msg.Message, "]"){
+            var err error
+            msg.Message, err = diceparse.Parse(&msg.Message)
+            if err != nil {
+                msg.Message = err.Error()
+            }
+            for client := range Clients {
+                err := client.WriteJSON(msg)
+                if err != nil {
+                    log.Printf("error: %v", err)
+                    client.Close()
+                    delete(Clients, client)
+                }
+            }
+        }
 	}
 }
 

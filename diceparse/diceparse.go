@@ -13,13 +13,13 @@ import (
 )
 
 //Parse searches a string for dicerolls and resolves them. It's very loosely based on ideas from parse trees.
-func Parse (input *string) error{
+func Parse (input *string) (string, error){
     //go through string character by character, push to stack. If you find "]", pop and append to sting until you find  "[", then resolve diceroll
     strStack := stack.New()
 
     //check for mismatched brackets
     if strings.Count(*input, "[") != strings.Count(*input, "]"){
-        return errors.New("Error: Mismatched brackets")
+        return "", errors.New("Error: Mismatched brackets")
     }
 
     //loop until either the string is empty or we've removed all brackets through matching
@@ -37,7 +37,7 @@ func Parse (input *string) error{
 
             roll, err := ParseRoll(expr) //roll the dice specified in the expression
             if err != nil {
-                return err
+                return "", err
             }
 
             rollString := strconv.Itoa(roll) //convert that int to a string
@@ -58,9 +58,8 @@ func Parse (input *string) error{
     for strStack.Len() > 0{ //while stack is not empty
         result= strStack.Pop().(string) + result //add characters to new string in correct order
     }
-    fmt.Println(result) //print said string
 
-    return nil
+    return result, nil
 }
 
 //parseRoll parses a string and rolls dice. S'about it. It only supports one "d" per roll at the moment.

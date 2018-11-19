@@ -26,12 +26,14 @@
          {{$games := .Games}}
          {{if .LoggedIn}}
             <h2>{{.Message}}</h2>
-            {{if .PartOfAnyGames}}
+            {{if .PartOfAnyGame}}
             <h3>You are part of these games:</h3>
             <ul>
-                {{range .Games}}
+                {{range $games}}
                 <li>
-                    <div>{{.Name}}</div>
+                    {{$link := printf "/game/%s" .GameId}}
+                    <div><a href="{{$link}}">{{.Name}}</a></div>
+                    <div>{{.Description}}</div>
                 </li>
                 {{end}} <!-- End range .Games-->
             </ul>

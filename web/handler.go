@@ -443,17 +443,17 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 				user.Options.VisibleInDirectory = false // nothing is done
 			}
 
+			// get image
 			/*
-				// get image
-				_, header, err := r.FormFile("fileupload")
+				file, header, err := r.FormFile("fileupload")
 				if err != nil {
 					fmt.Println("Error", err.Error())
 				} else {
 					fmt.Println(header.Filename)
 				}
-				//defer file.Close()
-				// dab on the haters
+				defer file.Close()
 			*/
+			// dab on the haters
 
 			tabletop.UserDB.UpdateVisibilityInDirectory(user)
 			tabletop.UserDB.UpdateDescription(user)

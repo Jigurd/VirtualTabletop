@@ -20,7 +20,7 @@ type Game struct {
 	System      string   `json:"system"`      // the system ran eg Shadowrun 5e, Stars Without Number etc
 	Players     []string `json:"players"`     // the people playing in the game, (including GMs?)
 	GameMasters []string `json:"gamemasters"` // the people running the game, can access all information in the game etc
-	Description string   `json:"desription"`  // this describes the game
+	Description string   `json:"description"` // this describes the game
 }
 
 /*
@@ -164,6 +164,23 @@ func (db *GamesDB) UpdatePlayers(g Game) {
 	defer session.Close()
 
 	updateQ := bson.M{"$set": bson.M{"players": g.Players}}
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"gameid": g.GameId}, updateQ)
+	if err != nil {
+		fmt.Println("Error updating the visibility.")
+	}
+}
+
+/*
+UpdateDescription updates the users bio/description
+*/
+func (db *GamesDB) UpdateDescription(g Game) {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	updateQ := bson.M{"$set": bson.M{"description": g.Description}}
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"gameid": g.GameId}, updateQ)
 	if err != nil {
 		fmt.Println("Error updating the visibility.")

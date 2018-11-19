@@ -6,7 +6,7 @@ import (
 	"html/template"
 	"io"
 	"log"
-	"net/http"
+	"net/http" //super-debug-tool
 	"strconv"
 	"strings"
 	"time"
@@ -443,18 +443,18 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 				user.Options.VisibleInDirectory = false // nothing is done
 			}
 
-			/*
-				// get image
-				_, header, err := r.FormFile("fileupload")
-				if err != nil {
-					fmt.Println("Error", err.Error())
-				} else {
-					fmt.Println(header.Filename)
-				}
-				//defer file.Close()
-				// dab on the haters
-			*/
-
+			// get image
+			fi, header, err := r.FormFile("fileupload")
+			if err != nil {
+				fmt.Println("Error", err.Error())
+			} else {
+				fmt.Println(header.Filename)
+			}
+			//convert file to usable data
+			dat, _ := img.PrepImage(fi, nil)
+			defer fi.Close()
+			// dab on the haters
+			img.ImageToHTML(w, dat)
 			tabletop.UserDB.UpdateVisibilityInDirectory(user)
 			tabletop.UserDB.UpdateDescription(user)
 

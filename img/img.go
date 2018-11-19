@@ -8,7 +8,7 @@ import (
 	"image/jpeg"
 	"io"
 	"log"
-	"os"
+	"mime/multipart"
 	"strings"
 	"time"
 
@@ -139,19 +139,19 @@ func PushImage(image ImageData) error {
 ////////////////////////////////////////////////////////////////////////////////////////////////////*/
 
 //PrepImage takes an image file and returns an ImageData struct. Always turns image to jpeg.
-func PrepImage(file os.File, tags []string) (ImageData, error) {
+func PrepImage(file multipart.File, tags []string) (ImageData, error) {
 	//decode the file
-	m, _, err := image.Decode(&file)
+	m, _, err := image.Decode(file)
 	if err != nil {
-		return ImageData{file.Name(), "", 0, tags}, err
+		return ImageData{"", "", 0, tags}, err
 	}
 	//encode to string and convert to jpeg
 	imgBase64Str, err2 := EncodeImage(m)
 	if err2 != nil {
-		return ImageData{file.Name(), "", 0, tags}, err2
+		return ImageData{"", "", 0, tags}, err2
 	}
 
-	imgData := ImageData{file.Name(), imgBase64Str, setTimestamp(), tags}
+	imgData := ImageData{"", imgBase64Str, setTimestamp(), tags}
 
 	//we're done!
 	return imgData, nil

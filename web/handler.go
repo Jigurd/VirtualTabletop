@@ -807,6 +807,7 @@ func HandleU(w http.ResponseWriter, r *http.Request) {
 	}
 
 	htmlData["Username"] = user.Username
+	htmlData["Desc"] = user.Description
 
 	err = tpl.Execute(w, htmlData)
 	if err != nil {

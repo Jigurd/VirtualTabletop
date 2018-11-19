@@ -636,22 +636,22 @@ func HandlePlayerDirectory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	type PlayerData struct {
+		Username, Desc string
+	}
+	playerData := []PlayerData{}
+
 	htmlData := make(map[string]interface{})
 
 	users := tabletop.UserDB.GetAllVisibleInDirectory()
 	if len(users) != 0 {
 		htmlData["AnyPlayers"] = true
 
-		players := []string{}
-
 		for _, user := range users {
-			players = append(players, user.Username)
+			playerData = append(playerData, PlayerData{Username: user.Username, Desc: user.Description})
 		}
 
-		htmlData["Players"] = players
-
-	} else {
-		htmlData["AnyPlayers"] = false
+		htmlData["Players"] = playerData
 	}
 
 	_, err = r.Cookie("user")

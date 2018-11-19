@@ -185,6 +185,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 			Password:    r.FormValue("password"),
 			Email:       r.FormValue("email"),
 			Description: "",
+			PartOfGames: []string{},
 			Options: tabletop.UserOptions{
 				VisibleInDirectory: true, // Visible by default
 			},

@@ -550,35 +550,58 @@ func HandlerBoard(w http.ResponseWriter, r *http.Request) {
 HandleGame handles the page of one game
 */
 func HandleGame(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
+	tpl, err := template.ParseFiles("html/game.html", "html/header.html")
+	if err != nil {
+		fmt.Println("Error loading game.html:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	parts := strings.Split(r.URL.Path, "/") // Try to find the game
 	game, err := tabletop.GameDB.Get(parts[2])
 	if err != nil {
 		fmt.Println("HandleGame error")
 		return
 	}
-	fmt.Fprintln(w, game.Name)
-	fmt.Fprintln(w, game.System)
-	fmt.Fprintln(w, game.Owner)
-	fmt.Fprintln(w, game.Players)
-	fmt.Fprintln(w, game.GameMasters)
+
+	htmlData := make(map[string]interface{})
+
+	htmlData["Name"] = game.Name
+	htmlData["System"] = game.System
+	htmlData["Owner"] = game.Owner
+	htmlData["Players"] = game.Players
+	htmlData["GameMasters"] = game.GameMasters
+	htmlData["Desc"] = game.Description
 
 	user, err := r.Cookie("user")
-	if err == nil && user.Value == game.Owner {
-		// check if there is an invite link for this game,
-		// if not create one
-		// TODO: This should be prompted by the owner, not happening automatically
-		l := tabletop.InviteLink{}
-		if !tabletop.InviteLinkDB.HasLink(game) {
-			l = tabletop.NewInviteLink(game)
-			tabletop.InviteLinkDB.Add(l)
-		} else {
-			l, err = tabletop.InviteLinkDB.GetByGame(game)
-			if err != nil {
-				fmt.Println("le error")
-				return
+	if err == nil {
+		htmlData["LoggedIn"] = true
+
+		if user.Value == game.Owner {
+			// check if there is an invite link for this game,
+			// if not create one
+			// TODO: This should be prompted by the owner, not happening automatically
+			l := tabletop.InviteLink{}
+			if !tabletop.InviteLinkDB.HasLink(game) {
+				l = tabletop.NewInviteLink(game)
+				tabletop.InviteLinkDB.Add(l)
+			} else {
+				l, err = tabletop.InviteLinkDB.GetByGame(game)
+				if err != nil {
+					fmt.Println("le error")
+					return
+				}
 			}
+			htmlData["Link"] = l.URL
 		}
-		fmt.Fprintln(w, l)
+	} else {
+		htmlData["LoggedIn"] = false
+	}
+
+	err = tpl.Execute(w, nil)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
 }
 

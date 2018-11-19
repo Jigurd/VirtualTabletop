@@ -212,8 +212,8 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 		htmlData["skills"] = character.Skills
 	}
 	if len(character.Inventory) != 0 {
-		htmlData["Item"] = true
-		htmlData["Inventory"] = character.Inventory
+		htmlData["item"] = true
+		htmlData["inventory"] = character.Inventory
 	}
 	if len(character.Money) != 0 {
 		htmlData["cash"] = true

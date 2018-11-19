@@ -25,7 +25,15 @@
         <ul>
             {{range .Games}}
             <li>
-                <div><a href="/game/{{.ID}}">{{.Name}}</a> - {{.Desc}}</div>
+                <div>
+                    <a href="/game/{{.ID}}">{{.Name}}</a>
+                    <ul>
+                        <li>{{.Desc}}</li>
+                        <li>{{.System}}</li>
+                        <li>Owner - {{.Owner}} </li>
+                        <li>Players - {{.PlayerCount}}/{{.MaxPlayers}} </li>
+                    </ul>
+                </div>
             </li>
             {{end}}
         </ul>

@@ -23,7 +23,7 @@ Users can chat with eachother.
 
 **What was hard**:
 1. When figuring out how to use cookies we had a lot of problems. At the start we were parsing the html to a template and executing it at the top of the handlers. This was not a very good idea. As it turns out, headers and cookies need to be set before anything is written to the responseWriter (as far as we understand this is a "problem" with HTTP and not specific to Go), so when we tried to set the cookies, nothing was saved. This was obviously a fairly easy fix. All that is needed is to execute or write the HTML at the end, but nevertheless this was time consuming to figure out.
-
+2. Uploading images, we didn't manage this at all.
 
 **Total hours**:
 4102 (sike)

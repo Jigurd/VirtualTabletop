@@ -1,24 +1,20 @@
-
-
 <!DOCTYPE html>
-<html>  
+<html>
     <head>
         <meta charset="UTF-8">
-        <title>Virtual Tabletop</title>
+        <title>{{.Username}}</title>       
         
         <!--Link to css reset. -->
-         <link rel="stylesheet" rel="text/css" href="static/cssre/reset.css">
-        
-         <!--Getting bootstrap CDN  -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-        
-        <!-- Link to stylesheet -->
-        <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
-        
-        
-        <link rel="stylesheet" href = "static/css/dropdown.css">
+        <link rel="stylesheet" rel="text/css" href="static/cssre/reset.css">
+       
+        <!--Getting bootstrap CDN  -->
+       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+       
+       <!-- Link to stylesheet -->
+       <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
 
-        <style>
+       <link rel="stylesheet" href = "static/css/dropdown.css">
+       <style>
             .dropbtn {
                 background-color: transparent;
                 color: #b3b3b3;
@@ -183,48 +179,16 @@
                 border-bottom: 2px solid #d4d4d4;
             }
         </style>
-
     </head>
     <body>
         <header>
-            {{template "header.html" .}}   
+            {{template "header.html" .}}
         </header>
 
          <!-- Div Clear -->
         <div class="clear"></div>
-
-        <h1>Name: {{.Name}}</h1>
-
-        <h3>System: {{.System}}</h3>
-
-        <h3>Owner: {{.Owner}}</h3>
-
-        {{$players := .Players}} <!-- Get the players and masters because nested ranges dont work -->
-        {{$masters := .Masters}}
-        <h3>Players</h3>
-        <ul>
-            {{range $player := $players}}
-            <li>
-                <div>
-                    {{$player}}
-                    {{range $master := $masters}}
-                        {{if eq $master $player}}
-                        <strong> - Gamemaster</strong>
-                        {{end}}
-                    {{end}} <!-- End range $masters-->
-                </div>
-            </li>
-            {{end}} <!-- End range $players -->
-        </ul>
-
-        <div>{{.Desc}}</div>
-
-        <div>Invite link: {{.Link}}</div>
-
-        <div class="joingame">   
-            <form method="post">
-                <button type="submit" name="joingame" class="btn btn-success">Join game</button>
-            </form>
-        </div>
+        
+        <h2>{{.Username}}'s profile</h2>
+        <p>{{.Desc}}</p>
     </body>
 </html>

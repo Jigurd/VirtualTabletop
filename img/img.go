@@ -52,9 +52,11 @@ func init() {
 	ImgDB.Init()
 }
 
-/*
-Init initializes the mongo storage.
-*/
+/*//////////////////////////////////////////////////////////////////////////////////////////////////////
+      			                     	DATABASE FUNCTIONS
+//////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+//Init initializes the mongo storage.
 func (db *ImgsDB) Init() {
 	session, err := mgo.Dial(db.DatabaseURL)
 	if err != nil {
@@ -106,7 +108,7 @@ func FetchImageByTime(timestamp int) (ImageData, bool) {
 	img := ImageData{}
 	allWasGood := true
 
-	err = session.DB(ImgDB.DatabaseName).C(ImgDB.CollectionName).Find(bson.M{"timestamp": timestamp}).One(&img)
+	err = session.DB(ImgDB.DatabaseName).C(ImgDB.CollectionName).Find(bson.M{"imgid": timestamp}).One(&img)
 	if err != nil {
 		allWasGood = false
 	}
@@ -132,6 +134,10 @@ func PushImage(image ImageData) error {
 	return nil
 }
 
+/*////////////////////////////////////////////////////////////////////////////////////////////////////
+										META FUNCTIONS
+////////////////////////////////////////////////////////////////////////////////////////////////////*/
+
 //PrepImage takes an image file and returns an ImageData struct. Always turns image to jpeg.
 func PrepImage(file os.File, tags []string) (ImageData, error) {
 	//decode the file
@@ -139,7 +145,7 @@ func PrepImage(file os.File, tags []string) (ImageData, error) {
 	if err != nil {
 		return ImageData{file.Name(), "", 0, tags}, err
 	}
-	//encode to string
+	//encode to string and convert to jpeg
 	imgBase64Str, err2 := EncodeImage(m)
 	if err2 != nil {
 		return ImageData{file.Name(), "", 0, tags}, err2

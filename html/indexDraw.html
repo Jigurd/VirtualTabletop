@@ -14,19 +14,16 @@
     <link rel="stylesheet" rel="text/css" href="/static/css/stylesheet.css">
     <link rel="stylesheet" href = "/static/css/dropdown.css">
     
-   <!--  <link rel="stylesheet" href="../static/css/drawing.css"> -->
+    <link rel="stylesheet" href="/static/css/drawing.css">
 
 </head>
 <body>
-    <header>
-            {{template "header.html" .}}
-    </header>
        <!-- Div Clear -->
        <div class="clear"></div>
 
     <div id="toolbar">
         <div id="rad">
-            Radius <span id="radval">10</span>
+            Radius <span id="radval">3</span>
             <div id="decrad" class = "radcontroll">-</div>
             <div id="incrad" class = "radcontroll">+</div>
         </div>
@@ -127,7 +124,7 @@ var setRadius = function(newRadius){
 
 var minRad = 0.5, 
     maxRad = 100,
-    defaultRad = 10,
+    defaultRad = 3,
     radSpan = document.getElementById('radval'),
     decRad = document.getElementById('decrad'),
     incRad = document.getElementById('incrad'),

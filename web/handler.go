@@ -586,8 +586,9 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("Error parsing form: %s\n", err.Error())
 		}
 
+		gameId := bson.NewObjectId().Hex()
 		newGame := tabletop.Game{
-			bson.NewObjectId().Hex(),
+			gameId,
 			r.FormValue("name"),
 			cookie.Value,
 			r.FormValue("system"),
@@ -598,6 +599,8 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 		}
 		newGame.Players = append(newGame.Players, cookie.Value)
 		newGame.GameMasters = append(newGame.GameMasters, cookie.Value)
+
+		tabletop.UserDB.AddGame(cookie.Value, gameId)
 		tabletop.GameDB.Add(newGame)
 	}
 }

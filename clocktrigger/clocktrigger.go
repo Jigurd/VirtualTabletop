@@ -18,7 +18,7 @@ Notifies discord with a nice message
 func notifyDiscord(count int) {
 	content := make(map[string]string) // Content for discord
 
-	content["content"] = fmt.Sprintf("Amount of users in the database: %d https://i.kym-cdn.com/photos/images/newsfeed/001/395/278/361.jpg", count)
+	content["content"] = fmt.Sprintf("Amount of users in the database: %d", count)
 	jsonResp, err := json.Marshal(content)
 	if err != nil {
 		fmt.Println("Error marshaling JSON:")

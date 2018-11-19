@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" >
+        <title>Virtual Tabletop</title>
+
+        <!--Link to css reset. -->
+        <link rel="stylesheet" rel="text/css" href="static/cssre/reset.css">   
+        
+        <!--Getting bootstrap CDN  -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        
+        <!-- Link to stylesheet -->
+        <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
+        
+        <!-- Link to stylesheet -->
+        <link rel="stylesheet" href = "static/css/dropdown.css">
+    </head>
+    <body>
+        <header>
+            {{template "header.html" .}}
+        </header>
+    
+        {{if .AnyGames}}
+        <ul>
+            {{range .Games}}
+            <li>
+                <div>
+                    <a href="/game/{{.ID}}">{{.Name}}</a>
+                    <ul>
+                        <li>{{.Desc}}</li>
+                        <li>{{.System}}</li>
+                        <li>Owner - {{.Owner}} </li>
+                        <li>Players - {{.PlayerCount}}/{{.MaxPlayers}} </li>
+                    </ul>
+                </div>
+            </li>
+            {{end}}
+        </ul>
+    {{end}} <!-- End .AnyGames -->
+    </body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<!-- 
+    to do
+        1.canvas on out release
+        2.choose color
+        3.img bg
+        4.tokens
+        5.grid
+        6.share w users
+-->
+
+<html>
+<head>
+    <title>Drawing test app</title>
+        
+    <!--Link to css reset. -->
+    <link rel="stylesheet" rel="text/css" href="/static/cssre/reset.css">
+    
+    <!--Getting bootstrap CDN  -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    
+    <!-- Link to stylesheet -->
+    <link rel="stylesheet" rel="text/css" href="/static/css/stylesheet.css">
+    <link rel="stylesheet" href = "/static/css/dropdown.css">
+    
+    <link rel="stylesheet" href="/static/css/drawing.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/emojione/2.2.6/assets/css/emojione.min.css"/>
+</head>
+<body>
+       <!-- Div Clear -->
+       <div class="clear"></div>
+
+    <div id="toolbar">
+        <div id="rad">
+            Radius <span id="radval">3</span>
+            <div id="decrad" class = "radcontroll">-</div>
+            <div id="incrad" class = "radcontroll">+</div>
+        </div>
+        <div id="colors">
+            <div class="swatch active"></div>
+            <div class="swatch"></div>
+            <div class="swatch"></div>
+
+
+        </div>
+    </div>
+
+
+    <canvas id="canvasid" style="display: block;">
+        <script>
+        </script>
+    </canvas>
+
+<script>
+var canvas = document.getElementById('canvasid')
+var context = canvas.getContext('2d');
+
+var radius = 10;
+var dragging = false;
+
+canvas.width = window.innerWidth - 350;
+canvas.height = window.innerHeight;
+
+
+// after line snap
+context.lineWidth = radius * 2;
+
+
+// Line snapping 
+/*var putPoint = function(e){
+
+    if(dragging == true)
+    {
+        context.lineTo(e.clientX, e.clientY);
+        context.stroke();
+        context.beginPath();
+        //context.arc(e.clientX, e.clientY, radius, 0, Math.PI*2);
+        context.fill();
+        context.beginPath();
+        context.moveTo(e.clientX, e.clientY);
+    }
+}*/
+
+
+var putPoint = function(e){
+
+    if(dragging == true)
+    {
+        context.lineTo(e.clientX, e.clientY);
+        context.stroke();
+        context.beginPath();
+        context.arc(e.clientX, e.clientY, radius, 0, Math.PI*2);
+        context.fill();
+        context.beginPath();
+        context.moveTo(e.clientX, e.clientY);
+    }
+}
+
+
+
+var engage = function(e) {
+    dragging = true;
+    putPoint(e);
+}
+
+var disengage = function() {
+    dragging = false;
+    context.beginPath();
+}
+
+canvas.addEventListener('mousedown', engage);
+canvas.addEventListener('mouseup', disengage);
+canvas.addEventListener('mousemove', putPoint);
+
+
+</script>
+
+<script>
+
+var setRadius = function(newRadius){
+    if(newRadius<minRad){
+        newRadius = minRad;
+    }
+    else if (newRadius>maxRad){
+        newRadius = maxRad;
+    }
+
+    radius = newRadius;
+    context.lineWidth = radius * 2;
+
+    radSpan.innerHTML = radius;
+
+}
+
+var minRad = 0.5, 
+    maxRad = 100,
+    defaultRad = 3,
+    radSpan = document.getElementById('radval'),
+    decRad = document.getElementById('decrad'),
+    incRad = document.getElementById('incrad'),
+    interval = 1;
+
+
+
+decRad.addEventListener('click', function(){
+    setRadius(radius - interval);
+})
+
+incRad.addEventListener('click', function(){
+    setRadius(radius + interval);
+})
+
+
+setRadius(defaultRad);
+</script>
+
+
+
+
+
+
+
+<!-- Chat -->
+
+<main id="app">
+    <div class="row">
+        <div class="col s12">
+            <div class="card horizontal">
+                <div id="chat-messages" class="card-content" v-html="chatContent">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" v-if="joined">
+        <div class="input-field col s8">
+            <input type="text" v-model="newMsg" @keyup.enter="send">
+        </div>
+        <div class="input-field col s4">
+            <button class="waves-effect waves-light btn" @click="send">
+                <i class="material-icons right">chat</i>
+                Send
+            </button>
+        </div>
+    </div>
+</main>
+<footer class="page-footer">
+</footer>
+
+<script src="https://unpkg.com/vue@2.1.3/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/emojione/2.2.6/lib/js/emojione.min.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
+
+<!-- I couldn't load the js file, so here's a big block of js code -->
+<script>
+function getCookie(name) {
+    function escape(s) { return s.replace(/([.*+?\^${}()|\[\]\/\\])/g, '\\$1'); };
+    var match = document.cookie.match(RegExp('(?:^|;\\s*)' + escape(name) + '=([^;]*)'));
+    return match ? match[1] : null;
+}
+
+new Vue({
+    el: '#app',
+    
+    data: {
+        ws: null,
+        newMsg: '',
+        chatContent: '',
+        username: null,
+        joined: false
+    },
+
+    created: function() {
+        var self = this;
+        this.ws = new WebSocket('ws://' + window.location.host + '/ws');
+        this.ws.addEventListener('message', function(e) {
+            var msg = JSON.parse(e.data);
+            self.chatContent += '<div class="chip">'
+                + '<img src="' + self.gravatarURL(msg.email) + '">'
+                + msg.username
+                + '</div>'
+                + emojione.toImage(msg.message) + '<br/>';
+
+            var element = document.getElementById('chat-messages');
+            element.scrollTop = element.scrollHeight;
+        });
+        this.join();
+    },
+
+    methods: {
+        send: function () {
+            if (this.newMsg != '') {
+                this.ws.send(
+                    JSON.stringify({
+                        username: this.username,
+                        message: $('<p>').html(this.newMsg).text()
+                    }
+                ));
+            }
+        },
+
+        join: function () {
+            console.log("joining");
+
+            this.username = getCookie("user");
+            console.log(this.username);
+            //this.username = $('<p>').html(this.username).text();
+            if (this.username != "") {
+                this.joined = true;
+            }
+        },
+
+        gravatarURL: function(email) {
+            return 'http://www.gravatar.com/avatar/' + CryptoJS.MD5(email);
+        }
+    }
+});</script>
+
+
+</div>
+</body>
+</html>

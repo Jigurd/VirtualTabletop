@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head> 
+    </head>
+    <body>
+        <h1>{{.user}}`s Characters: </h1>
+        <hr>
+        <form method = "POST">
+        <select name = "characters" placeholder = "Characters">
+            {{range $element := .charInfo}}
+            <option value = {{.Description}}  >{{.Name}} </option>
+            {{end}}
+        </select>
+        <input type = "submit" value = "Goto">
+        </form>
+    </body>
+    </html>

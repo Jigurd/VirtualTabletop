@@ -132,3 +132,28 @@ func Test_AddDuplicateEmail(t *testing.T) {
 		t.Error("Managed to add duplicate email.")
 	}
 }
+
+/*
+Tests that removing a user works
+*/
+func Test_RemoveUser(t *testing.T) {
+	db := setup(t)
+	db.Init()
+	defer tearDown(t, db)
+
+	newUser := User{
+		Username: "Testing",
+		Password: "Password_test",
+		Email:    "tester@testing.us.gov.org",
+	}
+
+	added := db.Add(newUser)
+	if !added {
+		t.Error("Error adding to database")
+		return
+	}
+
+	if !db.Remove(newUser.Username) {
+		t.Error("Error removing user from the database")
+	}
+}

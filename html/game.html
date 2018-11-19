@@ -1,0 +1,230 @@
+
+
+<!DOCTYPE html>
+<html>  
+    <head>
+        <meta charset="UTF-8">
+        <title>Virtual Tabletop</title>
+        
+        <!--Link to css reset. -->
+         <link rel="stylesheet" rel="text/css" href="static/cssre/reset.css">
+        
+         <!--Getting bootstrap CDN  -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        
+        <!-- Link to stylesheet -->
+        <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
+        
+        
+        <link rel="stylesheet" href = "static/css/dropdown.css">
+
+        <style>
+            .dropbtn {
+                background-color: transparent;
+                color: #b3b3b3;
+                padding: 4px;
+                font-size: 15px;
+                font-family: sans-serif;
+                cursor: pointer; 
+            }
+
+            .dropbtn:hover {
+                background-color: #b3b3b360
+            }
+
+            .dropdown{
+                position: relative;
+                display: inline-block;
+            }
+
+            .dropdown-content {
+                display: none;
+                position: absolute;
+                
+                /* IE10 Consumer Preview */
+                background-image: -ms-linear-gradient(top left, #0F0F0F 0%, #302D38 100%);
+                
+                /* Mozilla Firefox */
+                background-image: -moz-linear-gradient(top left, #0F0F0F 0%, #302D38 100%);
+
+                /* Opera */
+                background-image: -o-linear-gradient(top left, #0F0F0F 0%, #302D38 100%);
+                
+                /* Webkit (Safari/Chrome 10) */
+                background-image: -webkit-gradient(linear, left top, right bottom, color-stop(0, #0F0F0F), color-stop(1, #302D38));
+
+                min-width: 160px;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                z-index: 1;
+            }
+
+            .dropdown-content a {
+                color: #b3b3b3;
+                padding: 12px 16px;
+                text-decoration: none;
+                display: block;
+                font-size: 13px
+            }
+
+            .dropdown-content a:hover {
+                background-color: slategray
+            }
+
+            .show {
+                display: block;
+            }
+
+            body
+            {
+                font-family: sans-serif;
+            }
+
+
+            .menu a
+            {
+                color: #b3b3b3;
+                text-decoration: none;
+                display: inline-block;
+                padding-left: 6px;
+            }
+                
+
+            header
+            {
+                margin: 0;
+                border-bottom: 3px solid #46bbe2;
+                width: 100%;
+                
+                /* IE10 Consumer Preview */
+                background-image: -ms-linear-gradient(top left, #0F0F0F 0%, #302D38 100%);
+                
+                /* Mozilla Firefox */
+                background-image: -moz-linear-gradient(top left, #0F0F0F 0%, #302D38 100%);
+
+                /* Opera */
+                background-image: -o-linear-gradient(top left, #0F0F0F 0%, #302D38 100%);
+                
+                /* Webkit (Safari/Chrome 10) */
+                background-image: -webkit-gradient(linear, left top, right bottom, color-stop(0, #0F0F0F), color-stop(1, #302D38));
+            }
+                
+                
+            .logo
+            {
+                font-size: 16px;
+                text-transform: lowercase;
+                padding-left: 20px;
+                padding-top: 10px;
+            }
+
+
+            .logo span:first-child
+            {
+                font-weight: 400;
+                color: #fff;
+            }
+
+
+            .logo span:last-child
+            {
+                color: #b3b3b3;
+            }
+
+
+            nav
+            {
+                width: 99%;
+                text-align: right;
+                padding-bottom: 8px;
+            }
+
+            nav:last-child
+            {
+                padding-right: 42px;
+            }
+
+
+            .menu a.current
+            {
+                color: #fff;
+            }
+
+
+            .prompt
+            {
+                font-size: 11px;
+                float: right;
+            }
+
+
+            .prompt div
+            {
+                text-align: right;
+            }
+
+
+            .large-6 column lpad top-msg breadcrumb 
+            {
+                float: left;
+            }
+
+
+            .clear
+            {
+                clear: both;
+            }
+
+
+            .info
+            {
+                padding-top: 20px;
+                margin-left: 50px;
+                margin-right: 50px;
+                border-bottom: 2px solid #d4d4d4;
+            }
+        </style>
+
+    </head>
+    <body>
+        <header>
+            {{template "header.html" .}}   
+        </header>
+
+         <!-- Div Clear -->
+        <div class="clear"></div>
+
+        <h1>Name: {{.Name}}</h1>
+
+        <h3>System: {{.System}}</h3>
+
+        <h3>Owner: {{.Owner}}</h3>
+
+        {{$players := .Players}} <!-- Get the players and masters because nested ranges dont work -->
+        {{$masters := .Masters}}
+        <h3>Players</h3>
+        <ul>
+            {{range $player := $players}}
+            <li>
+                <div>
+                    {{$player}}
+                    {{range $master := $masters}}
+                        {{if eq $master $player}}
+                        <strong> - Gamemaster</strong>
+                        {{end}}
+                    {{end}} <!-- End range $masters-->
+                </div>
+            </li>
+            {{end}} <!-- End range $players -->
+        </ul>
+
+        <div>{{.Desc}}</div>
+
+        <div>Invite link: {{.Link}}</div>
+
+        <div class="joingame">   
+            <form action={{.BoardPath}} method="get">
+                <button type="submit" name="joingame" class="btn btn-success">Join game</button>
+            </form>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Virtual Tabletop</title>       
+        
+        <!--Link to css reset. -->
+        <link rel="stylesheet" rel="text/css" href="static/cssre/reset.css">
+       
+        <!--Getting bootstrap CDN  -->
+       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+       
+       <!-- Link to stylesheet -->
+       <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
+
+       <!-- Link to css for board-->
+       <link rel="stylesheet" rel="text/css" href="static/css/boardstyle.css">
+       <link rel="stylesheet" href = "static/css/dropdown.css">
+       
+       <script>
+            function myFunction() {
+                document.getElementById("myDropdown").classList.toggle("show");
+            }
+        </script>
+
+       <script type="text/javascript" language="javascript">
+        // Box width
+        var bw = 400;
+        // Box height
+        var bh = 400;
+        // Padding
+        var p = 10;
+        
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+        function drawBoard(){
+        for (var x = 0; x <= bw; x += 40) {
+            context.moveTo(0.5 + x + p, p);
+            context.lineTo(0.5 + x + p, bh + p);
+        }
+        
+        
+        for (var x = 0; x <= bh; x += 40) {
+            context.moveTo(p, 0.5 + x + p);
+            context.lineTo(bw + p, 0.5 + x + p);
+        }
+        
+        context.strokeStyle = "black";
+        context.stroke();
+        }
+        
+        drawBoard();
+        </script>
+
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="/">
+                    <span>Virtual</span>
+                    <span>Tabletop</span> 
+                </a>
+            </div> 
+            <nav class="menu">   
+                <a href="/" class="current">Home</a>
+                <a href="/login">Log in</a>
+                <a href="/register">Register</a>
+                <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
+                <a href="/newgame">Create Game</a>
+                <a href="/gamebrowser">Fing Game</a>
+                <div class = "dropdown">
+                    <button onclick= "myFunction()" class = "dropbtn"> Characters </button>
+                    <div id = "myDropdown" class="dropdown-content">
+                        <a href = "/createChar" title ="Make a new Character from Scratch" >Create Character</a>
+                        <a href = "/viewChar" title = "View your existing Characters">View Character</a>
+                    </div>
+                </div>
+                <a href="/chat">Chat</a>
+            </nav>        
+        </header>
+
+         <!-- Div Clear -->
+         <div class="clear"></div>
+
+
+
+        <!-- HTML5 Canvas -->
+        <canvas id="canvas" width="420px" height="420px" style="background: #fff; margin:20px"></canvas>
+
+        <script type="text/javascript" language="javascript">
+            // Box width
+            var bw = 400;
+            // Box height
+            var bh = 400;
+            // Padding
+            var p = 10;
+            
+            var canvas = document.getElementById("canvas");
+            var context = canvas.getContext("2d");
+            function drawBoard(){
+            for (var x = 0; x <= bw; x += 40) {
+                context.moveTo(0.5 + x + p, p);
+                context.lineTo(0.5 + x + p, bh + p);
+            }
+            
+            
+            for (var x = 0; x <= bh; x += 40) {
+                context.moveTo(p, 0.5 + x + p);
+                context.lineTo(bw + p, 0.5 + x + p);
+            }
+            
+            context.strokeStyle = "black";
+            context.stroke();
+            }
+            
+            drawBoard();
+            </script>
+        
+
+            <form action="" method="post">
+                <ul>
+                    <li><b>Canvas Width: &nbsp;&nbsp;&nbsp;</b>   <script type="text/javascript">
+                        document.write(bw)
+                      </script>
+                        <input type="text" name="width" size="20" maxlength="20" placeholder="Enter new size" id="cw"/>
+                      
+                    </li>
+                    <li>
+                        <b>Canvas Height:&nbsp;&nbsp;&nbsp; </b> <script type="text/javascript">
+                            document.write(bh)
+                          </script>
+                        <input type="text" name="height" size="20" maxlength="20" placeholder="Enter new size" id="ch" />
+                    </li>
+                    <li>
+                        <b>Padding: 
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp; </b>
+                                <script type="text/javascript">
+                            document.write(p)
+                          </script>
+                        <input type="text" name="padding" size="20" maxlength="20" placeholder="Enter new padding" id="pad">
+                    </li>
+                    <li>
+                        <button onclick="getFormInfo()" type="submit"  class="btn btn-success">Submit </button>
+                    </li>
+                </ul>
+            </form>
+
+
+        <!-- Javascript functions -->
+        <script>
+
+                function getFormInfo() {
+
+                    console.log("function running");
+
+                    var canvasHeight = document.getElementById("ch").value
+                    var canvasWidth = document.getElementById("cw").value
+                    var canvasPadding = document.getElementById("pad").value
+            
+                    bw = canvasHeight
+                    bh = canvasWidth
+                    p = canvasPadding
+
+                    console.log("At least we go here"); 
+                
+                    // Remove the old canvas
+                    var oldcanv = document.getElementById('canvas');
+                    document.removeChild(oldcanv)
+
+                    var canv = document.createElement('canvas');
+                    canv.id = 'canvas';
+                    document.body.appendChild(canv);
+
+
+
+                }
+    
+            </script>
+
+    </body>
+</html>

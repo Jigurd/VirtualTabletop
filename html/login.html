@@ -18,22 +18,17 @@
         <!-- Link to loginn stylesheet-->
         <link rel="stylesheet" rel="text/css" href="static/css/login.css">
         
-        
+        <link rel="stylesheet" href = "static/css/dropdown.css">
+
+        <script>
+            function myFunction() {
+                document.getElementById("myDropdown").classList.toggle("show");
+            }
+        </script>
     </head>
     <body>
         <header>
-                <div class="logo"><a href="/">
-                  <span>Virtual</span>
-                  <span>Tabletop</span> 
-                    </a>
-                </div> 
-                <nav class="menu">   
-                  <a href="/" class="current">Home</a>
-                  <a href="/login">Log in</a>
-                  <a href="/register">Register</a>
-                  <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
-                  <a href="/chat">LE CHAT</a>
-                </nav>       
+            {{template "header.html" .}}   
         </header>
 
          <!-- Div Clear -->
@@ -61,7 +56,7 @@
         
         <!--try logging the user in-->
         <div>
-
+        <h2>{{.Message}}</h2>
         
     </body>
 </html>

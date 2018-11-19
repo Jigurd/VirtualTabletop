@@ -119,6 +119,26 @@ func (db *UsersDB) Get(uName string) (User, error) {
 }
 
 /*
+GetAll returns a slice containing all existing users.
+*/
+func (db *UsersDB) GetAll() []User {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	var all []User
+
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{}).All(&all)
+	if err != nil {
+		return []User{}
+	}
+
+	return all
+}
+
+/*
 Count returns the amount of users in the database
 */
 func (db *UsersDB) Count() int {
@@ -151,4 +171,72 @@ func (db *UsersDB) Remove(username string) bool {
 		return false
 	}
 	return true
+}
+
+/*
+GetAllVisibleInDirectory gets all the users that have enabled visibility in the player directory
+*/
+func (db *UsersDB) GetAllVisibleInDirectory() []User {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	users := []User{}
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"options": bson.M{"visibleindirectory": true}}).All(&users)
+	if err != nil {
+		fmt.Println("Error retrieving users (all visible)")
+		return []User{}
+	}
+
+	return users
+}
+
+/*
+UpdateVisibilityInDirectory updates the users visibility in the player directory
+*/
+func (db *UsersDB) UpdateVisibilityInDirectory(u User) {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	updateQ := bson.M{"$set": bson.M{"options": bson.M{"visibleindirectory": u.Options.VisibleInDirectory}}}
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"username": u.Username}, updateQ)
+	if err != nil {
+		fmt.Println("Error updating the visibility.")
+	}
+}
+
+/*
+UpdateBio updates the users bio/description
+*/
+func (db *UsersDB) UpdateDescription(u User) {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	updateQ := bson.M{"$set": bson.M{"description": u.Description}}
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"username": u.Username}, updateQ)
+	if err != nil {
+		fmt.Println("Error updating the visibility.")
+	}
+}
+
+/*
+AddGame adds a game to the users participating games
+*/
+func (db *UsersDB) AddGame(username, gameID string) error {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	pushQuery := bson.M{"$push": bson.M{"partofgames": gameID}}
+	return session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"username": username}, pushQuery)
 }

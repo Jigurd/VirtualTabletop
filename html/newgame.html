@@ -16,24 +16,11 @@
         <!-- Link to stylesheet -->
         <link rel="stylesheet" rel="text/css" href="static/css/signup.css">     
         
+        <link rel="stylesheet" href = "static/css/dropdown.css">
     </head>
     <body>
-
         <header>
-            <div class="logo"><a href="/">
-                <span>Virtual</span>
-                <span>TableTop</span>
-                </a>
-            </div>
-
-            <nav class="menu">   
-                <a href="/" class="current">Home</a>
-                <a href="/login">Log in</a>
-                <a href="/register">Register</a>
-                <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
-                <a href="/chat">Chat</a>
-            </nav>    
-
+            {{template "header.html" .}}
         </header>
     
         <!-- Game creation form -->

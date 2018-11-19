@@ -593,6 +593,11 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		htmlData["LoggedIn"] = true
 
+		if r.Method == http.MethodPost {
+			// Join the fucking game
+			fmt.Println(r.FormValue("joingame"))
+		}
+
 		if user.Value == game.Owner {
 			// check if there is an invite link for this game,
 			// if not create one

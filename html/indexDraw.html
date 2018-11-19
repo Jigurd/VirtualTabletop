@@ -5,44 +5,24 @@
     <title>Drawing test app</title>
         
     <!--Link to css reset. -->
-    <link rel="stylesheet" rel="text/css" href="../static/cssre/reset.css">
+    <link rel="stylesheet" rel="text/css" href="/static/cssre/reset.css">
     
     <!--Getting bootstrap CDN  -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     
     <!-- Link to stylesheet -->
-    <link rel="stylesheet" rel="text/css" href="../static/css/stylesheet.css">
-    <link rel="stylesheet" href = "../static/css/dropdown.css">
+    <link rel="stylesheet" rel="text/css" href="/static/css/stylesheet.css">
+    <link rel="stylesheet" href = "/static/css/dropdown.css">
     
    <!--  <link rel="stylesheet" href="../static/css/drawing.css"> -->
 
 </head>
 <body>
     <header>
-            {{template "../html/header.html" .}}
+            {{template "header.html" .}}
     </header>
        <!-- Div Clear -->
        <div class="clear"></div>
-       Wow welcome to the Virtual Tabletop closed pre-alpha dude! This is your number one stop for awesome tabletop gaming. Click <a href="/register">here</a> to get started! OwO
-
-       {{$games := .Games}}
-       {{if .LoggedIn}}
-          <h2>{{.Message}}</h2>
-          {{if .PartOfAnyGame}}
-          <h3>You are part of these games:</h3>
-          <ul>
-              {{range $games}}
-              <li>
-                  {{$link := printf "/game/%s" .GameId}}
-                  <div><a href="{{$link}}">{{.Name}}</a></div>
-                  <div>{{.Description}}</div>
-              </li>
-              {{end}} <!-- End range .Games-->
-          </ul>
-
-          {{end}} <!-- End if .PartOfAnyGames -->
-       {{end}} <!-- End if .LoggedIn-->
-
 
     <div id="toolbar">
         <div id="rad">
@@ -65,8 +45,108 @@
         </script>
     </canvas>
 
-    <script src="../js/main.js"></script>
-    <script src="../js/radius.js"></script>
+<script>
+var canvas = document.getElementById('canvasid')
+var context = canvas.getContext('2d');
+
+var radius = 10;
+var dragging = false;
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// after line snap
+context.lineWidth = radius * 2;
+
+
+// Line snapping 
+/*var putPoint = function(e){
+
+    if(dragging == true)
+    {
+        context.lineTo(e.clientX, e.clientY);
+        context.stroke();
+        context.beginPath();
+        //context.arc(e.clientX, e.clientY, radius, 0, Math.PI*2);
+        context.fill();
+        context.beginPath();
+        context.moveTo(e.clientX, e.clientY);
+    }
+}*/
+
+
+var putPoint = function(e){
+
+    if(dragging == true)
+    {
+        context.lineTo(e.clientX, e.clientY);
+        context.stroke();
+        context.beginPath();
+        context.arc(e.clientX, e.clientY, radius, 0, Math.PI*2);
+        context.fill();
+        context.beginPath();
+        context.moveTo(e.clientX, e.clientY);
+    }
+}
+
+
+
+var engage = function(e) {
+    dragging = true;
+    putPoint(e);
+}
+
+var disengage = function() {
+    dragging = false;
+    context.beginPath();
+}
+
+canvas.addEventListener('mousedown', engage);
+canvas.addEventListener('mouseup', disengage);
+canvas.addEventListener('mousemove', putPoint);
+
+
+</script>
+
+<script>
+
+var setRadius = function(newRadius){
+    if(newRadius<minRad){
+        newRadius = minRad;
+    }
+    else if (newRadius>maxRad){
+        newRadius = maxRad;
+    }
+
+    radius = newRadius;
+    context.lineWidth = radius * 2;
+
+    radSpan.innerHTML = radius;
+
+}
+
+var minRad = 0.5, 
+    maxRad = 100,
+    defaultRad = 10,
+    radSpan = document.getElementById('radval'),
+    decRad = document.getElementById('decrad'),
+    incRad = document.getElementById('incrad'),
+    interval = 1;
+
+
+
+decRad.addEventListener('click', function(){
+    setRadius(radius - interval);
+})
+
+incRad.addEventListener('click', function(){
+    setRadius(radius + interval);
+})
+
+
+setRadius(defaultRad);
+</script>
+
 
 </body>
 </html>

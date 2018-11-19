@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Drawing test app</title>
+        
+    <!--Link to css reset. -->
+    <link rel="stylesheet" rel="text/css" href="../static/cssre/reset.css">
+    
+    <!--Getting bootstrap CDN  -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    
+    <!-- Link to stylesheet -->
+    <link rel="stylesheet" rel="text/css" href="../static/css/stylesheet.css">
+    <link rel="stylesheet" href = "../static/css/dropdown.css">
+    
+    <link rel="stylesheet" href="drawing.css">
+
+</head>
+<body>
+    <header>
+            {{template "../html/header.html" .}}
+    </header>
+
+    <div id="toolbar">
+        <div id="rad">
+            Radius <span id="radval">10</span>
+            <div id="decrad" class = "radcontroll">-</div>
+            <div id="incrad" class = "radcontroll">+</div>
+        </div>
+        <div id="colors">
+            <div class="swatch active"></div>
+            <div class="swatch"></div>
+            <div class="swatch"></div>
+
+
+        </div>
+    </div>
+
+
+    <canvas id="canvasid" style="display: block;">
+        <script>
+        </script>
+    </canvas>
+
+    <script src="main.js"></script>
+    <script src="radius.js"></script>
+
+</body>
+</html>

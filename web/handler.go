@@ -62,6 +62,7 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 				}
 				games = append(games, game)
 			}
+
 			fmt.Println(games)
 			htmlData["Games"] = games
 		}

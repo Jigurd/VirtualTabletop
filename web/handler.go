@@ -849,12 +849,4 @@ func HandleI(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleGameBoard(w http.ResponseWriter, r *http.Request) {
-	/*
-		tpl, err := template.ParseFiles("html/gameboard.html", "html/header.html")
-		if err != nil {
-			fmt.Println("Error reading playerdirectory.html")
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-	*/
 }

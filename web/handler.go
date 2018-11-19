@@ -804,6 +804,7 @@ func HandleU(w http.ResponseWriter, r *http.Request) {
 
 	userCookie, err := r.Cookie("user")
 	if err == nil {
+		htmlData["LoggedIn"] = true
 		htmlData["LoggedInUsername"] = userCookie.Value
 	} else {
 		htmlData["LoggedInUsername"] = ""

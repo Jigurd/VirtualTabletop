@@ -3,7 +3,10 @@ package img
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"image"
+	"image/jpeg"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -11,10 +14,6 @@ import (
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-
-	// _ "image/gif"
-	// _ "image/png"
-	"image/jpeg"
 )
 
 //le me trying to do image hosting stuff:
@@ -34,10 +33,10 @@ type ImgsDB struct {
 
 // ImageData contains the rgba values of an image
 type ImageData struct {
-	Filename  string   `bson:"filename"`
-	ImgB64    string   `bson:"img"`
-	TimeStamp int      `bson:"timestamp"`
-	Tags      []string `bson:"tags"`
+	Filename string   `bson:"filename"`
+	ImgB64   string   `bson:"img"`
+	ImgID    int      `bson:"_id"`
+	Tags     []string `bson:"tags"`
 }
 
 func setTimestamp() int {
@@ -50,13 +49,13 @@ func init() {
 		CollectionName: "alltraps",
 	}
 
-	ImgDB.Init(imgDbIDName)
+	ImgDB.Init()
 }
 
 /*
 Init initializes the mongo storage.
 */
-func (db *ImgsDB) Init(IDname string) {
+func (db *ImgsDB) Init() {
 	session, err := mgo.Dial(db.DatabaseURL)
 	if err != nil {
 		panic(err)
@@ -64,7 +63,7 @@ func (db *ImgsDB) Init(IDname string) {
 	defer session.Close()
 
 	index := mgo.Index{
-		Key:        []string{IDname},
+		Key:        []string{imgDbIDName},
 		Unique:     true,
 		DropDups:   true,
 		Background: true,
@@ -78,7 +77,7 @@ func (db *ImgsDB) Init(IDname string) {
 }
 
 //FetchImageByID goes into the database and returns a struct of ImageData
-func FetchImageByID(imageID string) (ImageData, bool) {
+func FetchImageByID(imageID int) (ImageData, bool) {
 	session, err := mgo.Dial(ImgDB.DatabaseURL)
 	if err != nil {
 		panic(err)
@@ -88,7 +87,7 @@ func FetchImageByID(imageID string) (ImageData, bool) {
 	img := ImageData{}
 	allWasGood := true
 
-	err = session.DB(ImgDB.DatabaseName).C(ImgDB.CollectionName).Find(bson.M{imgDbIDName: imageID}).One(&img)
+	err = session.DB(ImgDB.DatabaseName).C(ImgDB.CollectionName).Find(bson.M{"_id": imageID}).One(&img)
 	if err != nil {
 		allWasGood = false
 	}
@@ -133,7 +132,7 @@ func PushImage(image ImageData) error {
 	return nil
 }
 
-//PrepImage takes an image file and returns an ImageData struct
+//PrepImage takes an image file and returns an ImageData struct. Always turns image to jpeg.
 func PrepImage(file os.File, tags []string) (ImageData, error) {
 	//decode the file
 	m, _, err := image.Decode(&file)
@@ -173,4 +172,11 @@ func EncodeImage(m image.Image) (string, error) {
 	//encode bytes to string
 	imgBase64Str := base64.StdEncoding.EncodeToString(buf2.Bytes())
 	return imgBase64Str, nil
+}
+
+//ImageToHTML takes an image struct and prints an image as it is directly in the html writer.
+func ImageToHTML(w io.Writer, im ImageData) {
+	img2html := "<html><body><img src=\"data:image/jpeg;base64," + im.ImgB64 + "\" /></body></html>"
+
+	w.Write([]byte(fmt.Sprintf(img2html)))
 }

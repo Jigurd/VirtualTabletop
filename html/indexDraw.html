@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 
+<!-- 
+    to do
+        1.canvas on out release
+        2.choose color
+        3.img bg
+        4.tokens
+        5.grid
+        6.share w users
+-->
+
 <html>
 <head>
     <title>Drawing test app</title>
@@ -49,8 +59,9 @@ var context = canvas.getContext('2d');
 var radius = 10;
 var dragging = false;
 
-canvas.width = window.innerWidth;
+canvas.width = window.innerWidth - 250;
 canvas.height = window.innerHeight;
+
 
 // after line snap
 context.lineWidth = radius * 2;

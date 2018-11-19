@@ -93,7 +93,7 @@ func HandlerCreate(w http.ResponseWriter, r *http.Request) {
 			cookie = &http.Cookie{
 				Name:    "char",
 				Value:   id,
-				Expires: time.Now().Add(5 * time.Minute),
+				Expires: time.Now().Add(20 * time.Minute),
 			}
 			http.SetCookie(w, cookie)
 			http.Redirect(w, r, "/editChar", 303)
@@ -123,28 +123,17 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 	charId, _ := strconv.Atoi(cookie.Value)
 
 	var errmsg string
+	var character tabletop.Character
 
-	errmsg, htmlData["userName"] = tabletop.CharDB.GetString(charId, "username")
+	character, errmsg = tabletop.CharDB.FindChar(charId)
 	if errmsg != "" {
 		fmt.Print(errmsg)
-		return
-	}
-	errmsg, htmlData["charName"] = tabletop.CharDB.GetString(charId, "charactername")
-	if errmsg != "" {
-		fmt.Print(errmsg)
-		return
-	}
-	errmsg, htmlData["system"] = tabletop.CharDB.GetString(charId, "system")
-	if errmsg != "" {
-		fmt.Print(errmsg)
-		return
-	}
-
-	err = tpl.Execute(w, htmlData)
-	if err != nil {
-		fmt.Println("Error reading executing template:", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
+	htmlData["charName"] = character.Charactername
+	htmlData["userName"] = character.Username
+	htmlData["system"] = character.System
 
 	if r.Method == "POST" {
 		err := r.ParseForm()
@@ -152,9 +141,81 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("Error parsing form: %s\n", err.Error())
 			return
 		}
+		if r.FormValue("Stat") != "" {
+			var values []tabletop.NameDesc
+			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
+			tabletop.CharDB.UpdateChar_nameDesc(charId, "stats", values)
+		} else if r.FormValue("Skill") != "" {
+			var values []tabletop.NameDesc
+			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
+			tabletop.CharDB.UpdateChar_nameDesc(charId, "skills", values)
+		} else if r.FormValue("Inventory") != "" {
+			var values []string
+			values = append(values, r.FormValue("item"))
+			tabletop.CharDB.UpdateCharString(charId, "inventory", values)
+		} else if r.FormValue("Money") != "" {
+			var values []tabletop.NameDesc
+			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
+			tabletop.CharDB.UpdateChar_nameDesc(charId, "money", values)
+		} else if r.FormValue("Asset") != "" {
+			var values []tabletop.NameDesc
+			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
+			tabletop.CharDB.UpdateChar_nameDesc(charId, "assets", values)
+		} else if r.FormValue("Tag") != "" {
+			var values []string
+			values = append(values, r.FormValue("item"))
+			tabletop.CharDB.UpdateCharString(charId, "tags", values)
+		} else if r.FormValue("Macro") != "" {
+			var values []tabletop.NameDesc
+			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
+			tabletop.CharDB.UpdateChar_nameDesc(charId, "macros", values)
+		} else if r.FormValue("Abilities") != "" {
+			var values []tabletop.NameDesc
+			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
+			tabletop.CharDB.UpdateChar_nameDesc(charId, "abilities", values)
+		}
 
 	} else if r.Method != "GET" {
 		w.WriteHeader(501)
+		return
+	}
+
+	if len(character.Stats) != 0 {
+		htmlData["stat"] = true
+		htmlData["stats"] = character.Stats
+	}
+	if len(character.Skills) != 0 {
+		htmlData["skill"] = true
+		htmlData["skills"] = character.Skills
+	}
+	if len(character.Inventory) != 0 {
+		htmlData["Item"] = true
+		htmlData["Inventory"] = character.Inventory
+	}
+	if len(character.Money) != 0 {
+		htmlData["cash"] = true
+		htmlData["money"] = character.Money
+	}
+	if len(character.Assets) != 0 {
+		htmlData["asset"] = true
+		htmlData["assets"] = character.Assets
+	}
+	if len(character.Abilities) != 0 {
+		htmlData["ability"] = true
+		htmlData["abilities"] = character.Abilities
+	}
+	if len(character.Macros) != 0 {
+		htmlData["macro"] = true
+		htmlData["macros"] = character.Macros
+	}
+	if len(character.Tags) != 0 {
+		htmlData["tag"] = true
+		htmlData["tags"] = character.Tags
+	}
+	err = tpl.Execute(w, htmlData)
+	if err != nil {
+		fmt.Println("Error reading executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
 }
 

@@ -17,24 +17,24 @@ type Character struct {
 	Token         string `json:"token"`    //OrcViking.jpg
 
 	//Statline and skills
-	Stats  []nameDesc `json:"stats"`  //{Dex, 10}, {Str, 15}, etc
-	Skills []nameDesc `json:"skills"` //{Acrobatics, 15}, {investigation, 10}, etc
+	Stats  []NameDesc `json:"stats"`  //{Dex, 10}, {Str, 15}, etc
+	Skills []NameDesc `json:"skills"` //{Acrobatics, 15}, {investigation, 10}, etc
 
 	//Items and possessions
 	Inventory []string   `json:"inventory"` //"1 Egg 0.5lbs" , "2 string 0.1lbs", etc
-	Money     []nameDesc `json:"money"`     //{Gold, 15}, {Scheckels, 20}, etc
-	Assets    []nameDesc `json:"assets"`    //{Yacht, "10m long, 3m wide, name: RosenSwinge"}, etc
+	Money     []NameDesc `json:"money"`     //{Gold, 15}, {Scheckels, 20}, etc
+	Assets    []NameDesc `json:"assets"`    //{Yacht, "10m long, 3m wide, name: RosenSwinge"}, etc
 
 	//Abilities on the field
-	Abilities []nameDesc `json:"abilities"` //{Fireball, "8d6 fire dmg, 3rd level Spellslot"},{Lucky, "FUCK"},etc
+	Abilities []NameDesc `json:"abilities"` //{Fireball, "8d6 fire dmg, 3rd level Spellslot"},{Lucky, "FUCK"},etc
 
 	//User made macros & tags
-	Macros []nameDesc `json:"macros"` //{Attack, "/r 1d20+DEX"}, etc
+	Macros []NameDesc `json:"macros"` //{Attack, "/r 1d20+DEX"}, etc
 	Tags   []string   `json:"tags"`   //Fighter, human, idiot,etc
 }
 
-//nameDesc is a sub document which records data int the form of two strings, a Name and a Description
-type nameDesc struct {
+//NameDesc is a sub document which records data int the form of two strings, a Name and a Description
+type NameDesc struct {
 	Name        string `json:"name"`
 	Description string `json:"desc"`
 }
@@ -198,8 +198,8 @@ func (db *CharsDB) UpdateCharString(charId int, field string, values []string) s
 }
 
 //UpdateChar_nameDesc function does the same as UpdateCharString, and returns the same errors, but takes fields and values
-//containing nameDesc instead of strings
-func (db *CharsDB) UpdateChar_nameDesc(charId int, field string, values []nameDesc) string {
+//containing NameDesc instead of strings
+func (db *CharsDB) UpdateChar_nameDesc(charId int, field string, values []NameDesc) string {
 	session, err := mgo.Dial(db.DatabaseURL)
 	if err != nil {
 		panic(err)

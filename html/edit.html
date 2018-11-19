@@ -1,8 +1,23 @@
 <!DOCTYPE html>
 <html>
-    <head>  
+    <head> 
+            <meta charset="UTF-8">
+            <title>Virtual Tabletop</title>       
+            
+            <!--Link to css reset. -->
+            <link rel="stylesheet" rel="text/css" href="static/cssre/reset.css">
+           
+            <!--Getting bootstrap CDN  -->
+           <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+           
+           <!-- Link to stylesheet -->
+           <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
+           <link rel="stylesheet" href = "static/css/dropdown.css"> 
     </head>
     <body>
+        <header>
+        {{template "header.html" .}}
+        </header>
         <h1>
             {{.charName}}
         </h1>
@@ -13,46 +28,63 @@
         <h4>
             {{.system}}
         </h4>
+        {{if .stat}}
+        <h3>Statistics</h3>
+        {{range $element := .stats}}
+        <p>
+            {{.Name}}{{.Description}}
+        </p>
+        {{end}}
+        {{end}}
         <form method = "POST" name = "stat">
             Stats<br>
             <input type = "text" name = "name" value="" size = "10"><input type = "number" name = "desc" size = "8"><br>
-            <input type ="submit" value = "+ Add"><br>
+            <input type ="submit" value = "+Add" name = "Stat"><br>
             Enter the name of the stat in the first box, and the value of it in the second.<br>
         </form><br>
         <hr>
         <form method = "POST" name = "skill">
-            Skills<br>
+            Skill<br>
             <input type = "text" name = "name" value="" size = "10"><input type = "number" name = "desc" size = "8"><br>
-            <input type ="submit" value = "+ Add"><br>
+            <input type ="submit" name = "Skill" value = "+ Add"><br>
             Enter the name of the skill in the first box, and the value of it in the second.<br>
         </form><br>
         <hr>
+        <form method = "POST" name = "ability">
+            Ability<br>
+            <input type = "text" name = "name" value ="" size = "10"><input type = "text" name = "desc" size = "100"><br>
+            <input type = "submit" name = "Ability" value ="+ Add"><br>
+            Enter the name of the Ability in the first box, and a describtion of it in the second.<br>
+        </form>
         <form method="POST" name = "inventory">
             Inventory<br>
             <input type = "text" name = "item" value = "" size = "100"><br>
+            <input type = "submit" name = "Inventory" value = "+ Add"><br>
             Enter the item to be added to the inventory.
         </form><br>
         <form method="POST" name="Money">
             Money<br>
             <input type = "text" name = "name" value="" size = "20"><input type = "number" name = "desc" size = "8"><br>
-            <input type ="submit" value = "+ Add"><br>
+            <input type ="submit" value = "+ Add" name = "Money"><br>
             Enter the Name of the currency in the first box, and the amount of it in the second.<br>
         </form><br>
         <form method="POST" name="Asset">
-                Asset<br>
+            Asset<br>
                 <input type = "text" name = "name" value="" size = "20"><input type="textarea" name ="desc" value=""><br>
-                <input type ="submit" value = "+ Add"><br>
+                <input type ="submit" value = "+ Add" name = "Asset"><br>
                 Enter the Name of your Asset in the first box, and a Description of it in the second.<br>
         </form><br>
+        <hr>
         <form method="POST" name="tag">
             Tag<br>
-            <input type = text name ="item" value ="" size = "20"><br>
+            <input type = "text" name ="item" value ="" size = "20"><br>
+            <input type ="submit" name = "Tag" value ="+Add">
             Enter a tag for your character. These can be used to find them more easily later on.<br>
-        </form>
+        </form><br>
         <form method = "POST" name = "macro">
-                Asset<br>
+            Macro<br>
                 <input type = "text" name = "name" value="" size = "20"><input type="text" name ="desc" value="" size = "200"><br>
-                <input type ="submit" value = "+ Add"><br>
+                <input type ="submit" value = "+ Add" name = "Macro"><br>
                 Enter a custom macro that can be used on the chat later on. Name in the first box.<br>
                 And the macro itself in the second<br>
         </form>

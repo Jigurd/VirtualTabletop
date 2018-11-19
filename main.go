@@ -22,6 +22,7 @@ func main() {
 
 	r := mux.NewRouter()
 
+	r.HandleFunc("/logout", web.HandlerLogout)
 	r.HandleFunc("/createChar", web.HandlerCreate)
 	r.HandleFunc("/editChar", web.HandlerEdit)
 	r.HandleFunc("/api/usercount", web.HandleAPIUserCount)

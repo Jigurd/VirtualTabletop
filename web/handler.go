@@ -284,6 +284,21 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
+HandlerLogout logs a user out
+*/
+func HandlerLogout(w http.ResponseWriter, r *http.Request) {
+	userCookie, err := r.Cookie("user")
+	if err == http.ErrNoCookie {
+		fmt.Println("No cookie.")
+		return
+	}
+
+	userCookie.Expires = time.Now()
+	http.SetCookie(w, userCookie)
+	http.Redirect(w, r, "/", http.StatusMovedPermanently)
+}
+
+/*
 HandlerProfile handles "My Profile"
 */
 func HandlerProfile(w http.ResponseWriter, r *http.Request) {

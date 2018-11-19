@@ -23,9 +23,21 @@
          <div class="clear"></div>
          Wow welcome to the Virtual Tabletop closed pre-alpha dude! This is your number one stop for awesome tabletop gaming. Click <a href="/register">here</a> to get started! OwO
 
+         {{$games := .Games}}
          {{if .LoggedIn}}
             <h2>{{.Message}}</h2>
-         {{end}}
+            {{if .PartOfAnyGames}}
+            <h3>You are part of these games:</h3>
+            <ul>
+                {{range .Games}}
+                <li>
+                    <div>{{.Name}}</div>
+                </li>
+                {{end}} <!-- End range .Games-->
+            </ul>
+
+            {{end}} <!-- End if .PartOfAnyGames -->
+         {{end}} <!-- End if .LoggedIn-->
          
     </body>
 </html>

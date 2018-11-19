@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/fogleman/gg"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/jigurd/VirtualTabletop/web"
@@ -22,6 +21,7 @@ func main() {
 
 	r := mux.NewRouter()
 
+	r.HandleFunc("/logout", web.HandlerLogout)
 	r.HandleFunc("/createChar", web.HandlerCreate)
 	r.HandleFunc("/editChar", web.HandlerEdit)
 	r.HandleFunc("/api/usercount", web.HandleAPIUserCount)
@@ -41,14 +41,5 @@ func main() {
 	http.Handle("/", r)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	// http.Handle("/chat/", http.StripPrefix("/chat/", http.FileServer(http.Dir("chat"))))
-
 	http.ListenAndServe(":"+port, nil)
-
-	// testing out graphics stuff
-	dc := gg.NewContext(1000, 1000)
-	dc.DrawCircle(500, 500, 400)
-	dc.SetRGB(0, 0, 0)
-	dc.Fill()
-	dc.SavePNG("out.png")
 }

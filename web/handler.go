@@ -43,6 +43,29 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 	if err != http.ErrNoCookie {        // If a cookie was found we display a nice welcome message
 		htmlData["LoggedIn"] = true
 		htmlData["Message"] = "Hello, " + userCookie.Value + " :)"
+
+		user, err := tabletop.UserDB.Get(userCookie.Value)
+		if err != nil {
+			fmt.Println("Error getting user:", err.Error())
+			return
+		}
+
+		if len(user.PartOfGames) != 0 {
+			htmlData["PartOfAnyGame"] = true
+			htmlData["PartOfGames"] = user.PartOfGames
+
+			games := []tabletop.Game{}
+			for _, gameID := range user.PartOfGames {
+				game, err := tabletop.GameDB.Get(gameID)
+				if err != nil {
+
+				}
+				games = append(games, game)
+			}
+
+			fmt.Println(games)
+			htmlData["Games"] = games
+		}
 	}
 
 	err = tpl.Execute(w, htmlData)
@@ -246,6 +269,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 			Password:    r.FormValue("password"),
 			Email:       r.FormValue("email"),
 			Description: "",
+			PartOfGames: []string{},
 			Options: tabletop.UserOptions{
 				VisibleInDirectory: true, // Visible by default
 			},
@@ -341,6 +365,21 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("Error executing template:", err.Error())
 	}
+}
+
+/*
+HandlerLogout logs a user out
+*/
+func HandlerLogout(w http.ResponseWriter, r *http.Request) {
+	userCookie, err := r.Cookie("user")
+	if err == http.ErrNoCookie {
+		fmt.Println("No cookie.")
+		return
+	}
+
+	userCookie.Expires = time.Now()
+	http.SetCookie(w, userCookie)
+	http.Redirect(w, r, "/", http.StatusMovedPermanently)
 }
 
 /*
@@ -541,6 +580,8 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 			r.FormValue("system"),
 			[]string{},
 			[]string{},
+			r.FormValue("name"),
+			10,
 		}
 		newGame.Players = append(newGame.Players, cookie.Value)
 		newGame.GameMasters = append(newGame.GameMasters, cookie.Value)
@@ -610,35 +651,69 @@ func HandlerBoard(w http.ResponseWriter, r *http.Request) {
 HandleGame handles the page of one game
 */
 func HandleGame(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
+	tpl, err := template.ParseFiles("html/game.html", "html/header.html")
+	if err != nil {
+		fmt.Println("Error loading game.html:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	parts := strings.Split(r.URL.Path, "/") // Try to find the game
 	game, err := tabletop.GameDB.Get(parts[2])
 	if err != nil {
 		fmt.Println("HandleGame error")
 		return
 	}
-	fmt.Fprintln(w, game.Name)
-	fmt.Fprintln(w, game.System)
-	fmt.Fprintln(w, game.Owner)
-	fmt.Fprintln(w, game.Players)
-	fmt.Fprintln(w, game.GameMasters)
+
+	htmlData := make(map[string]interface{})
+
+	htmlData["Name"] = game.Name
+	htmlData["System"] = game.System
+	htmlData["Owner"] = game.Owner
+	htmlData["Players"] = game.Players
+	htmlData["Masters"] = game.GameMasters
+	htmlData["Desc"] = game.Description
 
 	user, err := r.Cookie("user")
-	if err == nil && user.Value == game.Owner {
-		// check if there is an invite link for this game,
-		// if not create one
-		// TODO: This should be prompted by the owner, not happening automatically
+	if err == nil {
+		htmlData["LoggedIn"] = true
+
+		if r.Method == http.MethodPost {
+			// Join the fucking game
+			fmt.Println(r.FormValue("joingame"))
+		}
+
 		l := tabletop.InviteLink{}
-		if !tabletop.InviteLinkDB.HasLink(game) {
-			l = tabletop.NewInviteLink(game)
-			tabletop.InviteLinkDB.Add(l)
-		} else {
+		if tabletop.InviteLinkDB.HasLink(game) {
 			l, err = tabletop.InviteLinkDB.GetByGame(game)
 			if err != nil {
-				fmt.Println("le error")
+				fmt.Println("Link error")
 				return
 			}
 		}
-		fmt.Fprintln(w, l)
+
+		if user.Value == game.Owner {
+			// check if there is an invite link for this game,
+			// if not create one
+			// TODO: This should be prompted by the owner, not happening automatically
+			if !tabletop.InviteLinkDB.HasLink(game) {
+				l = tabletop.NewInviteLink(game)
+				tabletop.InviteLinkDB.Add(l)
+			} else {
+				l, err = tabletop.InviteLinkDB.GetByGame(game)
+				if err != nil {
+					fmt.Println("Link error")
+					return
+				}
+			}
+		}
+		htmlData["Link"] = l.URL
+	}
+
+	err = tpl.Execute(w, htmlData)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
 }
 
@@ -653,22 +728,22 @@ func HandlePlayerDirectory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	type PlayerData struct {
+		Username, Desc string
+	}
+	playerData := []PlayerData{}
+
 	htmlData := make(map[string]interface{})
 
 	users := tabletop.UserDB.GetAllVisibleInDirectory()
 	if len(users) != 0 {
 		htmlData["AnyPlayers"] = true
 
-		players := []string{}
-
 		for _, user := range users {
-			players = append(players, user.Username)
+			playerData = append(playerData, PlayerData{Username: user.Username, Desc: user.Description})
 		}
 
-		htmlData["Players"] = players
-
-	} else {
-		htmlData["AnyPlayers"] = false
+		htmlData["Players"] = playerData
 	}
 
 	_, err = r.Cookie("user")
@@ -701,23 +776,26 @@ HandleI handles invite links
 */
 func HandleI(w http.ResponseWriter, r *http.Request) {
 	user, err := r.Cookie("user")
+	fmt.Println("Not libtard: " + user.Value)
 	if err != nil {
-		fmt.Fprintln(w, "You are not logged in you retard")
+		http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+		return
 	}
 	l, err := tabletop.InviteLinkDB.Get("127.0.0.1:8080" + r.URL.Path)
 	if err != nil {
-		fmt.Println("Oh no no no")
 		return
 	}
 	g, err := tabletop.GameDB.Get(l.GameId)
-	if err != nil {
-		fmt.Println("No no no no no no")
+	defer http.Redirect(w, r, "/game/"+g.GameId, http.StatusMovedPermanently)
+	if err != nil || len(g.Players) >= g.MaxPlayers {
+		return
 	}
 	for _, player := range g.Players {
 		if player == user.Value {
-			fmt.Fprintln(w, "You are already in this game (this should redirect to the game :)")
+			return
 		}
 	}
-	fmt.Fprintln(w, user.Value+" joined "+g.Name+"  redirect to game :)")
 	g.Players = append(g.Players, user.Value)
+	tabletop.GameDB.UpdatePlayers(g)
+	tabletop.UserDB.AddGame(user.Value, g.GameId)
 }

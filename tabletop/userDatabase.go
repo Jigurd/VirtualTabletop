@@ -226,3 +226,17 @@ func (db *UsersDB) UpdateDescription(u User) {
 		fmt.Println("Error updating the visibility.")
 	}
 }
+
+/*
+AddGame adds a game to the users participating games
+*/
+func (db *UsersDB) AddGame(username, gameID string) error {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	pushQuery := bson.M{"$push": bson.M{"partofgames": gameID}}
+	return session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"username": username}, pushQuery)
+}

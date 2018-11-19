@@ -54,7 +54,8 @@ Logs a user out.
 
 **/playerdirectory**:
 
-Shows a list of users available to play (being shown here can be toggled, see more below).
+Shows a list of users available to play (being shown here can be toggled, see more below), along with their user description.
+
 
 **/profile**:
 
@@ -70,7 +71,7 @@ Shows information about a given game.
 
 **/i/{id}**:
 
-If you are logged in while visiting a valid ID you join corresponding game, if there is space for more players.
+Invite links; if you are logged in while visiting a valid ID you join the corresponding game, if there is space for more players.
 
 
 **/u/{username}**:

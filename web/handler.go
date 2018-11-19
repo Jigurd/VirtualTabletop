@@ -489,7 +489,6 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 
 /*
 HandleGameBrowser shows available games
-TODO: Cool html thing
 */
 func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
 	tpl, err := template.ParseFiles("html/gamebrowser.html", "html/header.html")
@@ -571,6 +570,12 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 		if !tabletop.InviteLinkDB.HasLink(game) {
 			l = tabletop.NewInviteLink(game)
 			tabletop.InviteLinkDB.Add(l)
+		} else {
+			l, err = tabletop.InviteLinkDB.GetByGame(game)
+			if err != nil {
+				fmt.Println("le error")
+				return
+			}
 		}
 		fmt.Fprintln(w, l)
 	}

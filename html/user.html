@@ -189,11 +189,6 @@
         <div class="clear"></div>
         
         <h2>{{.Username}}'s profile</h2>
-
-        {{if ne "" .LoggedInUsername}} <!-- If logged in -->
-            {{if ne .Username .LoggedInUsername}} <!-- Display an add user button for people that arent you-->
-            <button type="submit"  class="btn btn-success">Add user</button>
-            {{end}}
-        {{end}}
+        <p>{{.Desc}}</p>
     </body>
 </html>

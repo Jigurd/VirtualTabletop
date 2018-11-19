@@ -585,8 +585,9 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("Error parsing form: %s\n", err.Error())
 		}
 
+		gameId := bson.NewObjectId().Hex()
 		newGame := tabletop.Game{
-			bson.NewObjectId().Hex(),
+			gameId,
 			r.FormValue("name"),
 			cookie.Value,
 			r.FormValue("system"),
@@ -597,6 +598,8 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 		}
 		newGame.Players = append(newGame.Players, cookie.Value)
 		newGame.GameMasters = append(newGame.GameMasters, cookie.Value)
+
+		tabletop.UserDB.AddGame(cookie.Value, gameId)
 		tabletop.GameDB.Add(newGame)
 	}
 }
@@ -621,8 +624,8 @@ func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
 	games := tabletop.GameDB.GetAll()
 
 	type GameData struct {
-		Name, ID, Desc, Owner   string
-		PlayerCount, MaxPlayers int
+		Name, ID, Desc, Owner, System string
+		PlayerCount, MaxPlayers       int
 	}
 	gamesData := []GameData{}
 
@@ -632,6 +635,7 @@ func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
 			game.GameId,
 			game.Description,
 			game.Owner,
+			game.System,
 			len(game.Players),
 			game.MaxPlayers,
 		})
@@ -805,6 +809,7 @@ func HandleU(w http.ResponseWriter, r *http.Request) {
 	}
 
 	htmlData["Username"] = user.Username
+	htmlData["Desc"] = user.Description
 
 	err = tpl.Execute(w, htmlData)
 	if err != nil {

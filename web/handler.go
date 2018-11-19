@@ -481,6 +481,7 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 			r.FormValue("system"),
 			[]string{},
 			[]string{},
+			r.FormValue("name"),
 		}
 		newGame.Players = append(newGame.Players, cookie.Value)
 		newGame.GameMasters = append(newGame.GameMasters, cookie.Value)

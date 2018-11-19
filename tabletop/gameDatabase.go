@@ -21,6 +21,7 @@ type Game struct {
 	Players     []string `json:"players"`     // the people playing in the game, (including GMs?)
 	GameMasters []string `json:"gamemasters"` // the people running the game, can access all information in the game etc
 	Description string   `json:"description"` // this describes the game
+	MaxPlayers  int      `json:"maxplayers"`  // the game can't have more than this many players
 }
 
 /*

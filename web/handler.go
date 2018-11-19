@@ -497,6 +497,7 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 			[]string{},
 			[]string{},
 			r.FormValue("name"),
+			10,
 		}
 		newGame.Players = append(newGame.Players, cookie.Value)
 		newGame.GameMasters = append(newGame.GameMasters, cookie.Value)
@@ -688,7 +689,7 @@ func HandleI(w http.ResponseWriter, r *http.Request) {
 	}
 	g, err := tabletop.GameDB.Get(l.GameId)
 	defer http.Redirect(w, r, "/game/"+g.GameId, http.StatusMovedPermanently)
-	if err != nil {
+	if err != nil || len(g.Players) >= g.MaxPlayers {
 		return
 	}
 	for _, player := range g.Players {

@@ -42,25 +42,53 @@ This is the index page, which doesn't hold much useful information. If logged in
 
 ```POST```: With the form keys "username", "email", "password" and "confirm" a user can be registered to the database.
 
-**/login**
+**/login**:
 
 ```POST```: With the form keys "username" and "password" you can log in. Redirects to "/" on successfull login.
 
+
+**/logout**:
+
+Logs a user out.
+
+
 **/playerdirectory**:
+
 Shows a list of users available to play (being shown here can be toggled, see more below).
 
-**/profile**
+**/profile**:
+
 ```POST```: With the form keys "visible" (value "visible" or "notvisible", this updates a users visibility under ```/playerdirectory```) and "desc" you can update user information (only if you are looged in).
 
 When not logged in a link to /register and /login is shown.
 
 
-**/chat**
+**/game/{id}**:
+
+Shows information about a given game.
+
+
+**/i/{id}**:
+
+If you are logged in while visiting a valid ID you join corresponding game, if there is space for more players.
+
+
+**/u/{username}**:
+
+Shows information about the user.
+
+
+**/newgame**:
+
+Allows users to create new games
+
+
+**/chat**:
 
 Allows users to chat together.
 
 
-**/api/count**
+**/api/count**:
 
 ```GET```: Returns a JSON with how many users are registered in the database.
 

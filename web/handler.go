@@ -663,5 +663,6 @@ func HandleI(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprintln(w, user.Value+" joined "+g.Name+"  redirect to game :)")
 	g.Players = append(g.Players, user.Value)
+	tabletop.GameDB.UpdatePlayers(g)
 	tabletop.UserDB.AddGame(user.Value, g.GameId)
 }

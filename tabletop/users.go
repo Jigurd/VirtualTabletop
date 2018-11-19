@@ -8,6 +8,7 @@ type User struct {
 	Password    string      `json:"password"`
 	Email       string      `json:"email"`
 	Description string      `json:"description"`
+	PartOfGames []string    `json:"partofgames"`
 	Options     UserOptions `json:"options"`
 }
 

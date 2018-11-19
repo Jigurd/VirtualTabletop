@@ -790,7 +790,29 @@ func HandleU(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("HandleU error")
 		return
 	}
-	fmt.Fprintln(w, user.Username+"\nDescription\nPreferred systems\nSend message (not implemented)\nInvite to game (not implemented)")
+
+	tpl, err := template.ParseFiles("html/user.html", "html/header.html")
+	if err != nil {
+		fmt.Println("Error reading user.html")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	htmlData := make(map[string]interface{})
+
+	userCookie, err := r.Cookie("user")
+	if err == nil {
+		htmlData["LoggedInUsername"] = userCookie.Value
+	} else {
+		htmlData["LoggedInUsername"] = ""
+	}
+
+	htmlData["Username"] = user.Username
+
+	err = tpl.Execute(w, htmlData)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 }
 
 /*

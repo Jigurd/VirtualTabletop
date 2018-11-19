@@ -505,13 +505,17 @@ func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	games := tabletop.GameDB.GetAll()
-	gameNames := []string{}
+
+	type GameData struct {
+		Name, ID string
+	}
+	gamesData := []GameData{}
 
 	for _, game := range games {
-		gameNames = append(gameNames, game.Name)
+		gamesData = append(gamesData, GameData{Name: game.Name, ID: game.GameId})
 	}
 
-	htmlData["Games"] = gameNames
+	htmlData["Games"] = gamesData
 
 	if len(games) != 0 {
 		htmlData["AnyGames"] = true

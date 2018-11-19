@@ -25,14 +25,14 @@
 
         <h2>Player Directory</h2>
         {{if .AnyPlayers}}
-            <ul>
-                {{range $player := .Players}}
-                <li>
-                    {{$link := printf "/u/%s" $player}}
-                    <div><a href="{{$link}}">{{$player}}</a></div>
-                </li>
-                {{end}}
-            </ul>
+        <ul>
+            {{range $player := .Players}}
+            <li>
+                {{$link := printf "/u/%s" $player}}
+                <div><a href="{{$link}}">{{$player}}</a></div>
+            </li>
+            {{end}}
+        </ul>
         {{end}}
     </body>
 </html>

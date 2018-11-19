@@ -14,8 +14,6 @@
         <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
         
         <!-- Link to stylesheet -->
-        <link rel="stylesheet" rel="text/css" href="static/css/signup.css">     
-        
         <link rel="stylesheet" href = "static/css/dropdown.css">
     </head>
     <body>
@@ -25,9 +23,9 @@
     
         {{if .AnyGames}}
         <ul>
-            {{range $game := .Games}}
+            {{range .Games}}
             <li>
-                <div><a href="/game/{{$game}}">{{$game}}</a></div>
+                <div><a href="/game/{{.ID}}">{{.Name}}</a></div>
             </li>
             {{end}}
         </ul>

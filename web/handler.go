@@ -566,6 +566,12 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 		if !tabletop.InviteLinkDB.HasLink(game) {
 			l = tabletop.NewInviteLink(game)
 			tabletop.InviteLinkDB.Add(l)
+		} else {
+			l, err = tabletop.InviteLinkDB.GetByGame(game)
+			if err != nil {
+				fmt.Println("le error")
+				return
+			}
 		}
 		fmt.Fprintln(w, l)
 	}

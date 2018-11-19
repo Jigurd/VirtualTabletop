@@ -165,7 +165,7 @@ func (db *InviteLinksDB) GetByGame(g Game) (InviteLink, error) {
 	defer session.Close()
 
 	link := InviteLink{}
-	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"gameid": g}).One(&link)
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"gameid": g.GameId}).One(&link)
 
 	return link, err
 }

@@ -214,7 +214,7 @@
                     {{end}} <!-- End range $masters-->
                 </div>
             </li>
-            {{end}} <!-- End rnage $players -->
+            {{end}} <!-- End range $players -->
         </ul>
 
         <div>{{.Desc}}</div>
@@ -222,7 +222,7 @@
         <div>Invite link: {{.Link}}</div>
 
         <div class="joingame">   
-            <form method="post">
+            <form action={{.BoardPath}} method="get">
                 <button type="submit" name="joingame" class="btn btn-success">Join game</button>
             </form>
         </div>

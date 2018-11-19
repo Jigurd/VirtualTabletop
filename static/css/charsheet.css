@@ -1,0 +1,40 @@
+.boxed {
+    background-color: lightgrey;
+    color: black;
+    border: 2px solid gray;
+    font-size: 20px;
+    font-family: sans-serif;
+    padding: 4px;
+    margin-left: 10px;
+}
+
+.described{
+    font-size: 15px;
+    background-color: lightgray;
+    color: black;
+    margin-left: 10px;
+    border:2px solid gray;
+}
+.title{
+    background-color: #b3b3b3;
+    color: black;
+    border: 2px solid gray;
+    font-size: 20px;
+    margin-left: 10px;
+}
+
+.tag{
+    font-size: 15px;
+    margin-left: 10px;
+}
+
+.name{
+    font-size: 50px;
+    margin-left: 20px;
+    color: darkred;
+}
+
+.system{
+    font-size: 15px;
+    font-family:'Gill Sans';
+}

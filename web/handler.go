@@ -38,7 +38,7 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	htmlData := make(map[string]interface{})
+	htmlData := make(map[string]interface{}) // htmlData contains data used by the HTML template
 
 	userCookie, err := r.Cookie("user") // Get the user cookie
 	if err != http.ErrNoCookie {        // If a cookie was found we display a nice welcome message
@@ -56,10 +56,10 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 			htmlData["PartOfGames"] = user.PartOfGames
 
 			games := []tabletop.Game{}
-			for _, gameID := range user.PartOfGames {
+			for _, gameID := range user.PartOfGames { // Add all the games that the current user is in
 				game, err := tabletop.GameDB.Get(gameID)
 				if err != nil {
-
+					fmt.Println("Error:", err.Error())
 				}
 				games = append(games, game)
 			}
@@ -142,6 +142,8 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Printf("Error getting cookie: %s", err.Error())
 		return
+	} else {
+		htmlData["LoggedIn"] = true
 	}
 	charId, _ := strconv.Atoi(cookie.Value)
 
@@ -192,12 +194,13 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 			var values []tabletop.NameDesc
 			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
 			tabletop.CharDB.UpdateChar_nameDesc(charId, "macros", values)
-		} else if r.FormValue("Abilities") != "" {
+		} else if r.FormValue("Ability") != "" {
 			var values []tabletop.NameDesc
 			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
 			tabletop.CharDB.UpdateChar_nameDesc(charId, "abilities", values)
+			fmt.Print("Hlep")
 		}
-
+		http.Redirect(w, r, "/editChar", 303)
 	} else if r.Method != "GET" {
 		w.WriteHeader(501)
 		return
@@ -212,8 +215,8 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 		htmlData["skills"] = character.Skills
 	}
 	if len(character.Inventory) != 0 {
-		htmlData["Item"] = true
-		htmlData["Inventory"] = character.Inventory
+		htmlData["item"] = true
+		htmlData["inventory"] = character.Inventory
 	}
 	if len(character.Money) != 0 {
 		htmlData["cash"] = true
@@ -239,6 +242,130 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("Error reading executing template:", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
+}
+func HandlerView(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "GET" {
+		tpl, err := template.ParseFiles("html/choose.html", "html/header.html")
+		if err != nil {
+			fmt.Println("Error reading register.html:", err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		htmlData := make(map[string]interface{})
+
+		cookie, err := r.Cookie("user") // check if the User is logged in
+		if err != nil {                 // if the user is not logged in
+			http.Redirect(w, r, "/", 303) //Throw user back to the index
+			return
+		}
+		htmlData["user"] = cookie.Value
+		errmsg, Characters := tabletop.CharDB.GetChars(cookie.Value)
+		if errmsg != "" {
+			fmt.Print(errmsg)
+			return
+		}
+		var charinfo []tabletop.NameDesc
+		for _, Char := range Characters {
+			nd := tabletop.NameDesc{Char.Charactername, strconv.Itoa(Char.CharId)}
+			charinfo = append(charinfo, nd)
+		}
+		htmlData["charInfo"] = charinfo
+
+		err = tpl.Execute(w, htmlData)
+		if err != nil {
+			fmt.Println("Error reading executing template:", err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+
+	} else if r.Method == "POST" {
+		tpl, err := template.ParseFiles("html/view.html", "html/header.html")
+		if err != nil {
+			fmt.Println("Error reading register.html:", err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		htmlData := make(map[string]interface{})
+
+		err = r.ParseForm()
+		if err != nil {
+			fmt.Printf("Error parsing form: %s\n", err.Error())
+			return
+		}
+
+		charId, _ := strconv.Atoi(r.FormValue("characters"))
+
+		var errmsg string
+		var character tabletop.Character
+
+		character, errmsg = tabletop.CharDB.FindChar(charId)
+		if errmsg != "" {
+			fmt.Print(errmsg)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		htmlData["charName"] = character.Charactername
+		htmlData["userName"] = character.Username
+		htmlData["system"] = character.System
+
+		err = r.ParseForm()
+		if err != nil {
+			fmt.Printf("Error parsing form: %s\n", err.Error())
+			return
+		}
+		if r.FormValue("Inventory") != "" {
+			var values []string
+			values = append(values, r.FormValue("item"))
+			tabletop.CharDB.UpdateCharString(charId, "inventory", values)
+		} else if r.FormValue("Money") != "" {
+			var values []tabletop.NameDesc
+			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
+			tabletop.CharDB.UpdateChar_nameDesc(charId, "money", values)
+		} else if r.FormValue("Asset") != "" {
+			var values []tabletop.NameDesc
+			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
+			tabletop.CharDB.UpdateChar_nameDesc(charId, "assets", values)
+		}
+
+		if len(character.Stats) != 0 {
+			htmlData["stat"] = true
+			htmlData["stats"] = character.Stats
+		}
+		if len(character.Skills) != 0 {
+			htmlData["skill"] = true
+			htmlData["skills"] = character.Skills
+		}
+		if len(character.Inventory) != 0 {
+			htmlData["item"] = true
+			htmlData["inventory"] = character.Inventory
+		}
+		if len(character.Money) != 0 {
+			htmlData["cash"] = true
+			htmlData["money"] = character.Money
+		}
+		if len(character.Assets) != 0 {
+			htmlData["asset"] = true
+			htmlData["assets"] = character.Assets
+		}
+		if len(character.Abilities) != 0 {
+			htmlData["ability"] = true
+			htmlData["abilities"] = character.Abilities
+		}
+		if len(character.Macros) != 0 {
+			htmlData["macro"] = true
+			htmlData["macros"] = character.Macros
+		}
+		if len(character.Tags) != 0 {
+			htmlData["tag"] = true
+			htmlData["tags"] = character.Tags
+		}
+		err = tpl.Execute(w, htmlData)
+		if err != nil {
+			fmt.Println("Error reading executing template:", err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
 	}
 }
 
@@ -291,8 +418,8 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		} else if tabletop.UserDB.Exists(newUser) {
 			htmlData["Message"] = "That username/email is taken."
 			statusCode = http.StatusUnprocessableEntity
-		} else { // OK username/Email
-			if newUser.Password != r.FormValue("confirm") {
+		} else { // OK username/Email, check password
+			if newUser.Password != r.FormValue("confirm") { // Check that the confirmation matches
 				htmlData["Message"] = "Passwords don't match."
 				statusCode = http.StatusUnprocessableEntity
 			} else { // OK password, eveything is OK and the user is added.
@@ -324,7 +451,7 @@ HandlerLogin handles users logging in
 func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	tpl, err := template.ParseFiles("html/login.html", "html/header.html")
 	if err != nil {
-		fmt.Println("Error reading html file:", err.Error())
+		fmt.Println("Error reading login.html:", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -345,14 +472,14 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if password == user.Password {
-			cookie := &http.Cookie{
+			cookie := &http.Cookie{ // If the password was correct we create a cookie, so the user is logged in
 				Name:    "user",
 				Value:   user.Username,
 				Expires: time.Now().Add(60 * time.Minute),
 			}
 			http.SetCookie(w, cookie)
 
-			http.Redirect(w, r, "/profile", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/profile", http.StatusFound)
 		} else {
 			htmlData["Message"] = fmt.Sprintf("Couldn't log in")
 			statusCode = http.StatusUnprocessableEntity
@@ -372,7 +499,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 HandlerLogout logs a user out
 */
 func HandlerLogout(w http.ResponseWriter, r *http.Request) {
-	cookie := &http.Cookie{
+	cookie := &http.Cookie{ // To log out we erase the user cookie
 		Name:   "user",
 		Value:  "",
 		Path:   "/",
@@ -423,7 +550,7 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 
-		if user.Options.VisibleInDirectory { // Set the values corresponding to the value from the DB
+		if user.Options.VisibleInDirectory { // Set the values corresponding to the users current choice
 			visibleOptions[0].Selected = true
 		} else {
 			visibleOptions[1].Selected = true
@@ -458,12 +585,10 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 			tabletop.UserDB.UpdateVisibilityInDirectory(user)
 			tabletop.UserDB.UpdateDescription(user)
 
-			http.Redirect(w, r, "/profile", http.StatusMovedPermanently) // So it actually refreshes the value for you
+			http.Redirect(w, r, "/profile", http.StatusFound) // So it actually refreshes the values for you
 			// Obviously a pretty terrible way to do it (way higher data usage), but hey, it works right
 		}
 
-	} else {
-		htmlData["LoggedIn"] = false
 	}
 
 	err = tpl.Execute(w, htmlData)
@@ -537,7 +662,7 @@ func HandleChatMessages() {
 }
 
 /*
-HandleAPIUserCount returns the amount of users in the database
+HandleAPIUserCount returns the amount of users in the database. Response is: {count:<count>}
 */
 func HandleAPIUserCount(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -579,7 +704,7 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "You are not logged in you retard. You fucking imbecile.")
 			return
 		}
-		fmt.Println(cookie.Value)
+
 		err = r.ParseForm()
 		if err != nil {
 			fmt.Printf("Error parsing form: %s\n", err.Error())
@@ -623,13 +748,13 @@ func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
 
 	games := tabletop.GameDB.GetAll()
 
-	type GameData struct {
+	type GameData struct { // Contains information about a game that is used in the HTML
 		Name, ID, Desc, Owner, System string
 		PlayerCount, MaxPlayers       int
 	}
 	gamesData := []GameData{}
 
-	for _, game := range games {
+	for _, game := range games { // Append all the interesting data
 		gamesData = append(gamesData, GameData{
 			game.Name,
 			game.GameId,
@@ -697,6 +822,7 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 	htmlData["Players"] = game.Players
 	htmlData["Masters"] = game.GameMasters
 	htmlData["Desc"] = game.Description
+	htmlData["BoardPath"] = r.URL.Path + "/board"
 
 	user, err := r.Cookie("user")
 	if err == nil {
@@ -783,7 +909,7 @@ func HandlePlayerDirectory(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
-HandleU handles a user profile
+HandleU handles a user profile (/u/<username>)
 */
 func HandleU(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
@@ -803,12 +929,13 @@ func HandleU(w http.ResponseWriter, r *http.Request) {
 
 	userCookie, err := r.Cookie("user")
 	if err == nil {
+		htmlData["LoggedIn"] = true
 		htmlData["LoggedInUsername"] = userCookie.Value
 	} else {
 		htmlData["LoggedInUsername"] = ""
 	}
 
-	htmlData["Username"] = user.Username
+	htmlData["Username"] = user.Username // The username of the profile we are at, not the one of the logged in user
 	htmlData["Desc"] = user.Description
 
 	err = tpl.Execute(w, htmlData)
@@ -845,4 +972,20 @@ func HandleI(w http.ResponseWriter, r *http.Request) {
 	g.Players = append(g.Players, user.Value)
 	tabletop.GameDB.UpdatePlayers(g)
 	tabletop.UserDB.AddGame(user.Value, g.GameId)
+}
+
+func HandleGameBoard(w http.ResponseWriter, r *http.Request) {
+	tpl, err := template.ParseFiles("html/indexDraw.html", "html/header.html")
+	if err != nil {
+		fmt.Println("Error loading indexDraw.html:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	err = tpl.Execute(w, nil)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 }

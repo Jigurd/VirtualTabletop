@@ -643,6 +643,7 @@ func HandleI(w http.ResponseWriter, r *http.Request) {
 	user, err := r.Cookie("user")
 	if err != nil {
 		fmt.Fprintln(w, "You are not logged in you retard")
+		http.Redirect(w, r, "/login", http.StatusMovedPermanently)
 		return
 	}
 	l, err := tabletop.InviteLinkDB.Get("127.0.0.1:8080" + r.URL.Path)
@@ -651,6 +652,7 @@ func HandleI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	g, err := tabletop.GameDB.Get(l.GameId)
+	defer http.Redirect(w, r, "/game/"+g.GameId, http.StatusMovedPermanently)
 	if err != nil {
 		fmt.Println("No no no no no no")
 		return

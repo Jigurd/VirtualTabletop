@@ -489,7 +489,6 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 
 /*
 HandleGameBrowser shows available games
-TODO: Cool html thing
 */
 func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
 	tpl, err := template.ParseFiles("html/gamebrowser.html", "html/header.html")

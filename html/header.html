@@ -26,12 +26,11 @@
     </div> 
 <nav class="menu">
     <a href="/" class="current">Home</a>
+
     {{if not .LoggedIn}}
     <a href="/login">Log in</a>
     <a href="/register">Register</a>
     {{else}} <!-- User is logged in -->
-    <a href="/newgame">Create Game</a>
-    <a href="/gamebrowser">Find Game</a>
     <div class = "dropdown">
             <button onclick= "myFunction()" class = "dropbtn"> Characters </button>
             <div id = "myDropdown" class="dropdown-content">
@@ -39,8 +38,14 @@
                 <a href = "/viewChar" title = "View your existing Characters">View Character</a>
             </div>
         </div>
-    <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
+    <a href="/newgame">Create Game</a>
     {{end}} <!-- These can be shown no matter what, I suppose-->
+
+    <a href="/gamebrowser">Find Game</a>
     <a href="/chat">Chat</a>
     <a href="/playerdirectory">Player directory</a>
+
+    {{if .LoggedIn}} <!-- Check here as well so it is at the end -->
+    <a href="/profile"><p><span class="glyphicon glyphicon-user"></span> My Profile</p></a>
+    {{end}}
 </nav>

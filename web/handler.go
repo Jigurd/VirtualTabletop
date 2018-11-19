@@ -571,7 +571,7 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 	htmlData["System"] = game.System
 	htmlData["Owner"] = game.Owner
 	htmlData["Players"] = game.Players
-	htmlData["GameMasters"] = game.GameMasters
+	htmlData["Masters"] = game.GameMasters
 	htmlData["Desc"] = game.Description
 
 	user, err := r.Cookie("user")
@@ -595,11 +595,9 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 			}
 			htmlData["Link"] = l.URL
 		}
-	} else {
-		htmlData["LoggedIn"] = false
 	}
 
-	err = tpl.Execute(w, nil)
+	err = tpl.Execute(w, htmlData)
 	if err != nil {
 		fmt.Println("Error executing template:", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

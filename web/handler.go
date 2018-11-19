@@ -642,6 +642,7 @@ func HandleI(w http.ResponseWriter, r *http.Request) {
 	user, err := r.Cookie("user")
 	if err != nil {
 		fmt.Fprintln(w, "You are not logged in you retard")
+		return
 	}
 	l, err := tabletop.InviteLinkDB.Get("127.0.0.1:8080" + r.URL.Path)
 	if err != nil {
@@ -651,12 +652,15 @@ func HandleI(w http.ResponseWriter, r *http.Request) {
 	g, err := tabletop.GameDB.Get(l.GameId)
 	if err != nil {
 		fmt.Println("No no no no no no")
+		return
 	}
 	for _, player := range g.Players {
 		if player == user.Value {
 			fmt.Fprintln(w, "You are already in this game (this should redirect to the game :)")
+			return
 		}
 	}
 	fmt.Fprintln(w, user.Value+" joined "+g.Name+"  redirect to game :)")
 	g.Players = append(g.Players, user.Value)
+	tabletop.UserDB.AddGame(user.Value, g.GameId)
 }

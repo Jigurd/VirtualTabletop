@@ -151,3 +151,20 @@ func (db *GamesDB) GetAll() []Game {
 
 	return all
 }
+
+/*
+UpdatePlayers updates the players
+*/
+func (db *GamesDB) UpdatePlayers(g Game) {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	updateQ := bson.M{"$set": bson.M{"players": g.Players}}
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"gameid": g.GameId}, updateQ)
+	if err != nil {
+		fmt.Println("Error updating the visibility.")
+	}
+}

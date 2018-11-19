@@ -621,23 +621,31 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(r.FormValue("joingame"))
 		}
 
+		l := tabletop.InviteLink{}
+		if tabletop.InviteLinkDB.HasLink(game) {
+			l, err = tabletop.InviteLinkDB.GetByGame(game)
+			if err != nil {
+				fmt.Println("Link error")
+				return
+			}
+		}
+
 		if user.Value == game.Owner {
 			// check if there is an invite link for this game,
 			// if not create one
 			// TODO: This should be prompted by the owner, not happening automatically
-			l := tabletop.InviteLink{}
 			if !tabletop.InviteLinkDB.HasLink(game) {
 				l = tabletop.NewInviteLink(game)
 				tabletop.InviteLinkDB.Add(l)
 			} else {
 				l, err = tabletop.InviteLinkDB.GetByGame(game)
 				if err != nil {
-					fmt.Println("le error")
+					fmt.Println("Link error")
 					return
 				}
 			}
-			htmlData["Link"] = l.URL
 		}
+		htmlData["Link"] = l.URL
 	}
 
 	err = tpl.Execute(w, htmlData)

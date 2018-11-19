@@ -38,7 +38,7 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	htmlData := make(map[string]interface{})
+	htmlData := make(map[string]interface{}) // htmlData contains data used by the HTML template
 
 	userCookie, err := r.Cookie("user") // Get the user cookie
 	if err != http.ErrNoCookie {        // If a cookie was found we display a nice welcome message
@@ -56,10 +56,10 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 			htmlData["PartOfGames"] = user.PartOfGames
 
 			games := []tabletop.Game{}
-			for _, gameID := range user.PartOfGames {
+			for _, gameID := range user.PartOfGames { // Add all the games that the current user is in
 				game, err := tabletop.GameDB.Get(gameID)
 				if err != nil {
-
+					fmt.Println("Error:", err.Error())
 				}
 				games = append(games, game)
 			}
@@ -291,8 +291,8 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		} else if tabletop.UserDB.Exists(newUser) {
 			htmlData["Message"] = "That username/email is taken."
 			statusCode = http.StatusUnprocessableEntity
-		} else { // OK username/Email
-			if newUser.Password != r.FormValue("confirm") {
+		} else { // OK username/Email, check password
+			if newUser.Password != r.FormValue("confirm") { // Check that the confirmation matches
 				htmlData["Message"] = "Passwords don't match."
 				statusCode = http.StatusUnprocessableEntity
 			} else { // OK password, eveything is OK and the user is added.
@@ -324,7 +324,7 @@ HandlerLogin handles users logging in
 func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	tpl, err := template.ParseFiles("html/login.html", "html/header.html")
 	if err != nil {
-		fmt.Println("Error reading html file:", err.Error())
+		fmt.Println("Error reading login.html:", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -345,14 +345,14 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if password == user.Password {
-			cookie := &http.Cookie{
+			cookie := &http.Cookie{ // If the password was correct we create a cookie, so the user is logged in
 				Name:    "user",
 				Value:   user.Username,
 				Expires: time.Now().Add(60 * time.Minute),
 			}
 			http.SetCookie(w, cookie)
 
-			http.Redirect(w, r, "/profile", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/profile", http.StatusFound)
 		} else {
 			htmlData["Message"] = fmt.Sprintf("Couldn't log in")
 			statusCode = http.StatusUnprocessableEntity
@@ -372,7 +372,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 HandlerLogout logs a user out
 */
 func HandlerLogout(w http.ResponseWriter, r *http.Request) {
-	cookie := &http.Cookie{
+	cookie := &http.Cookie{ // To log out we erase the user cookie
 		Name:   "user",
 		Value:  "",
 		Path:   "/",
@@ -423,7 +423,7 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 
-		if user.Options.VisibleInDirectory { // Set the values corresponding to the value from the DB
+		if user.Options.VisibleInDirectory { // Set the values corresponding to the users current choice
 			visibleOptions[0].Selected = true
 		} else {
 			visibleOptions[1].Selected = true
@@ -458,12 +458,10 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 			tabletop.UserDB.UpdateVisibilityInDirectory(user)
 			tabletop.UserDB.UpdateDescription(user)
 
-			http.Redirect(w, r, "/profile", http.StatusMovedPermanently) // So it actually refreshes the value for you
+			http.Redirect(w, r, "/profile", http.StatusFound) // So it actually refreshes the values for you
 			// Obviously a pretty terrible way to do it (way higher data usage), but hey, it works right
 		}
 
-	} else {
-		htmlData["LoggedIn"] = false
 	}
 
 	err = tpl.Execute(w, htmlData)
@@ -537,7 +535,7 @@ func HandleChatMessages() {
 }
 
 /*
-HandleAPIUserCount returns the amount of users in the database
+HandleAPIUserCount returns the amount of users in the database. Response is: {count:<count>}
 */
 func HandleAPIUserCount(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -579,7 +577,7 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "You are not logged in you retard. You fucking imbecile.")
 			return
 		}
-		fmt.Println(cookie.Value)
+
 		err = r.ParseForm()
 		if err != nil {
 			fmt.Printf("Error parsing form: %s\n", err.Error())
@@ -623,13 +621,13 @@ func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
 
 	games := tabletop.GameDB.GetAll()
 
-	type GameData struct {
+	type GameData struct { // Contains information about a game that is used in the HTML
 		Name, ID, Desc, Owner, System string
 		PlayerCount, MaxPlayers       int
 	}
 	gamesData := []GameData{}
 
-	for _, game := range games {
+	for _, game := range games { // Append all the interesting data
 		gamesData = append(gamesData, GameData{
 			game.Name,
 			game.GameId,
@@ -784,7 +782,7 @@ func HandlePlayerDirectory(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
-HandleU handles a user profile
+HandleU handles a user profile (/u/<username>)
 */
 func HandleU(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
@@ -810,7 +808,7 @@ func HandleU(w http.ResponseWriter, r *http.Request) {
 		htmlData["LoggedInUsername"] = ""
 	}
 
-	htmlData["Username"] = user.Username
+	htmlData["Username"] = user.Username // The username of the profile we are at, not the one of the logged in user
 	htmlData["Desc"] = user.Description
 
 	err = tpl.Execute(w, htmlData)

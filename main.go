@@ -18,13 +18,14 @@ func main() {
 	web.Clients = make(map[*websocket.Conn]bool)
 	web.Broadcast = make(chan web.Message)
 	web.Upgrader = websocket.Upgrader{}
+	go web.HandleChatMessages()
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/logout", web.HandlerLogout)
 	r.HandleFunc("/createChar", web.HandlerCreate)
 	r.HandleFunc("/editChar", web.HandlerEdit)
-	r.HandleFunc("/viewChar",web.HandlerView)
+	r.HandleFunc("/viewChar", web.HandlerView)
 	r.HandleFunc("/api/usercount", web.HandleAPIUserCount)
 	r.HandleFunc("/profile", web.HandlerProfile)
 	r.HandleFunc("/login", web.HandlerLogin)

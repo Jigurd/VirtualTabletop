@@ -617,8 +617,6 @@ func HandleChat(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error executing template:", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
-
-	go HandleChatMessages()
 }
 
 /*

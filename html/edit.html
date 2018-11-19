@@ -13,32 +13,35 @@
            <!-- Link to stylesheet -->
            <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
            <link rel="stylesheet" href = "static/css/dropdown.css"> 
+           <link rel="stylesheet" href ="static/css/charsheet.css">
     </head>
     <body>
         <header>
         {{template "header.html" .}}
         </header>
-        <h1>
-            {{.charName}}
-        </h1>
+        <dev class = "name">
+            <em><u>{{.charName}}</u></em>
+        </dev>
         <hr>
         <h3>
             {{.userName}}
         </h3>
-        <h4>
+        <dev class = "system">
             {{.system}}
-        </h4>
+        </dev>
         {{if .stat}}
         <h3>Statistics</h3>
         {{range $element := .stats}}
         <p>
-            {{.Name}}{{.Description}}
+            <dev class = "boxed">
+            {{.Name}}
+            </dev><dev class = "boxed">{{.Description}}</dev>
         </p>
         {{end}}
         {{end}}
         <form method = "POST" name = "stat">
             Stats<br>
-            <input type = "text" name = "name" value="" size = "10"><input type = "number" name = "desc" size = "8"><br>
+            <input type = "text" name = "name" value="" size = "10"><input type = "text" name = "desc" size = "8"><br>
             <input type ="submit" value = "+Add" name = "Stat"><br>
             Enter the name of the stat in the first box, and the value of it in the second.<br>
         </form><br>
@@ -47,13 +50,15 @@
         <h3>Skills</h3>
         {{range $element := .skills}}
         <p>
-            {{.Name}}{{.Description}}
+                <dev class = "boxed">
+                        {{.Name}}
+                        </dev><dev class = "boxed">{{.Description}}</dev>
         </p>
         {{end}}
         {{end}}
         <form method = "POST" name = "skill">
             Skill<br>
-            <input type = "text" name = "name" value="" size = "10"><input type = "number" name = "desc" size = "8"><br>
+            <input type = "text" name = "name" value="" size = "10"><input type = "text" name = "desc" size = "8"><br>
             <input type ="submit" name = "Skill" value = "+ Add"><br>
             Enter the name of the skill in the first box, and the value of it in the second.<br>
         </form><br>
@@ -62,7 +67,9 @@
         <h3>Abilities</h3>
         {{range $element := .abilities}}
         <p>
-            {{.Name}}{{.Description}}
+                <dev class = "title">
+                        {{.Name}}
+                        </dev><br><dev class = "described">{{.Description}}</dev>
         </p>
         {{end}}
         {{end}}
@@ -77,7 +84,9 @@
         <h3>Inventory</h3>
         {{range $element := .inventory}}
         <p>
+            <dev class = "described">
             {{$element}}
+            </dev>
         </p>
         {{end}}
         {{end}}
@@ -91,13 +100,15 @@
         <h3>Money</h3>
         {{range $element := .money}}
         <p>
-            {{.Name}}{{.Description}}
+                <dev class = "boxed">
+                        {{.Name}}
+                        </dev><dev class = "boxed">{{.Description}}</dev>
         </p>
         {{end}}
         {{end}}
         <form method="POST" name="Money">
             Money<br>
-            <input type = "text" name = "name" value="" size = "20"><input type = "number" name = "desc" size = "8"><br>
+            <input type = "text" name = "name" value="" size = "20"><input type = "text" name = "desc" size = "8"><br>
             <input type ="submit" value = "+ Add" name = "Money"><br>
             Enter the Name of the currency in the first box, and the amount of it in the second.<br>
         </form><br>
@@ -105,7 +116,9 @@
         <h3>Assets</h3>
         {{range $element := .assets}}
         <p>
-            {{.Name}}{{.Description}}
+                <dev class = "title">
+                        {{.Name}}
+                        </dev><dev class = "described">{{.Description}}</dev>
         </p>
         {{end}}
         {{end}}
@@ -119,26 +132,30 @@
         {{if .tag}}
         <h3>Tags</h3>
         {{range $element := .tags}}
-        {{$element}}
+        <dev class = "tag">
+        {{$element}}, 
+        </dev>
         {{end}}
         {{end}}
         <form method="POST" name="tag">
             Tag<br>
             <input type = "text" name ="item" value ="" size = "20"><br>
-            <input type ="submit" name = "Tag" value ="+Add">
+            <input type ="submit" name = "Tag" value ="+Add"><br>
             Enter a tag for your character. These can be used to find them more easily later on.<br>
         </form><br>
         {{if .macro}}
         <h3>Macros</h3>
         {{range $element := .macros}}
         <p>
-            {{.Name}}{{.Description}}
+                <dev class = "title">
+                        {{.Name}}
+                        </dev><dev class = "described">{{.Description}}</dev>
         </p>
         {{end}}
         {{end}}
         <form method = "POST" name = "macro">
             Macro<br>
-                <input type = "text" name = "name" value="" size = "20"><input type="text" name ="desc" value="" size = "200"><br>
+                <input type = "text" name = "name" value="" size = "20"><input type="text" name ="desc" value="" size = "100"><br>
                 <input type ="submit" value = "+ Add" name = "Macro"><br>
                 Enter a custom macro that can be used on the chat later on. Name in the first box.<br>
                 And the macro itself in the second<br>

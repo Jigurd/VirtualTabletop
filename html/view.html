@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+    <head> 
+            <meta charset="UTF-8">
+            <title>Virtual Tabletop</title>       
+            
+            <!--Link to css reset. -->
+            <link rel="stylesheet" rel="text/css" href="static/cssre/reset.css">
+           
+            <!--Getting bootstrap CDN  -->
+           <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+           
+           <!-- Link to stylesheet -->
+           <link rel="stylesheet" rel="text/css" href="static/css/stylesheet.css">
+           <link rel="stylesheet" href = "static/css/dropdown.css"> 
+           <link rel="stylesheet" href ="static/css/charsheet.css">
+    </head>
+    <body>
+        <header>
+        {{template "header.html" .}}
+        </header>
+        <dev class = "name">
+            <em><u>{{.charName}}</u></em>
+        </dev>
+        <hr>
+        <h3>
+            {{.userName}}
+        </h3>
+        <dev class = "system">
+            {{.system}}
+        </dev>
+        {{if .stat}}
+        <h3>Statistics</h3>
+        {{range $element := .stats}}
+        <p>
+            <dev class = "boxed">
+            {{.Name}}
+            </dev><dev class = "boxed">{{.Description}}</dev>
+        </p>
+        {{end}}
+        {{end}}
+        <hr>
+        {{if .skill}}
+        <h3>Skills</h3>
+        {{range $element := .skills}}
+        <p>
+                <dev class = "boxed">
+                        {{.Name}}
+                        </dev><dev class = "boxed">{{.Description}}</dev>
+        </p>
+        {{end}}
+        {{end}}
+        <hr>
+        {{if .ability}}
+        <h3>Abilities</h3>
+        {{range $element := .abilities}}
+        <p>
+                <dev class = "title">
+                        {{.Name}}
+                        </dev><br><dev class = "described">{{.Description}}</dev>
+        </p>
+        {{end}}
+        {{end}}
+        <hr>
+        {{if .item}}
+        <h3>Inventory</h3>
+        {{range $element := .inventory}}
+        <p>
+            <dev class = "described">
+            {{$element}}
+            </dev>
+        </p>
+        {{end}}
+        {{end}}
+        <form method="POST" name = "inventory">
+                Inventory<br>
+                <input type = "text" name = "item" value = "" size = "100"><br>
+                <input type = "submit" name = "Inventory" value = "+ Add"><br>
+                Enter the item to be added to the inventory.
+        </form><br>
+        {{if .cash}}
+        <h3>Money</h3>
+        {{range $element := .money}}
+        <p>
+                <dev class = "boxed">
+                        {{.Name}}
+                        </dev><dev class = "boxed">{{.Description}}</dev>
+        </p>
+        {{end}}
+        {{end}}
+        <form method="POST" name="Money">
+                Money<br>
+                <input type = "text" name = "name" value="" size = "20"><input type = "number" name = "desc" size = "8"><br>
+                <input type ="submit" value = "+ Add" name = "Money"><br>
+                Enter the Name of the currency in the first box, and the amount of it in the second.<br>
+            </form><br>
+        {{if .asset}}
+        <h3>Assets</h3>
+        {{range $element := .assets}}
+        <p>
+                <dev class = "title">
+                        {{.Name}}
+                        </dev><dev class = "described">{{.Description}}</dev>
+        </p>
+        {{end}}
+        {{end}}
+        <form method="POST" name="Asset">
+                Asset<br>
+                    <input type = "text" name = "name" value="" size = "20"><input type="textarea" name ="desc" value=""><br>
+                    <input type ="submit" value = "+ Add" name = "Asset"><br>
+                    Enter the Name of your Asset in the first box, and a Description of it in the second.<br>
+        </form><br>
+        <hr>
+        {{if .tag}}
+        <h3>Tags</h3>
+        {{range $element := .tags}}
+        <dev class = "tag">
+        {{$element}}, 
+        </dev>
+        {{end}}
+        {{end}}
+        <br>
+        {{if .macro}}
+        <h3>Macros</h3>
+        {{range $element := .macros}}
+        <p>
+                <dev class = "title">
+                        {{.Name}}
+                        </dev><dev class = "described">{{.Description}}</dev>
+        </p>
+        {{end}}
+        {{end}}

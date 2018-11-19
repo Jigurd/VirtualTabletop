@@ -24,6 +24,7 @@ func main() {
 	r.HandleFunc("/logout", web.HandlerLogout)
 	r.HandleFunc("/createChar", web.HandlerCreate)
 	r.HandleFunc("/editChar", web.HandlerEdit)
+	r.HandleFunc("/viewChar",web.HandlerView)
 	r.HandleFunc("/api/usercount", web.HandleAPIUserCount)
 	r.HandleFunc("/profile", web.HandlerProfile)
 	r.HandleFunc("/login", web.HandlerLogin)

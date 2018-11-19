@@ -277,33 +277,21 @@ func (db *CharsDB) DeleteChar(charId int) string {
 
 //GetString function which finds a specific STRING-field on the character and returns either an empty string and the fields value if
 //everything is ok, or an error message and an empty string if not
-func (db *CharsDB) GetString(charId int, field string) (string, string) {
+func (db *CharsDB) GetChars(userName string) (string, []Character) {
 	session, err := mgo.Dial(db.DatabaseURL)
 	if err != nil {
 		panic(err)
 	}
 	defer session.Close()
 
-	var parsedChar Character
-	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"_id": charId}).Select(bson.M{"_id": 0, field: 1}).One(&parsedChar)
+	var Characters []Character
+
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Find(bson.M{"username": userName}).Sort("-_id").All(&Characters)
 	if err != nil {
-		errmsg := fmt.Sprintf("Something went wrong when fetching a character with id %v. Field %s not returned", charId, field)
-		return errmsg, ""
+		errmsg := fmt.Sprintf("Something went wrong when fetching Characters belonging to usern %s.", userName)
+		return errmsg, nil
 	} else {
-		switch field {
-		case ("username"):
-			return "", parsedChar.Username
-
-		case ("charactername"):
-			return "", parsedChar.Charactername
-
-		case ("system"):
-			return "", parsedChar.System
-
-		default:
-			errmsg := fmt.Sprintf("The field %s does not exist in the database for character %v.", field, charId)
-			return errmsg, ""
-		}
+		return "", Characters
 	}
 
 }

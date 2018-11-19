@@ -142,6 +142,8 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Printf("Error getting cookie: %s", err.Error())
 		return
+	} else {
+		htmlData["LoggedIn"] = true
 	}
 	charId, _ := strconv.Atoi(cookie.Value)
 
@@ -242,9 +244,9 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
 }
-func HandlerView(w http.ResponseWriter,r *http.Request) {
-	
-	if r.Method == "GET"{
+func HandlerView(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "GET" {
 		tpl, err := template.ParseFiles("html/choose.html", "html/header.html")
 		if err != nil {
 			fmt.Println("Error reading register.html:", err.Error())
@@ -252,62 +254,61 @@ func HandlerView(w http.ResponseWriter,r *http.Request) {
 			return
 		}
 		htmlData := make(map[string]interface{})
-		
+
 		cookie, err := r.Cookie("user") // check if the User is logged in
-		if err != nil {            // if the user is not logged in
+		if err != nil {                 // if the user is not logged in
 			http.Redirect(w, r, "/", 303) //Throw user back to the index
 			return
 		}
 		htmlData["user"] = cookie.Value
-		errmsg , Characters:= tabletop.CharDB.GetChars(cookie.Value)
+		errmsg, Characters := tabletop.CharDB.GetChars(cookie.Value)
 		if errmsg != "" {
 			fmt.Print(errmsg)
 			return
 		}
 		var charinfo []tabletop.NameDesc
-		for _, Char := range Characters{
-			nd := tabletop.NameDesc{Char.Charactername,strconv.Itoa(Char.CharId)}
-			charinfo = append(charinfo,nd)
+		for _, Char := range Characters {
+			nd := tabletop.NameDesc{Char.Charactername, strconv.Itoa(Char.CharId)}
+			charinfo = append(charinfo, nd)
 		}
 		htmlData["charInfo"] = charinfo
 
 		err = tpl.Execute(w, htmlData)
-	if err != nil {
-		fmt.Println("Error reading executing template:", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-	}
+		if err != nil {
+			fmt.Println("Error reading executing template:", err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
 
+	} else if r.Method == "POST" {
+		tpl, err := template.ParseFiles("html/view.html", "html/header.html")
+		if err != nil {
+			fmt.Println("Error reading register.html:", err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
 
-	}else if r.Method == "POST"{
-	tpl, err := template.ParseFiles("html/view.html", "html/header.html")
-	if err != nil {
-		fmt.Println("Error reading register.html:", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
+		htmlData := make(map[string]interface{})
 
-	htmlData := make(map[string]interface{})
+		err = r.ParseForm()
+		if err != nil {
+			fmt.Printf("Error parsing form: %s\n", err.Error())
+			return
+		}
 
-	err = r.ParseForm()
-	if err != nil {
-		fmt.Printf("Error parsing form: %s\n", err.Error())
-		return
-	}
+		charId, _ := strconv.Atoi(r.FormValue("characters"))
 
-	charId,_ := strconv.Atoi(r.FormValue("characters"))
+		var errmsg string
+		var character tabletop.Character
 
-	var errmsg string
-	var character tabletop.Character
-
-	character, errmsg = tabletop.CharDB.FindChar(charId)
-	if errmsg != "" {
-		fmt.Print(errmsg)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-	htmlData["charName"] = character.Charactername
-	htmlData["userName"] = character.Username
-	htmlData["system"] = character.System
+		character, errmsg = tabletop.CharDB.FindChar(charId)
+		if errmsg != "" {
+			fmt.Print(errmsg)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		htmlData["charName"] = character.Charactername
+		htmlData["userName"] = character.Username
+		htmlData["system"] = character.System
 
 		err = r.ParseForm()
 		if err != nil {
@@ -328,45 +329,46 @@ func HandlerView(w http.ResponseWriter,r *http.Request) {
 			tabletop.CharDB.UpdateChar_nameDesc(charId, "assets", values)
 		}
 
-	if len(character.Stats) != 0 {
-		htmlData["stat"] = true
-		htmlData["stats"] = character.Stats
-	}
-	if len(character.Skills) != 0 {
-		htmlData["skill"] = true
-		htmlData["skills"] = character.Skills
-	}
-	if len(character.Inventory) != 0 {
-		htmlData["item"] = true
-		htmlData["inventory"] = character.Inventory
-	}
-	if len(character.Money) != 0 {
-		htmlData["cash"] = true
-		htmlData["money"] = character.Money
-	}
-	if len(character.Assets) != 0 {
-		htmlData["asset"] = true
-		htmlData["assets"] = character.Assets
-	}
-	if len(character.Abilities) != 0 {
-		htmlData["ability"] = true
-		htmlData["abilities"] = character.Abilities
-	}
-	if len(character.Macros) != 0 {
-		htmlData["macro"] = true
-		htmlData["macros"] = character.Macros
-	}
-	if len(character.Tags) != 0 {
-		htmlData["tag"] = true
-		htmlData["tags"] = character.Tags
-	}
-	err = tpl.Execute(w, htmlData)
-	if err != nil {
-		fmt.Println("Error reading executing template:", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		if len(character.Stats) != 0 {
+			htmlData["stat"] = true
+			htmlData["stats"] = character.Stats
+		}
+		if len(character.Skills) != 0 {
+			htmlData["skill"] = true
+			htmlData["skills"] = character.Skills
+		}
+		if len(character.Inventory) != 0 {
+			htmlData["item"] = true
+			htmlData["inventory"] = character.Inventory
+		}
+		if len(character.Money) != 0 {
+			htmlData["cash"] = true
+			htmlData["money"] = character.Money
+		}
+		if len(character.Assets) != 0 {
+			htmlData["asset"] = true
+			htmlData["assets"] = character.Assets
+		}
+		if len(character.Abilities) != 0 {
+			htmlData["ability"] = true
+			htmlData["abilities"] = character.Abilities
+		}
+		if len(character.Macros) != 0 {
+			htmlData["macro"] = true
+			htmlData["macros"] = character.Macros
+		}
+		if len(character.Tags) != 0 {
+			htmlData["tag"] = true
+			htmlData["tags"] = character.Tags
+		}
+		err = tpl.Execute(w, htmlData)
+		if err != nil {
+			fmt.Println("Error reading executing template:", err.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
 	}
 }
-}
+
 /*
 HandlerRegister handle registering a new user
 */

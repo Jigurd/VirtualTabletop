@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/jigurd/VirtualTabletop/img"
 	"github.com/jigurd/VirtualTabletop/tabletop"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -208,6 +209,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 			Email:       r.FormValue("email"),
 			Description: "",
 			PartOfGames: []string{},
+			Avatar:      img.ImageData{},
 			Options: tabletop.UserOptions{
 				VisibleInDirectory: true, // Visible by default
 			},

@@ -43,6 +43,28 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 	if err != http.ErrNoCookie {        // If a cookie was found we display a nice welcome message
 		htmlData["LoggedIn"] = true
 		htmlData["Message"] = "Hello, " + userCookie.Value + " :)"
+
+		user, err := tabletop.UserDB.Get(userCookie.Value)
+		if err != nil {
+			fmt.Println("Error getting user:", err.Error())
+			return
+		}
+
+		if len(user.PartOfGames) != 0 {
+			htmlData["PartOfAnyGame"] = true
+			htmlData["PartOfGames"] = user.PartOfGames
+
+			games := []tabletop.Game{}
+			for _, gameID := range user.PartOfGames {
+				game, err := tabletop.GameDB.Get(gameID)
+				if err != nil {
+
+				}
+				games = append(games, game)
+			}
+			fmt.Println(games)
+			htmlData["Games"] = games
+		}
 	}
 
 	err = tpl.Execute(w, htmlData)

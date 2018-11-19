@@ -25,6 +25,17 @@
 
          {{if .LoggedIn}}
             <h2>{{.Message}}</h2>
+            {{if .PartOfAnyGames}}
+            <h3>You are part of these games:</h3>
+            <ul>
+                {{range .Games}}
+                <li>
+                    <div>Name: {{.Name}}</div>
+                </li>
+                {{end}}
+            </ul>
+
+            {{end}}
          {{end}}
          
     </body>

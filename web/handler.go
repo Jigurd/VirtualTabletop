@@ -697,6 +697,7 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 	htmlData["Players"] = game.Players
 	htmlData["Masters"] = game.GameMasters
 	htmlData["Desc"] = game.Description
+	htmlData["BoardPath"] = r.URL.Path + "/board"
 
 	user, err := r.Cookie("user")
 	if err == nil {
@@ -845,4 +846,8 @@ func HandleI(w http.ResponseWriter, r *http.Request) {
 	g.Players = append(g.Players, user.Value)
 	tabletop.GameDB.UpdatePlayers(g)
 	tabletop.UserDB.AddGame(user.Value, g.GameId)
+}
+
+func HandleGameBoard(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "CANVAS GOES HERE")
 }

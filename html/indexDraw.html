@@ -26,6 +26,9 @@
     
     <link rel="stylesheet" href="/static/css/drawing.css">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/emojione/2.2.6/assets/css/emojione.min.css"/>
 </head>
 <body>
        <!-- Div Clear -->
@@ -163,8 +166,6 @@ setRadius(defaultRad);
 
 <!-- Chat -->
 
-
-<div class="chat">
 <main id="app">
     <div class="row">
         <div class="col s12">
@@ -220,7 +221,7 @@ new Vue({
         this.ws.addEventListener('message', function(e) {
             var msg = JSON.parse(e.data);
             self.chatContent += '<div class="chip">'
-                + '<img src="' + self.gravatarURL(msg.email) + '" width=20 height=20>'
+                + '<img src="' + self.gravatarURL(msg.email) + '">'
                 + msg.username
                 + '</div>'
                 + emojione.toImage(msg.message) + '<br/>';

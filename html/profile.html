@@ -26,6 +26,8 @@
         {{if .LoggedIn}}
         <form action="/profile" method="post">
             <!--<input type="checkbox" name="visibileindirectory" value=" ">Visible </br>-->
+            <p>Click on the button below to upload a new avatar:</p>
+            <input type="file" name="fileupload" value="fileupload" id="fileupload">
             <p>Select visibility in player directory
                 <select id="visible" name="visible">
                     {{range .VisibleOptions}}

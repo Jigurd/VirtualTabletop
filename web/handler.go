@@ -804,6 +804,7 @@ func HandleU(w http.ResponseWriter, r *http.Request) {
 
 	userCookie, err := r.Cookie("user")
 	if err == nil {
+		htmlData["LoggedIn"] = true
 		htmlData["LoggedInUsername"] = userCookie.Value
 	} else {
 		htmlData["LoggedInUsername"] = ""
@@ -849,4 +850,17 @@ func HandleI(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleGameBoard(w http.ResponseWriter, r *http.Request) {
+	tpl, err := template.ParseFiles("html/indexDraw.html", "html/header.html")
+	if err != nil {
+		fmt.Println("Error loading indexDraw.html:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	err = tpl.Execute(w, nil)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 }

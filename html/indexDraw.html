@@ -5,44 +5,24 @@
     <title>Drawing test app</title>
         
     <!--Link to css reset. -->
-    <link rel="stylesheet" rel="text/css" href="../static/cssre/reset.css">
+    <link rel="stylesheet" rel="text/css" href="/static/cssre/reset.css">
     
     <!--Getting bootstrap CDN  -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     
     <!-- Link to stylesheet -->
-    <link rel="stylesheet" rel="text/css" href="../static/css/stylesheet.css">
-    <link rel="stylesheet" href = "../static/css/dropdown.css">
+    <link rel="stylesheet" rel="text/css" href="/static/css/stylesheet.css">
+    <link rel="stylesheet" href = "/static/css/dropdown.css">
     
    <!--  <link rel="stylesheet" href="../static/css/drawing.css"> -->
 
 </head>
 <body>
     <header>
-            {{template "../html/header.html" .}}
+            {{template "header.html" .}}
     </header>
        <!-- Div Clear -->
        <div class="clear"></div>
-       Wow welcome to the Virtual Tabletop closed pre-alpha dude! This is your number one stop for awesome tabletop gaming. Click <a href="/register">here</a> to get started! OwO
-
-       {{$games := .Games}}
-       {{if .LoggedIn}}
-          <h2>{{.Message}}</h2>
-          {{if .PartOfAnyGame}}
-          <h3>You are part of these games:</h3>
-          <ul>
-              {{range $games}}
-              <li>
-                  {{$link := printf "/game/%s" .GameId}}
-                  <div><a href="{{$link}}">{{.Name}}</a></div>
-                  <div>{{.Description}}</div>
-              </li>
-              {{end}} <!-- End range .Games-->
-          </ul>
-
-          {{end}} <!-- End if .PartOfAnyGames -->
-       {{end}} <!-- End if .LoggedIn-->
-
 
     <div id="toolbar">
         <div id="rad">
@@ -64,7 +44,6 @@
         <script>
         </script>
     </canvas>
-
 
 <script>
 var canvas = document.getElementById('canvasid')
@@ -167,7 +146,6 @@ incRad.addEventListener('click', function(){
 
 setRadius(defaultRad);
 </script>
-
 
 
 </body>

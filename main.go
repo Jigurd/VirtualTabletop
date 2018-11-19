@@ -36,6 +36,7 @@ func main() {
 	r.HandleFunc("/newgame", web.HandleNewGame)
 	r.HandleFunc("/gamebrowser", web.HandleGameBrowser)
 	r.HandleFunc("/game/{id}", web.HandleGame)
+	r.HandleFunc("/game/{id}/board", web.HandleGameBoard)
 	r.HandleFunc("/u/{id}", web.HandleU)
 	r.HandleFunc("/i/{id}", web.HandleI)
 	r.HandleFunc("/playerdirectory", web.HandlePlayerDirectory)

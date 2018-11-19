@@ -497,15 +497,14 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 HandlerLogout logs a user out
 */
 func HandlerLogout(w http.ResponseWriter, r *http.Request) {
-	userCookie, err := r.Cookie("user")
-	if err == http.ErrNoCookie {
-		fmt.Println("No cookie.")
-		return
+	cookie := &http.Cookie{
+		Name:   "user",
+		Value:  "",
+		Path:   "/",
+		MaxAge: -1,
 	}
-
-	userCookie.Expires = time.Now()
-	http.SetCookie(w, userCookie)
-	http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	http.SetCookie(w, cookie)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 /*
@@ -568,6 +567,18 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 			} else if r.Form["visible"][0] == "notvisible" { // If the form has neither of the two
 				user.Options.VisibleInDirectory = false // nothing is done
 			}
+
+			// get image
+			/*
+				file, header, err := r.FormFile("fileupload")
+				if err != nil {
+					fmt.Println("Error", err.Error())
+				} else {
+					fmt.Println(header.Filename)
+				}
+				defer file.Close()
+			*/
+			// dab on the haters
 
 			tabletop.UserDB.UpdateVisibilityInDirectory(user)
 			tabletop.UserDB.UpdateDescription(user)
@@ -699,8 +710,9 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("Error parsing form: %s\n", err.Error())
 		}
 
+		gameId := bson.NewObjectId().Hex()
 		newGame := tabletop.Game{
-			bson.NewObjectId().Hex(),
+			gameId,
 			r.FormValue("name"),
 			cookie.Value,
 			r.FormValue("system"),
@@ -711,6 +723,8 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 		}
 		newGame.Players = append(newGame.Players, cookie.Value)
 		newGame.GameMasters = append(newGame.GameMasters, cookie.Value)
+
+		tabletop.UserDB.AddGame(cookie.Value, gameId)
 		tabletop.GameDB.Add(newGame)
 	}
 }
@@ -735,12 +749,21 @@ func HandleGameBrowser(w http.ResponseWriter, r *http.Request) {
 	games := tabletop.GameDB.GetAll()
 
 	type GameData struct {
-		Name, ID string
+		Name, ID, Desc, Owner, System string
+		PlayerCount, MaxPlayers       int
 	}
 	gamesData := []GameData{}
 
 	for _, game := range games {
-		gamesData = append(gamesData, GameData{Name: game.Name, ID: game.GameId})
+		gamesData = append(gamesData, GameData{
+			game.Name,
+			game.GameId,
+			game.Description,
+			game.Owner,
+			game.System,
+			len(game.Players),
+			game.MaxPlayers,
+		})
 	}
 
 	htmlData["Games"] = gamesData
@@ -799,6 +822,7 @@ func HandleGame(w http.ResponseWriter, r *http.Request) {
 	htmlData["Players"] = game.Players
 	htmlData["Masters"] = game.GameMasters
 	htmlData["Desc"] = game.Description
+	htmlData["BoardPath"] = r.URL.Path + "/board"
 
 	user, err := r.Cookie("user")
 	if err == nil {
@@ -894,7 +918,31 @@ func HandleU(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("HandleU error")
 		return
 	}
-	fmt.Fprintln(w, user.Username+"\nDescription\nPreferred systems\nSend message (not implemented)\nInvite to game (not implemented)")
+
+	tpl, err := template.ParseFiles("html/user.html", "html/header.html")
+	if err != nil {
+		fmt.Println("Error reading user.html")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	htmlData := make(map[string]interface{})
+
+	userCookie, err := r.Cookie("user")
+	if err == nil {
+		htmlData["LoggedIn"] = true
+		htmlData["LoggedInUsername"] = userCookie.Value
+	} else {
+		htmlData["LoggedInUsername"] = ""
+	}
+
+	htmlData["Username"] = user.Username
+	htmlData["Desc"] = user.Description
+
+	err = tpl.Execute(w, htmlData)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 }
 
 /*
@@ -924,4 +972,20 @@ func HandleI(w http.ResponseWriter, r *http.Request) {
 	g.Players = append(g.Players, user.Value)
 	tabletop.GameDB.UpdatePlayers(g)
 	tabletop.UserDB.AddGame(user.Value, g.GameId)
+}
+
+func HandleGameBoard(w http.ResponseWriter, r *http.Request) {
+	tpl, err := template.ParseFiles("html/indexDraw.html", "html/header.html")
+	if err != nil {
+		fmt.Println("Error loading indexDraw.html:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	err = tpl.Execute(w, nil)
+	if err != nil {
+		fmt.Println("Error executing template:", err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 }

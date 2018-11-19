@@ -715,6 +715,7 @@ HandleI handles invite links
 */
 func HandleI(w http.ResponseWriter, r *http.Request) {
 	user, err := r.Cookie("user")
+	fmt.Println("Not libtard: " + user.Value)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusMovedPermanently)
 		return

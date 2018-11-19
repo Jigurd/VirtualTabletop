@@ -15,11 +15,12 @@ TODO: Add a public setting i.e. the owner can hide the game from the games listi
 */
 type Game struct {
 	GameId      string   `json:"gameid"`
-	Name        string   `json:"name"`    // the is the name given to the game
-	Owner       string   `json:"owner"`   // the owner is the creator and "admin" of the game
-	System      string   `json:"system"`  // the system ran eg Shadowrun 5e, Stars Without Number etc
-	Players     []string `json:"players"` // the people playing in the game, (including GMs?)
-	GameMasters []string `json:"payers"`  // the people running the game, can access all information in the game etc
+	Name        string   `json:"name"`        // the is the name given to the game
+	Owner       string   `json:"owner"`       // the owner is the creator and "admin" of the game
+	System      string   `json:"system"`      // the system ran eg Shadowrun 5e, Stars Without Number etc
+	Players     []string `json:"players"`     // the people playing in the game, (including GMs?)
+	GameMasters []string `json:"gamemasters"` // the people running the game, can access all information in the game etc
+	Description string   `json:"description"` // this describes the game
 }
 
 /*
@@ -163,6 +164,23 @@ func (db *GamesDB) UpdatePlayers(g Game) {
 	defer session.Close()
 
 	updateQ := bson.M{"$set": bson.M{"players": g.Players}}
+	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"gameid": g.GameId}, updateQ)
+	if err != nil {
+		fmt.Println("Error updating the visibility.")
+	}
+}
+
+/*
+UpdateDescription updates the users bio/description
+*/
+func (db *GamesDB) UpdateDescription(g Game) {
+	session, err := mgo.Dial(db.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	updateQ := bson.M{"$set": bson.M{"description": g.Description}}
 	err = session.DB(db.DatabaseName).C(db.CollectionName).Update(bson.M{"gameid": g.GameId}, updateQ)
 	if err != nil {
 		fmt.Println("Error updating the visibility.")

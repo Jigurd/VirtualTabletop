@@ -10,20 +10,22 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/gorilla/websocket"
-	"github.com/jigurd/VirtualTabletop/tabletop"
-    "github.com/jigurd/VirtualTabletop/diceparse"
-	"github.com/jigurd/VirtualTabletop/img"
-	"gopkg.in/mgo.v2/bson"
 
+	"github.com/gorilla/websocket"
+	"github.com/jigurd/VirtualTabletop/diceparse"
+	"github.com/jigurd/VirtualTabletop/img"
+	"github.com/jigurd/VirtualTabletop/tabletop"
+	"gopkg.in/mgo.v2/bson"
 )
 
+//Message contains the sender information and the message itself
 type Message struct {
 	Email    string `json:"email"`
 	Username string `json:"username"`
 	Message  string `json:"message"`
 }
 
+//DOTO: tell everyone what these public varables are for.
 var Clients map[*websocket.Conn]bool
 var Broadcast chan Message
 var Upgrader websocket.Upgrader
@@ -108,8 +110,8 @@ func HandlerCreate(w http.ResponseWriter, r *http.Request) {
 		characterName := r.FormValue("charName")
 		system := r.FormValue("system")
 
-		intId, errormsg := tabletop.CreateChar(characterName, userName, system)
-		id := strconv.Itoa(intId)
+		intID, errormsg := tabletop.CreateChar(characterName, userName, system)
+		id := strconv.Itoa(intID)
 		if errormsg != "" {
 			fmt.Printf(errormsg)
 			return
@@ -146,12 +148,12 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 	} else {
 		htmlData["LoggedIn"] = true
 	}
-	charId, _ := strconv.Atoi(cookie.Value)
+	charID, _ := strconv.Atoi(cookie.Value)
 
 	var errmsg string
 	var character tabletop.Character
 
-	character, errmsg = tabletop.CharDB.FindChar(charId)
+	character, errmsg = tabletop.CharDB.FindChar(charID)
 	if errmsg != "" {
 		fmt.Print(errmsg)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -170,35 +172,35 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 		if r.FormValue("Stat") != "" {
 			var values []tabletop.NameDesc
 			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
-			tabletop.CharDB.UpdateChar_nameDesc(charId, "stats", values)
+			tabletop.CharDB.UpdateChar_nameDesc(charID, "stats", values)
 		} else if r.FormValue("Skill") != "" {
 			var values []tabletop.NameDesc
 			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
-			tabletop.CharDB.UpdateChar_nameDesc(charId, "skills", values)
+			tabletop.CharDB.UpdateChar_nameDesc(charID, "skills", values)
 		} else if r.FormValue("Inventory") != "" {
 			var values []string
 			values = append(values, r.FormValue("item"))
-			tabletop.CharDB.UpdateCharString(charId, "inventory", values)
+			tabletop.CharDB.UpdateCharString(charID, "inventory", values)
 		} else if r.FormValue("Money") != "" {
 			var values []tabletop.NameDesc
 			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
-			tabletop.CharDB.UpdateChar_nameDesc(charId, "money", values)
+			tabletop.CharDB.UpdateChar_nameDesc(charID, "money", values)
 		} else if r.FormValue("Asset") != "" {
 			var values []tabletop.NameDesc
 			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
-			tabletop.CharDB.UpdateChar_nameDesc(charId, "assets", values)
+			tabletop.CharDB.UpdateChar_nameDesc(charID, "assets", values)
 		} else if r.FormValue("Tag") != "" {
 			var values []string
 			values = append(values, r.FormValue("item"))
-			tabletop.CharDB.UpdateCharString(charId, "tags", values)
+			tabletop.CharDB.UpdateCharString(charID, "tags", values)
 		} else if r.FormValue("Macro") != "" {
 			var values []tabletop.NameDesc
 			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
-			tabletop.CharDB.UpdateChar_nameDesc(charId, "macros", values)
+			tabletop.CharDB.UpdateChar_nameDesc(charID, "macros", values)
 		} else if r.FormValue("Ability") != "" {
 			var values []tabletop.NameDesc
 			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
-			tabletop.CharDB.UpdateChar_nameDesc(charId, "abilities", values)
+			tabletop.CharDB.UpdateChar_nameDesc(charID, "abilities", values)
 			fmt.Print("Hlep")
 		}
 		http.Redirect(w, r, "/editChar", 303)
@@ -245,6 +247,7 @@ func HandlerEdit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
 }
+
 func HandlerView(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
@@ -296,12 +299,12 @@ func HandlerView(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		charId, _ := strconv.Atoi(r.FormValue("characters"))
+		charID, _ := strconv.Atoi(r.FormValue("characters"))
 
 		var errmsg string
 		var character tabletop.Character
 
-		character, errmsg = tabletop.CharDB.FindChar(charId)
+		character, errmsg = tabletop.CharDB.FindChar(charID)
 		if errmsg != "" {
 			fmt.Print(errmsg)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -319,15 +322,15 @@ func HandlerView(w http.ResponseWriter, r *http.Request) {
 		if r.FormValue("Inventory") != "" {
 			var values []string
 			values = append(values, r.FormValue("item"))
-			tabletop.CharDB.UpdateCharString(charId, "inventory", values)
+			tabletop.CharDB.UpdateCharString(charID, "inventory", values)
 		} else if r.FormValue("Money") != "" {
 			var values []tabletop.NameDesc
 			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
-			tabletop.CharDB.UpdateChar_nameDesc(charId, "money", values)
+			tabletop.CharDB.UpdateChar_nameDesc(charID, "money", values)
 		} else if r.FormValue("Asset") != "" {
 			var values []tabletop.NameDesc
 			values = append(values, tabletop.NameDesc{r.FormValue("name"), r.FormValue("desc")})
-			tabletop.CharDB.UpdateChar_nameDesc(charId, "assets", values)
+			tabletop.CharDB.UpdateChar_nameDesc(charID, "assets", values)
 		}
 
 		if len(character.Stats) != 0 {
@@ -623,7 +626,7 @@ func HandleChat(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
-HandlerChatConnections handles chat connections
+HandleChatConnections handles chat connections
 */
 func HandleChatConnections(w http.ResponseWriter, r *http.Request) {
 	ws, err := Upgrader.Upgrade(w, r, nil)
@@ -659,21 +662,21 @@ func HandleChatMessages() {
 				delete(Clients, client)
 			}
 		}
-        if strings.Contains(msg.Message, "[") || strings.Contains(msg.Message, "]"){
-            var err error
-            msg.Message, err = diceparse.Parse(&msg.Message)
-            if err != nil {
-                msg.Message = err.Error()
-            }
-            for client := range Clients {
-                err := client.WriteJSON(msg)
-                if err != nil {
-                    log.Printf("error: %v", err)
-                    client.Close()
-                    delete(Clients, client)
-                }
-            }
-        }
+		if strings.Contains(msg.Message, "[") || strings.Contains(msg.Message, "]") {
+			var err error
+			msg.Message, err = diceparse.Parse(&msg.Message)
+			if err != nil {
+				msg.Message = err.Error()
+			}
+			for client := range Clients {
+				err := client.WriteJSON(msg)
+				if err != nil {
+					log.Printf("error: %v", err)
+					client.Close()
+					delete(Clients, client)
+				}
+			}
+		}
 	}
 }
 
@@ -726,9 +729,9 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("Error parsing form: %s\n", err.Error())
 		}
 
-		gameId := bson.NewObjectId().Hex()
+		gameID := bson.NewObjectId().Hex()
 		newGame := tabletop.Game{
-			gameId,
+			gameID,
 			r.FormValue("name"),
 			cookie.Value,
 			r.FormValue("system"),
@@ -740,7 +743,7 @@ func HandleNewGame(w http.ResponseWriter, r *http.Request) {
 		newGame.Players = append(newGame.Players, cookie.Value)
 		newGame.GameMasters = append(newGame.GameMasters, cookie.Value)
 
-		tabletop.UserDB.AddGame(cookie.Value, gameId)
+		tabletop.UserDB.AddGame(cookie.Value, gameID)
 		tabletop.GameDB.Add(newGame)
 	}
 }

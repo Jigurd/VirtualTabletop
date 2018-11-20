@@ -1,11 +1,25 @@
 # VirtualTabletop
+## Group members
+- Sigurd Stapnes (sigurdzs)
+- Håkon Schia (haakosc)
+- Benjamin Bergseth (benjabe)
+- Victor Sebastian Standal Clausen (vsclause)
+- Jon Gunnar Fossum (jongfo)
+- Leon Nicola Cinquemani (leonnc)
+
 ## Project description
 
-Create a better Roll20.
+Virtual Tabletop service: fixing a lot of the small problems with services like Roll20 (sub-par dice parser, bad token system, clunky page navigation) and adding a few killer features, specifically the ability to import and export character sheets with JSON (technically possible with Roll20, but it's a massive pain in the neck). If we're feeling particularly ambitious, we might even make it possible for Game Masters to share monster statblocks in a searchable database.
 
-Users can register accounts and login.
+Users can register accounts.
 
-Users can chat with eachother.
+After they have registered they can:
+0. Log in
+1. Chat with eachother.
+2. Join games
+3. Create and edit characters
+4. Edit user information
+5. Log out
 
 
 **What went well**:
@@ -18,15 +32,15 @@ Users can chat with eachother.
 
 3. How to use OpenStack and deploy apps there.
 
-4. The Linux command ```screen```. This is very useful for OpenStack deployment.
+4. The Linux command ```screen```. This is very useful for OpenStack deployment since you can close the terminal without terminating the program.
 
 
 **What was hard**:
 1. When figuring out how to use cookies we had a lot of problems. At the start we were parsing the html to a template and executing it at the top of the handlers. This was not a very good idea. As it turns out, headers and cookies need to be set before anything is written to the responseWriter (as far as we understand this is a "problem" with HTTP and not specific to Go), so when we tried to set the cookies, nothing was saved. This was obviously a fairly easy fix. All that is needed is to execute or write the HTML at the end, but nevertheless this was time consuming to figure out.
-2. Uploading images, we didn't manage this at all.
+2. Uploading images by letting the user browse their computer and uploading local files. We spent a decent amount of time on this, but didn't manage it at all.
 
 **Total hours**:
-4102 (sike)
+50
 
 **This project uses**:
 1. Heroku
@@ -36,15 +50,15 @@ Users can chat with eachother.
 # Usage
 **/**
 
-This is the index page, which doesn't hold much useful information. If logged in, it displays a welcome message.
+This is the index page. If logged in, it displays a welcome message and what games the user is a part of.
 
 **/register**
 
-```POST```: With the form keys "username", "email", "password" and "confirm" a user can be registered to the database.
+```POST```: With the form keys "username", "email", "password" and "confirm" (confirm password) a user can be registered to the database.
 
 **/login**:
 
-```POST```: With the form keys "username" and "password" you can log in. Redirects to "/" on successfull login.
+```POST```: With the form keys "username" and "password" you can log in. Redirects to "/profile" on successfull login.
 
 
 **/logout**:

@@ -103,7 +103,7 @@ Allows users to create new games
 Allows users to chat together.
 
 
-**/api/count**:
+**/api/usercount**:
 
 ```GET```: Returns a JSON with how many users are registered in the database.
 

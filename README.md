@@ -40,7 +40,7 @@ After they have registered they can:
 2. Uploading images by letting the user browse their computer and uploading local files. We spent a decent amount of time on this, but didn't manage it at all.
 
 **Total hours**:
-94.25
+115
 
 **This project uses**:
 1. Heroku
